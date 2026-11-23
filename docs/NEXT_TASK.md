@@ -622,3 +622,24 @@ Balkonüberdachung (Breite, Tiefe, Höhe), Glasstärke und Profilmaß beim
 Easy Rail, Maße des DW233. Der Hersteller nennt sie auf seinen Seiten
 nicht. Die technische Zeichnung zum Easy Rail könnte sie enthalten;
 sie ist ein Bild und wurde nicht gelesen.
+
+## Zwei weitere Fragen aus den Herstellerseiten (23.11.2026)
+
+**4. Velaris: Motorisierung.** Unsere Seite sagt „Motorisierung auf
+Wunsch verfügbar", die Pergola-Seite nennt Velaris ebenfalls als
+motorisierbar. Die Velaris-Seite des Herstellers sagt dazu **nichts**.
+Motorsteuerung steht dort nur in einer allgemeinen Frage zu
+Raffstores, nicht zum Produkt. **Bieten Sie Velaris motorisiert an?**
+Wenn ja, bleibt die Zeile; wenn nein, muss sie an zwei Stellen weg.
+
+**5. Fahrradüberdachung: „Für 2 bis 20+ Fahrräder skalierbar".**
+Der Hersteller nennt auf seiner Seite keine Stellplatzzahlen. Woher
+stammt die Angabe? Steht sie in der Broschüre, bleibt sie; sonst
+gehört sie ersetzt durch „modular erweiterbar", was belegt ist.
+
+**Weiterhin ohne Angabe beim Hersteller:** Maße von Gartenhaus,
+Fahrradüberdachung, Bushaltestelle und Velaris. Keine Breite, keine
+Tiefe, keine Höhe, kein Profilquerschnitt, keine Stellplatzzahl. Diese
+Zahlen stehen womöglich in den technischen Datenblättern oder im
+Produktkatalog 2026 (PDF, 20,5 MB). Beides wurde nicht abgerufen.
+**Soll ich die PDFs holen und auswerten?**

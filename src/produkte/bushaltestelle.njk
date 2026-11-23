@@ -99,12 +99,17 @@ schema: |
           <span class="produkt-tag">Für öffentliche & gewerbliche Bereiche</span>
           <h2>Bushaltestelle Aluminium & Glas</h2>
           <p>Klare Linien, robuste Aluminiumkonstruktion, pflegeleichte Materialien. Verkleidung wahlweise mit Glaselementen oder Aluminiumpaneelen in Holzoptik. Standardfarben: Anthrazit, Weißalu, Graualuminium, Reinweiß. Auf Maß gefertigt.</p>
-          <ul class="produkt-features"><li>Konstruktion aus witterungsbeständigem Aluminium</li><li>Verkleidung: 8 mm VSG-Glas, 16 mm Polycarbonat oder Alu-Paneele in Holzoptik</li><li>4 Standardfarben verfügbar</li><li>Maßanfertigung für jeden Standort</li><li>Pflegeleicht, langlebig, wartungsarm</li><li>Für Städte, Gemeinden & Gewerbebetriebe</li></ul>
+          <ul class="produkt-features"><li>Konstruktion aus witterungsbeständigem Aluminium</li><li>Verkleidung: 8 mm VSG-Glas, 16 mm Polycarbonat oder Alu-Paneele in Holzoptik</li><li>Glas für eine offene, transparente Wirkung, Paneele für geschlossene Seiten</li><li>Standardfarben: Anthrazit RAL 7016, Weißaluminium RAL 9006, Graualuminium RAL 9007, Reinweiß RAL 9010. Wunschfarbe nach RAL gegen Aufpreis</li><li>Auf Wunsch mit dimmbaren LED-Minispots, steckfertig mit Leitungen, Verteiler, Trafo und Fernbedienung</li><li>Später erweiterbar und nachrüstbar</li><li>Maßanfertigung für jeden Standort</li><li>Pflegeleicht, langlebig, wartungsarm</li><li>Für Städte, Gemeinden & Gewerbebetriebe</li></ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','bushaltestelle')}catch(e){}" class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
             Jetzt anfragen</a>
         </div>
       </div>
     </div>
+
+    {% set eindeckUeber = "Glas oder Polycarbonat?" %}
+    {% set eindeckText = "Die Wahl entscheidet, wie hell es im Wartehäuschen ist und wie laut der Regen auf dem Dach klingt. Glas dämpft das Regengeräusch deutlich stärker als Polycarbonat. Opale Platten streuen das Licht und nehmen die Blendung heraus." %}
+    {% set eindeckFuss = "Für geschlossene Seiten gibt es statt Glas auch Aluminiumpaneele in Holzoptik." %}
+    {% include "eindeck-karten.njk" %}
   </div>
 </section>
 <section class="section">

@@ -22362,3 +22362,43 @@ Breiten, ohne Beanstandung), `pruefe-darstellung`, `pruefe-fokusring`,
 `pruefe-metatexte`, `pruefe-umbruch`, `pruefe-keine-preise`,
 `pruefe-konfliktmarken`, `pruefe-cache-buster`. Waagerechtes Scrollen
 auf beiden geänderten Seiten gemessen: 0 px.
+
+## 23.11.2026 · Gartenhaus, Fahrrad, Bushaltestelle, Velaris
+
+**Anlass.** Fortsetzung der Lieferanten-Runde. Diese vier Seiten
+hatten je eine Produktkarte mit sechs bis sieben allgemeinen Punkten
+und keine Zahl außer der Glasstärke.
+
+**Was die Quelle hergibt, und was nicht.** Gelesen am 23.11.2026:
+- **Bushaltestelle** führt die vollständigen Eindeckungswerte
+  (88/85/36, 63/52/36, 70/62/21, 55/54/21), kein Trapezblech, dafür
+  Aluminiumpaneele in Holzoptik als geschlossene Seitenfüllung.
+- **Gartenhaus** und **Fahrradüberdachung** nennen dieselbe Auswahl
+  (VSG, Polycarbonat, Trapezblech), aber **ohne** Zahlen.
+- **Velaris**: feststehend oder verschiebbar, zweigeteilte Ausführung,
+  öffnet einseitig oder symmetrisch, Echtholzoptik gegen Aufpreis.
+- **Maße nennt keine der vier Seiten.** Keine Breite, keine Tiefe,
+  keine Höhe, keine Stellplatzzahl, kein Profilquerschnitt.
+- **Garantie steht auf keiner der vier Seiten**, auch nicht im
+  Händlerbereich.
+
+**Die Werte gelten der Platte, nicht dem Produkt.** Deshalb stehen sie
+jetzt auch auf Gartenhaus und Fahrradüberdachung, obwohl der
+Hersteller sie dort nicht wiederholt: Ein 8-mm-VSG lässt dasselbe
+Licht durch, ob es über einer Terrasse oder über einem Fahrrad liegt.
+Der Fußtext unter den Karten sagt genau das. Wo Trapezblech zur Wahl
+steht, sagt er zusätzlich, dass es lichtundurchlässig ist und deshalb
+ohne Werte geführt wird.
+
+**Neuer Baustein `src/_includes/eindeck-karten.njk`.** Die vier Karten
+standen nach der Balkonseite in zwei Dateien, jetzt stünden sie in
+fünf. Als Baustein stehen sie an einer Stelle: Wer eine Zahl
+korrigiert, korrigiert sie überall. Die Balkonseite ist auf den
+Baustein umgestellt. Die Terrassenseite bleibt außen vor, sie hat
+seit dem Nachtrag Grau/Graphit sechs Karten statt vier.
+
+**Gegengelesen.** `pruefe-mitwachsend`: 91 Messungen in sieben
+Breiten, ohne Beanstandung. Dazu `pruefe-schema-gueltig`,
+`pruefe-schema-faq`, `pruefe-metatexte`, `pruefe-umbruch`,
+`pruefe-keine-preise`, `pruefe-erzeugte-seiten`, `pruefe-sitemap`.
+Waagerechtes Scrollen auf den neuen Abschnitten gemessen: 0 px.

@@ -1,0 +1,96 @@
+{# ============================================================
+   DIE VIER EINDECKUNGEN, EINMAL GESCHRIEBEN
+
+   WARUM ALS BAUSTEIN. Terrasse, Balkon, Bushaltestelle, Gartenhaus
+   und Fahrradueberdachung zeigen dieselben Platten mit denselben
+   Werten. Als Kopie in jeder Seite waeren das fuenf Wahrheiten: Wer
+   eine Zahl korrigiert, korrigiert vier davon und vergisst die
+   fuenfte. Die Terrassenseite bleibt aussen vor, sie hat seit dem
+   Nachtrag Grau/Graphit sechs Karten.
+
+   Aufruf in einer Seite unter produkte/:
+     {% set eindeckUeber = "..." %}   (Ueberschrift, Pflicht)
+     {% set eindeckText  = "..." %}   (Absatz darueber, Pflicht)
+     {% set eindeckFuss  = "..." %}   (Zusatz unter den Karten, darf fehlen)
+     {% include "eindeck-karten.njk" %}
+
+   Die Bildpfade gelten fuer Seiten in produkte/, also eine Ebene
+   unter der Wurzel. Fuer eine Seite auf der Wurzel waere ../ falsch.
+
+   DIE ZAHLEN sind Herstellerangaben zur jeweiligen PLATTE, nicht zum
+   einzelnen Produkt. Deshalb stehen sie auch auf Seiten, auf denen
+   der Hersteller sie nicht wiederholt: Ein 8-mm-VSG laesst dasselbe
+   Licht durch, ob es ueber einer Terrasse oder ueber einem Fahrrad
+   liegt. Der Fusstext sagt das.
+   ============================================================ #}
+<div id="eindeckung" style="margin-top:44px;">
+  <h3 style="margin-bottom:10px;font-size:1.1rem;">{{ eindeckUeber }}</h3>
+  <p style="margin-bottom:4px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">{{ eindeckText }}</p>
+  <div class="eindeck-karten eindeck-karten--vier">
+    <div class="eindeck-karte">
+      <div class="eindeck-bild">
+        <img src="../images/vd_mat_vsg8_klar.webp" alt="Klare Glasplatte, Verbundsicherheitsglas 8 mm" width="960" height="540" loading="lazy" decoding="async">
+      </div>
+      <div class="eindeck-text">
+        <h4>VSG-Glas 8 mm, klar</h4>
+        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Das meiste Tageslicht und freier Blick nach oben.</p>
+        <ul class="eindeck-werte">
+          <li><span>Tageslicht</span><b>88 %</b></li>
+          <li><span>Sonnenwärme</span><b>85 %</b></li>
+          <li><span>Schalldämmung</span><b>36 dB</b></li>
+          <li><span>Stärke</span><b>8 mm</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="eindeck-karte">
+      <div class="eindeck-bild">
+        <img src="../images/vd_mat_vsg8_opal.webp" alt="Opale Glasplatte, Verbundsicherheitsglas 8 mm" width="960" height="540" loading="lazy" decoding="async">
+      </div>
+      <div class="eindeck-text">
+        <h4>VSG-Glas 8 mm, opal</h4>
+        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Streut das Licht und nimmt die Blendung heraus.</p>
+        <ul class="eindeck-werte">
+          <li><span>Tageslicht</span><b>63 %</b></li>
+          <li><span>Sonnenwärme</span><b>52 %</b></li>
+          <li><span>Schalldämmung</span><b>36 dB</b></li>
+          <li><span>Stärke</span><b>8 mm</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="eindeck-karte">
+      <div class="eindeck-bild">
+        <img src="../images/vd_mat_pc16_klar.webp" alt="Klare Stegplatte aus Polycarbonat, 16 mm" width="960" height="540" loading="lazy" decoding="async">
+      </div>
+      <div class="eindeck-text">
+        <h4>Polycarbonat 16 mm, klar</h4>
+        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Leichter als Glas, hagelfest, etwas lauter bei Regen.</p>
+        <ul class="eindeck-werte">
+          <li><span>Tageslicht</span><b>70 %</b></li>
+          <li><span>Sonnenwärme</span><b>62 %</b></li>
+          <li><span>Schalldämmung</span><b>21 dB</b></li>
+          <li><span>Stärke</span><b>16 mm</b></li>
+        </ul>
+      </div>
+    </div>
+    <div class="eindeck-karte">
+      <div class="eindeck-bild">
+        <img src="../images/vd_mat_pc16_opal.webp" alt="Opale Stegplatte aus Polycarbonat, 16 mm" width="960" height="540" loading="lazy" decoding="async">
+      </div>
+      <div class="eindeck-text">
+        <h4>Polycarbonat 16 mm, opal</h4>
+        <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Weiches Licht und am wenigsten Sonnenwärme von außen.</p>
+        <ul class="eindeck-werte">
+          <li><span>Tageslicht</span><b>55 %</b></li>
+          <li><span>Sonnenwärme</span><b>54 %</b></li>
+          <li><span>Schalldämmung</span><b>21 dB</b></li>
+          <li><span>Stärke</span><b>16 mm</b></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+  <p style="margin-top:12px;font-size:0.82rem;color:var(--muted);">
+    Tageslicht und Sonnenwärme sind Herstellerangaben für die jeweilige Platte.
+    Die Schalldämmung bezieht sich auf das Regengeräusch.{% if eindeckFuss %} {{ eindeckFuss }}{% endif %}
+    Maße und Statik legen wir im Angebot verbindlich fest.
+  </p>
+</div>

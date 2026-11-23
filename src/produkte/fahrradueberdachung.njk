@@ -99,12 +99,17 @@ schema: |
           <span class="produkt-tag">Modular erweiterbar</span>
           <h2>Fahrradüberdachung Aluminium</h2>
           <p>Robuste Aluminiumkonstruktion, einfache Montage, beliebig erweiterbar. Für private Haushalte, Wohnanlagen, Betriebe oder öffentliche Einrichtungen. Glas- oder Polycarbonat-Eindeckung, in Standard- und Sonderfarben.</p>
-          <ul class="produkt-features"><li>Modularer Aufbau, beliebig erweiterbar</li><li>Eindeckung: 8 mm VSG-Glas, 16 mm Polycarbonat oder Trapezblech</li><li>Standard- und Sonderfarben (RAL)</li><li>Für 2 bis 20+ Fahrräder skalierbar</li><li>Geeignet für privat, Gewerbe & öffentliche Bereiche</li><li>Witterungsbeständig, wartungsarm</li></ul>
+          <ul class="produkt-features"><li>Modularer Aufbau, beliebig erweiterbar</li><li>Eindeckung: 8 mm VSG-Glas, 16 mm Polycarbonat oder Trapezblech</li><li>Standardfarben: Anthrazit RAL 7016, Weißaluminium RAL 9006, Graualuminium RAL 9007, Reinweiß RAL 9010. Wunschfarbe nach RAL gegen Aufpreis</li><li>Auf Wunsch mit dimmbaren LED-Minispots, steckfertig mit Leitungen, Verteiler, Trafo und Fernbedienung</li><li>Für 2 bis 20+ Fahrräder skalierbar</li><li>Geeignet für privat, Gewerbe & öffentliche Bereiche</li><li>Witterungsbeständig, wartungsarm</li></ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','fahrradueberdachung')}catch(e){}" class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
             Jetzt anfragen</a>
         </div>
       </div>
     </div>
+
+    {% set eindeckUeber = "Glas, Polycarbonat oder Trapezblech?" %}
+    {% set eindeckText = "Unter einem Glasdach bleibt der Abstellplatz hell und wirkt offen. Polycarbonat ist leichter und hagelfest. Trapezblech macht die Überdachung geschlossen und ist die günstigste Lösung." %}
+    {% set eindeckFuss = "Trapezblech ist lichtundurchlässig und wird deshalb hier nicht mit Werten geführt." %}
+    {% include "eindeck-karten.njk" %}
   </div>
 </section>
 <section class="section">
