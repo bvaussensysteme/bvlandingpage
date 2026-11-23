@@ -588,3 +588,70 @@ alle vier Endungen abdecken. Die 82 Skripte verteilen sich auf 48
 `.mjs`, 21 `.js`, 9 `.sh` und 4 `.py`. Ein erster Lauf am 23.11.2026
 übersprang die 21 `.js` stillschweigend und hätte „59 grün" gemeldet,
 obwohl ein Viertel nicht gelaufen war. Nachgefahren: alle 21 grün.
+
+## Garantierunde 23.11.2026: was geprüft und was richtiggestellt wurde
+
+Nach der Ergänzung der 2 Jahre auf Elektrik liefen die Prüfer der
+Fachbereiche 3, 4, 6 und 8. Zwei Angaben aus dem Bericht des
+Fachbereichs 8 haben sich beim Nachsehen **nicht bestätigt**. Das steht
+hier, weil beide sonst als offene Punkte weitergetragen würden.
+
+**Nicht bestätigt, kein Handlungsbedarf:**
+
+- Der Bericht nennt `src/produkte/kaltwintergarten.njk:161` mit „auf
+  Wunsch einen Heizstrahler" und schließt daraus, dort fehle eine
+  Elektrikzeile. **Der Kaltwintergarten hat keine Heizung.** Zeile 136
+  sagt „ohne Heizung", Zeile 161 „kein beheizter Wohnraum". Die Seite
+  verkauft keine Elektrik und braucht die Zeile nicht.
+- Der Bericht nennt `src/pflege.njk:397` mit „2 Jahre
+  Herstellergarantie auf die Antriebe" und daraus einen Widerspruch zur
+  Sonnenschutz-Seite. **An dieser Stelle steht keine Garantieangabe**,
+  sondern ein Pflegehinweis zum Einölen von Laufschienen. Der
+  Widerspruch existiert nicht. In ganz `src/pflege.njk` kommt „2 Jahre"
+  nicht vor.
+
+**Bestätigt und behoben:** `src/produkte/sonnenschutz.njk` nannte in
+den Zeilen 186, 207 und 229 nur „5 Jahre Herstellergarantie (VD
+AluSysteme)", obwohl diese drei Modelle Somfy-Antrieb beziehungsweise
+Solarantrieb und LED führen. Die 5 Jahre bleiben stehen, denn die
+Dauerregel nennt für Markisen 5 Jahre. Ergänzt wurde nur die Elektrik.
+Das Modell in Zeile 255 sagt „ohne Motor" und behält seine 10 Jahre.
+
+**Weiterhin offen, Ansage des Betreibers nötig:** Ob die
+Aluminiumkonstruktion einer Gelenkarmmarkise 10 Jahre trägt. Die
+Dauerregel nennt als Beispiele für „Alu plus Tuch" das Faltdach und die
+Pergolamarkise, also Dachkonstruktionen. Eine Erhöhung von 5 auf 10
+Jahre vergrößert ein Versprechen und wird deshalb nicht geraten. Falls
+sie kommt, muss **auch die Seitenbeschreibung in Zeile 5
+mitgeändert** werden, die ebenfalls 5 Jahre nennt.
+
+**Nicht anzufassen:** `broschuere.html` gibt über
+`src/_data/katalogtext.json` die Katalogtexte des Herstellers im
+Wortlaut wieder, neun Garantienennungen darunter, teils „10 Jahre
+Herstellergarantie" ohne Elektrikzusatz. Das ist die Wiedergabe einer
+fremden Quelle und kein Versprechen des Betriebs. Ein geänderter
+Katalogtext wäre ein verfälschtes Zitat. Wer hier etwas ändern will,
+muss das mit dem Betreiber klären und begründen, warum ein Zitat
+abweicht.
+
+**Offen, Formulierung, kein Fehler:** Die Garantiezeile hat vier
+Formen. „auf Alu-Produkte, 2 Jahre auf die Elektrik"
+(`balkon-fassade.njk:109`, `gartenhaus.njk:107`), „auf die
+Aluminiumkonstruktion, 2 Jahre auf die Elektrik" (die übrigen), „auf
+Alu" (`eingang.njk:165`, kein Strom) und „auf Alu-Produkte"
+(`garten-aussenbereich.njk:104`, kein Strom). Alle sagen sachlich
+dasselbe. Eine Vereinheitlichung wäre Text und damit Betreibersache.
+
+**Offen, inhaltlich:** Auf keiner Produktseite steht, an wen sich ein
+Kunde im Garantiefall wendet. Nur
+`src/ratgeber/aluminium-terrasse-pflegen.njk:95` sagt es. Ebenso ist
+nirgends erklärt, was „Elektrik" umfasst; die Aufzählung steht nur in
+Zeile 94 desselben Ratgebers.
+
+**Gemessen, nichts gebrochen:** Fachbereich 4 hat alle zehn geänderten
+Seiten bei 320, 360 und 390 px geladen, also 30 Seitenaufrufe. Kein
+waagerechtes Scrollen, `scrollWidth` gleich Fensterbreite in allen
+Fällen, 0 Überlauf in den Listenpunkten und in den Fußzeilen der
+Vergleiche. Der Mittelpunkt in „· CE-gekennzeichnet" bricht sauber um,
+weil Leerzeichen daneben stehen. Die längste Zeile wird bei 320 px
+etwa vier Zeilen hoch, die Pergola-Fußzeile etwa neun.
