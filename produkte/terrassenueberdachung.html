@@ -199,9 +199,19 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
    sehr gut dem kunden es zu veranschaulichen."
    Eine Zahl allein sagt einem Kunden wenig; neben dem Bild der
    Platte sagt sie etwas. Deshalb Bild, Name, Werte. */
+/* Vier Materialien, deshalb 1, 2 oder 4 Spalten, nie 3: Bei drei
+   Spalten steht die vierte Karte allein in einer zweiten Reihe
+   und sieht aus wie vergessen. Gemessen bei 1280 px, bevor die
+   Stufen hier standen. */
 .eindeck-karten {
   display: grid; gap: 20px; margin-top: 28px;
-  grid-template-columns: repeat(auto-fit, minmax(clamp(220px, 44%, 280px), 1fr));
+  grid-template-columns: 1fr;
+}
+@media (min-width: 560px) {
+  .eindeck-karten { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1000px) {
+  .eindeck-karten { grid-template-columns: repeat(4, minmax(0, 1fr)); }
 }
 .eindeck-karte {
   background: var(--white); border: 1px solid var(--border);
@@ -436,32 +446,82 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
          vereinfachter Statiknachweis für Wind- und Schneelast. Alle Maße nach Aufmaß gefertigt.</p>
     </div>
 
-    <div class="vergleich-wrap" id="eindeckung">
+    <div id="eindeckung" style="margin-top:40px;">
       <h3 style="margin-bottom:10px;font-size:1.1rem;">Glas oder Polycarbonat?</h3>
-      <p style="margin-bottom:14px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">
+      <p style="margin-bottom:4px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">
         Die Eindeckung entscheidet über drei Dinge: wie hell es unter dem Dach wird, wie viel
         Sonnenwärme durchkommt und wie laut der Regen klingt. Glas dämpft Regengeräusche deutlich
-        stärker als Polycarbonat. Opale Varianten streuen das Licht und mindern die Blendung.
+        stärker als Polycarbonat. Opale Platten streuen das Licht und mindern die Blendung.
       </p>
-      <table class="vergleich">
-        <caption class="sr-only">Eindeckungen im Vergleich: Tageslicht, Sonnenwärme und Schalldämmung</caption>
-        <thead>
-          <tr><th scope="col">Eindeckung</th><th scope="col">Tageslicht</th>
-              <th scope="col">Sonnenwärme</th><th scope="col">Schalldämmung</th></tr>
-        </thead>
-        <tbody>
-          <tr><th scope="row">VSG-Glas 8 mm klar</th><td>88 %</td><td>85 %</td><td>36 dB</td></tr>
-          <tr><th scope="row">VSG-Glas 8 mm opal</th><td>63 %</td><td>52 %</td><td>36 dB</td></tr>
-          <tr><th scope="row">Polycarbonat 16 mm klar</th><td>70 %</td><td>62 %</td><td>21 dB</td></tr>
-          <tr><th scope="row">Polycarbonat 16 mm opal</th><td>55 %</td><td>54 %</td><td>21 dB</td></tr>
-        </tbody>
-      </table>
+      <div class="eindeck-karten">
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_vsg8_klar.webp" alt="Klare Glasplatte als Dacheindeckung, Verbundsicherheitsglas 8 mm" width="960" height="540" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>VSG-Glas 8 mm, klar</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Das meiste Tageslicht und freier Blick nach oben.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>88 %</b></li>
+            <li><span>Sonnenwärme</span><b>85 %</b></li>
+            <li><span>Schalldämmung</span><b>36 dB</b></li>
+            <li><span>Stärke</span><b>8 mm</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_vsg8_opal.webp" alt="Opale Glasplatte als Dacheindeckung, Verbundsicherheitsglas 8 mm" width="960" height="540" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>VSG-Glas 8 mm, opal</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Streut das Licht und nimmt die Blendung heraus.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>63 %</b></li>
+            <li><span>Sonnenwärme</span><b>52 %</b></li>
+            <li><span>Schalldämmung</span><b>36 dB</b></li>
+            <li><span>Stärke</span><b>8 mm</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_pc16_klar.webp" alt="Klare Stegplatte aus Polycarbonat, 16 mm stark" width="960" height="540" loading="lazy" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>Polycarbonat 16 mm, klar</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Leichte Stegplatte, hell und bruchfest.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>70 %</b></li>
+            <li><span>Sonnenwärme</span><b>62 %</b></li>
+            <li><span>Schalldämmung</span><b>21 dB</b></li>
+            <li><span>Stärke</span><b>16 mm</b></li>
+          </ul>
+        </div>
+      </div>
+      <div class="eindeck-karte">
+        <div class="eindeck-bild">
+          <img src="../images/vd_mat_pc16_opal.webp" alt="Opale Stegplatte aus Polycarbonat, 16 mm stark" width="960" height="540" loading="lazy" decoding="async">
+        </div>
+        <div class="eindeck-text">
+          <h4>Polycarbonat 16 mm, opal</h4>
+          <p style="font-size:0.86rem;color:var(--muted);line-height:1.5;margin:0 0 10px;">Gleichmäßiges Licht ohne harte Schatten.</p>
+          <ul class="eindeck-werte">
+            <li><span>Tageslicht</span><b>55 %</b></li>
+            <li><span>Sonnenwärme</span><b>54 %</b></li>
+            <li><span>Schalldämmung</span><b>21 dB</b></li>
+            <li><span>Stärke</span><b>16 mm</b></li>
+          </ul>
+        </div>
+      </div>
+      </div>
       <p class="vergleich-fuss">
-        Tageslicht ist der Anteil des sichtbaren Lichts, der durch die Eindeckung kommt.
-        Sonnenwärme der Anteil der Sonnenenergie: je niedriger, desto weniger heizt sich der
-        Platz darunter auf. Die Schalldämmung sagt, wie stark die Platte Regengeräusche
-        dämpft, je höher der Wert, desto leiser. Werte laut Hersteller. Sie gelten ebenso für
-        Carport TDS, Kaltwintergarten sowie Eingangs- und Balkonüberdachung.
+        Tageslicht ist der Anteil des sichtbaren Lichts, der durch die Platte kommt. Sonnenwärme der
+        Anteil der Sonnenenergie: je niedriger, desto weniger heizt sich der Platz darunter auf. Die
+        Schalldämmung sagt, wie stark die Platte Regengeräusche dämpft, je höher der Wert, desto
+        leiser. Werte laut Hersteller. Sie gelten ebenso für Carport TDS, Kaltwintergarten sowie
+        Eingangs- und Balkonüberdachung. Auf Wunsch liefern wir das Dach auch mit verzinktem
+        Trapezblech, dann ist es geschlossen und lichtundurchlässig.
       </p>
     </div>
   </div>

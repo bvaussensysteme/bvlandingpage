@@ -45,6 +45,37 @@ images/vd_prod_terrasse_tds.jpg / .webp
 images/vd_partner-vd-alusysteme.png
 ```
 
+### Nachtrag 23.11.2026: Material-, Farb- und Zubehörbilder
+
+Auf Ansage des Betreibers („Zieh dir von den seiten alle Infos, alle
+Bilder die du kriegst", dazu „von cd darf ich alles nehmen", gemeint
+ist VD) von vd-alusysteme.de geholt. Geladen mit
+`scripts/hole-vd-bilder.sh`, das Zielnamen ohne `vd_`-Präfix
+zurückweist.
+
+| Datei | zeigt | Herkunft |
+|---|---|---|
+| `images/vd_mat_vsg8_klar.webp` | VSG-Glas 8 mm klar, Plattenbild | `assets/img/klar-069dea-960.webp` |
+| `images/vd_mat_vsg8_opal.webp` | VSG-Glas 8 mm opal, Plattenbild | `assets/img/opal-31261c-960.webp` |
+| `images/vd_mat_pc16_klar.webp` | Polycarbonat 16 mm klar, Stegplatte | `assets/img/16mm-klar-1bebb2-960.webp` |
+| `images/vd_mat_pc16_opal.webp` | Polycarbonat 16 mm opal, Stegplatte | `assets/img/16mm-opal-ec4ee3-960.webp` |
+| `images/vd_ral_7016_anthrazit.webp` | Farbmuster RAL 7016 | `assets/img/anthrazit-aedbe2-960.webp` |
+| `images/vd_ral_9006_weissaluminium.webp` | Farbmuster RAL 9006 | `assets/img/weissaluminium-911e04-960.webp` |
+| `images/vd_ral_9007_graualuminium.webp` | Farbmuster RAL 9007 | `assets/img/graualuminium-7e9fae-960.webp` |
+| `images/vd_ral_9010_reinweiss.webp` | Farbmuster RAL 9010 | `assets/img/reinweiss-a41776-960.webp` |
+| `images/vd_zub_led_minispots.webp` | dimmbare LED-Minispots | `assets/img/dimmbare-minispots-e285de-960.webp` |
+| `images/vd_zub_lautsprecher.webp` | Bluetooth-Mikrolautsprecher | `assets/img/bluetooth-mikrolautsprecher-5c2d54-960.webp` |
+
+**Benutzt werden bisher** die vier Materialbilder, in den Karten
+„Glas oder Polycarbonat?" auf `produkte/terrassenueberdachung.html`.
+Farbmuster und Zubehörbilder liegen bereit und sind noch nicht
+eingebaut.
+
+**Bewusst NICHT geholt:** Die Beschattungsbilder des Herstellers. Ihre
+Dateinamen beginnen mit `warema-`. Nach der Ansage des Betreibers vom
+22.11.2026 („Ganz raus, überall") gehört dieser Herstellername nicht
+mehr auf unsere Seite, auch nicht in einem Dateinamen.
+
 **Zusätzlich (kein `vd_`-Prefix, aber identisch/VD-Partnerlogo):**
 ```
 images/partner-vd-alusysteme.png   ← Duplikat von vd_partner-vd-alusysteme.png, gehört mit dazu

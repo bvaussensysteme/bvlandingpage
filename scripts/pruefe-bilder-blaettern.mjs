@@ -147,8 +147,20 @@ try {
   p('Am Rechner: zwei Pfeile je Karte', ruhe.pfeile === 14, `${ruhe.pfeile} Pfeile`);
   p('Die Pfeile sind unsichtbar, solange die Maus wegbleibt',
     ruhe.deckkraft === '0', `Deckkraft ${ruhe.deckkraft}`);
-  p('Die Pfeile sind 44 x 44 px und heissen etwas',
-    ruhe.groesse === '44x44' && /Bild$/.test(ruhe.name || ''), `${ruhe.groesse}, "${ruhe.name}"`);
+  /* GEAENDERT 23.11.2026. Hier stand "genau 44 x 44 px". Auf Ansage
+   * des Betreibers ("mach diese pfeile links/rechts etwas kleiner und
+   * platziere sie links von den unteren punkten und rechts") sind die
+   * Pfeile jetzt 36 px gross und sitzen in einer Leiste unten.
+   *
+   * Geprueft wird deshalb nicht mehr eine Wunschgroesse, sondern die
+   * Untergrenze, die wirklich gilt: 24 x 24 px aus WCAG 2.2, 2.5.8.
+   * Darunter darf es nie gehen, auch nicht auf Zuruf. Die 44 px, die
+   * wir uns sonst vornehmen, sind hier bewusst unterschritten: Der
+   * Pfeil ist eine Zusatzhilfe, Wischen und Antippen des Bildes
+   * bleiben. */
+  const [pb, ph] = String(ruhe.groesse || '0x0').split('x').map(Number);
+  p('Die Pfeile sind mindestens 24 x 24 px und heissen etwas',
+    pb >= 24 && ph >= 24 && /Bild$/.test(ruhe.name || ''), `${ruhe.groesse}, "${ruhe.name}"`);
   if (ruhe.pfeile) {
     await pg.hover('.leistung-img[data-bilder]');
     await pg.waitForTimeout(400);
