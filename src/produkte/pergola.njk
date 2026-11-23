@@ -68,6 +68,29 @@ extraStyles: |
         border-bottom: 1px solid var(--border); display: flex; gap: 8px;
       }
       .produkt-features li:last-child { border-bottom: none; }
+      /* Vergleichstabelle, gleicher Bauplan wie auf der Terrassen- und
+         der Carportseite. Bewusst je Seite eigen: Eine gemeinsame Datei
+         waere eine Abhaengigkeit, die bei der naechsten Aenderung an
+         einer Seite die anderen mitreisst. */
+      .vergleich-wrap { margin-top: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .vergleich {
+        width: 100%; border-collapse: collapse; font-size: 0.86rem;
+        background: var(--white); border: 1px solid var(--border);
+        border-radius: 12px; overflow: hidden; min-width: 620px;
+      }
+      .vergleich th, .vergleich td {
+        padding: 10px 12px; text-align: left; vertical-align: top;
+        border-bottom: 1px solid var(--border); line-height: 1.45;
+      }
+      .vergleich thead th { background: var(--light-bg); font-size: 0.88rem; color: var(--black); }
+      .vergleich tbody th { font-weight: 600; color: var(--gold-text); width: 18%; }
+      .vergleich td { color: var(--muted); }
+      .vergleich tr:last-child th, .vergleich tr:last-child td { border-bottom: none; }
+      .vergleich-fuss { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+      @media (max-width: 560px) {
+        .vergleich { font-size: 0.78rem; }
+        .vergleich th, .vergleich td { padding: 8px 7px; }
+      }
       .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 
 extraScripts: |
@@ -161,13 +184,16 @@ schema: |
           <h2>Lamellendach SunPro Plus</h2>
           <p>Das Lamellendach SunPro Plus bietet mit seinen motorisierten Aluminium-Lamellen maximale Flexibilität. Bei Sonnenschein öffnen, bei Regen schließen, vollautomatisch oder per Fernbedienung. Ideal für Terrassen, Gärten und Gastronomiebetriebe.</p>
           <ul class="produkt-features">
-            <li>Motorisierte Aluminium-Lamellen, bis 135° neigbar</li>
+            <li>Motorisierte Aluminium-Lamellen, stufenlos bis 135° drehbar</li>
             <li>Bis 5 x 4,5 m (4 Pfosten) oder 7 x 4,5 m (6 Pfosten)</li>
-            <li>Fernbedienung oder Smartphone-Steuerung</li>
-            <li>Regensensor optional</li>
-            <li>Wandanbau oder freistehend</li>
-            <li>LED-Beleuchtung integrierbar</li>
-            <li>CE-gekennzeichnet</li>
+            <li>Geschlossen wasserdicht. Das Wasser läuft über ein integriertes Rinnenprofil verdeckt durch eine Stütze ab</li>
+            <li>Steuerung von Somfy, Fernbedienung oder Smartphone</li>
+            <li>Sensoren für Regen, Wind und Schnee auf Wunsch</li>
+            <li>Frostschutz-Stellung für den Einsatz im Winter</li>
+            <li>Freistehend oder an der Hauswand, längs oder quer</li>
+            <li>Zubehör: LED-Beleuchtung, integrierte ZIP-Screens, Heizstrahler</li>
+            <li>Drei Standardfarben: Reinweiß RAL 9010, Graualuminium RAL 9007, Anthrazit RAL 7016. Wunschfarbe nach RAL gegen Aufpreis</li>
+            <li>10 Jahre Herstellergarantie · CE-gekennzeichnet</li>
           </ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','pergola')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
@@ -261,6 +287,56 @@ schema: |
       </div>
 
     </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Die vier Modelle nebeneinander</h3>
+      <table class="vergleich">
+        <caption class="sr-only">SunPro Plus, SunPro One, Lamaxa L50 Lamelle und Lamaxa L50 Tex im Vergleich</caption>
+        <thead>
+          <tr><td></td>
+              <th scope="col">SunPro Plus</th>
+              <th scope="col">SunPro One</th>
+              <th scope="col">Lamaxa L50 Lamelle</th>
+              <th scope="col">Lamaxa L50 Tex</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Dach</th>
+              <td>Drehbare Aluminium-Lamellen</td>
+              <td>Drehbare Aluminium-Lamellen</td>
+              <td>Drehbare Aluminium-Lamellen</td>
+              <td>Bespannung aus Tuch, keine Lamellen</td></tr>
+          <tr><th scope="row">Lamellen</th>
+              <td>Stufenlos bis 135°</td>
+              <td>Motorisch bis 110°</td>
+              <td>Drehbar, Neigung per Smartphone oder Tablet</td>
+              <td>Entfällt</td></tr>
+          <tr><th scope="row">Größe</th>
+              <td>Bis 5,00 x 4,50 m mit 4 Pfosten, bis 7,00 x 4,50 m mit 6 Pfosten</td>
+              <td>4,00 x 5,40 m, Höhe bis 2,70 m</td>
+              <td>Bis 6,00 x 4,50 m</td>
+              <td>Bis 6,00 x 4,00 m</td></tr>
+          <tr><th scope="row">Bei Regen</th>
+              <td>Geschlossen wasserdicht, verdeckte Entwässerung durch eine Stütze</td>
+              <td>Regendicht schließbar, verdeckte Entwässerung durch eine Stütze</td>
+              <td>Wetterschutz je nach Stellung der Lamellen</td>
+              <td>Sonnenschutz, kein Regenschutz</td></tr>
+          <tr><th scope="row">Dazu möglich</th>
+              <td>LED, integrierte ZIP-Screens, Heizstrahler, Sensoren für Regen, Wind und Schnee</td>
+              <td>Senkrechtmarkise ShadeZip One, LED im Rahmen, Heizstrahler</td>
+              <td>Senkrechte Beschattung an den offenen Seiten</td>
+              <td>Glasscheibensysteme, Shutters, Senkrechtmarkisen</td></tr>
+          <tr><th scope="row">Passt, wenn</th>
+              <td>die Terrasse groß ist und das Dach ganzjährig dicht sein soll</td>
+              <td>Sie ein kompaktes Lamellendach wollen und später nachrüsten möchten</td>
+              <td>das Dach auch gestalterisch etwas hermachen soll</td>
+              <td>es nur um Schatten geht und die Konstruktion zierlich bleiben soll</td></tr>
+        </tbody>
+      </table>
+      <p class="vergleich-fuss">Bei allen vieren gleich: 10 Jahre Herstellergarantie, CE-Kennzeichnung und
+         Fertigung nach Aufmaß. Maximalmaße laut Hersteller. Welche Größe bei Ihnen möglich ist, hängt
+         vom Untergrund und von der Befestigung ab. Das prüfen wir beim Aufmaß.</p>
+    </div>
+
     <p style="margin-top:24px;color:var(--muted);font-size:0.95rem;">Sie suchen ein einsteuerbares Alu-Lamellensystem als Sichtschutz und Windschutz? Entdecken Sie <a href="velaris.html">Velaris</a>.</p>
   </div>
 </section>

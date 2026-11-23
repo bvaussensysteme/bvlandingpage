@@ -108,6 +108,30 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 .breadcrumb a { color: var(--gold); text-decoration: none; }
 .produkt-hero h1 { color: var(--white); margin-bottom: 12px; font-size: clamp(2rem,5vw,3.5rem); }
 .produkt-hero p { color: rgba(255,255,255,0.75); max-width: 600px; font-size: 1rem; line-height: 1.7; }
+/* Tabellen, gleicher Bauplan wie auf der Terrassen-, Carport- und
+   Pergolaseite. Je Seite eigen, damit eine Aenderung hier keine
+   andere Seite mitreisst. */
+.vergleich-wrap { margin-top: 32px; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+.vergleich {
+  width: 100%; border-collapse: collapse; font-size: 0.86rem;
+  background: var(--white); border: 1px solid var(--border);
+  border-radius: 12px; overflow: hidden;
+}
+.vergleich th, .vergleich td {
+  padding: 10px 12px; text-align: left; vertical-align: top;
+  border-bottom: 1px solid var(--border); line-height: 1.45;
+}
+.vergleich thead th { background: var(--light-bg); font-size: 0.88rem; color: var(--black); }
+.vergleich tbody th { font-weight: 600; color: var(--gold-text); }
+.vergleich td { color: var(--muted); }
+.vergleich tr:last-child th, .vergleich tr:last-child td { border-bottom: none; }
+.vergleich-fuss { margin-top: 10px; font-size: 0.82rem; color: var(--muted); }
+.vergleich .ja { color: var(--gold-text); font-weight: 700; }
+.vergleich .nein { color: var(--muted); }
+@media (max-width: 560px) {
+  .vergleich { font-size: 0.78rem; }
+  .vergleich th, .vergleich td { padding: 8px 7px; }
+}
 .produkt-grid {
   /* Spaltenzahl aus der Breite statt aus einer Stufe (15.11.2026).
      Gemessen vorher: Die Karte war bei 699 px Fensterbreite
@@ -287,7 +311,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <li>Somfy-Antrieb, elektrisch steuerbar</li>
             <li>Viele Stoffe und Farben</li>
             <li>5 Jahre Herstellergarantie (VD AluSysteme)</li>
-            <li>Kompatibel mit TDS und SkyView</li>
+            <li>Passt auf das Terrassendach TDS und den Kaltwintergarten. <strong>Nicht auf das Flachdach SkyView</strong>, dort ist bauartbedingt nur Unterdach- und Senkrechtbeschattung möglich</li>
           </ul>
           <a href="/#kontakt" onclick="try{sessionStorage.setItem('bv-produktwahl','sonnenschutz')}catch(e){}"
              class="btn btn-gold" style="width:100%;text-align:center;display:flex;align-items:center;justify-content:center;box-sizing:border-box;">
@@ -362,6 +386,105 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </div>
       </div>
 
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Welche Beschattung passt auf welches Dach?</h3>
+      <p style="margin-bottom:14px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">
+        Nicht jede Markise lässt sich an jedes Dach bauen. Beim Flachdach SkyView liegt das Gefälle
+        innen, deshalb kann dort oben keine Markise aufliegen. Beim Lamellendach übernehmen die
+        Lamellen die Beschattung von oben, dort ist nur die senkrechte Ergänzung sinnvoll.
+      </p>
+      <table class="vergleich">
+        <caption class="sr-only">Beschattungsarten je Überdachung</caption>
+        <thead>
+          <tr><th scope="col">Überdachung</th><th scope="col">Aufdach</th>
+              <th scope="col">Unterdach</th><th scope="col">Senkrecht</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">Terrassendach TDS</th>
+              <td class="ja">möglich</td><td class="ja">möglich</td><td class="ja">möglich</td></tr>
+          <tr><th scope="row">Flachdach SkyView</th>
+              <td class="nein">nicht möglich</td><td class="ja">möglich</td><td class="ja">möglich</td></tr>
+          <tr><th scope="row">Kaltwintergarten TDS</th>
+              <td class="ja">möglich</td><td class="ja">möglich</td><td class="ja">möglich</td></tr>
+          <tr><th scope="row">Balkonüberdachung TDS</th>
+              <td class="ja">möglich</td><td class="ja">möglich</td><td class="ja">möglich</td></tr>
+          <tr><th scope="row">Lamellendach SunPro</th>
+              <td class="nein">entfällt</td><td class="nein">entfällt</td><td class="ja">integriert</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Modellreihen und Größen</h3>
+      <table class="vergleich">
+        <caption class="sr-only">Modellreihen der Auf- und Unterdachmarkisen mit Höchstmaßen</caption>
+        <thead>
+          <tr><th scope="col">Modellreihe</th><th scope="col">max. Breite</th>
+              <th scope="col">max. Ausfall</th><th scope="col">Montage</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">VD Linea A / AZ</th><td>500 cm</td><td>450 cm</td><td>Aufdach</td></tr>
+          <tr><th scope="row">VD Linea U / UZ</th><td>600 cm</td><td>450 cm</td><td>Unterdach</td></tr>
+          <tr><th scope="row">VD Solara A / AZ, U / UZ</th><td>650 cm</td><td>600 cm</td><td>Auf- oder Unterdach</td></tr>
+        </tbody>
+      </table>
+      <p class="vergleich-fuss">Höchstmaße laut Hersteller. Z steht für die ZIP-Führung ohne Lichtspalt
+         an den Seiten. Linea erreicht als Aufdachmarkise höchstens 22,5 m², Solara höchstens 39 m².
+         Welche Größe bei Ihnen möglich ist, hängt vom Dach ab. Das prüfen wir beim Aufmaß.</p>
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Senkrechtmarkisen mit ZIP-Führung</h3>
+      <p style="margin-bottom:14px;font-size:0.92rem;color:var(--muted);line-height:1.6;max-width:70ch;">
+        Bei der ZIP-Führung läuft das Tuch über einen Reißverschluss in der Führungsschiene. Dadurch
+        bleibt an den Seiten kein Lichtspalt, und das Tuch steht auch bei Wind ruhig.
+      </p>
+      <table class="vergleich">
+        <caption class="sr-only">Modelle der Senkrechtmarkisen mit Baugrößen</caption>
+        <thead>
+          <tr><th scope="col">Modell</th><th scope="col">Baugrößen</th><th scope="col">Kasten</th></tr>
+        </thead>
+        <tbody>
+          <tr><th scope="row">VD eZip 105</th>
+              <td>bis 600 x 240 cm oder 300 x 300 cm</td><td>105 mm, eckig</td></tr>
+          <tr><th scope="row">VD eZip 125</th>
+              <td>bis 500 x 300 cm</td><td>keine Angabe</td></tr>
+          <tr><th scope="row">Solar</th>
+              <td>bis 400 x 280 cm</td><td>104 mm</td></tr>
+        </tbody>
+      </table>
+      <p class="vergleich-fuss">Breite mal Höhe laut Hersteller, Montage mit Führungsschiene.
+         Die Solar-Variante arbeitet mit Solar- oder Hybridantrieb und kommt ohne Stromanschluss aus.</p>
+    </div>
+
+    <div class="vergleich-wrap">
+      <h3 style="margin-bottom:10px;font-size:1.1rem;">Technik und Zubehör</h3>
+      <table class="vergleich">
+        <caption class="sr-only">Technik und Zubehör der Markisen</caption>
+        <tbody>
+          <tr><th scope="row">Antrieb</th>
+              <td>Funkmotor mit Handsender oder Motor mit Wandschalter</td></tr>
+          <tr><th scope="row">Smart Home</th>
+              <td>Steuerung per Smartphone-App möglich, über die TaHoma Box von Somfy</td></tr>
+          <tr><th scope="row">Sensoren</th>
+              <td>Wind, Sonne und Regen. Der Windsensor erkennt starke Bewegungen und fährt die
+                  Markise ein, der Regensensor registriert die ersten Tropfen</td></tr>
+          <tr><th scope="row">Licht</th>
+              <td>LED-Beleuchtung in der Kassette oder in der Führungsschiene, dazu eine
+                  zusätzliche Lichtschiene</td></tr>
+          <tr><th scope="row">Wärme</th>
+              <td>Infrarot-Heizstrahler mit Funkdimmer</td></tr>
+          <tr><th scope="row">Windwiderstand</th>
+              <td>Klasse 3 bei Linea und Solara</td></tr>
+          <tr><th scope="row">Gestellfarben</th>
+              <td>Anthrazit RAL 7016, Weißaluminium RAL 9006, Graualuminium RAL 9007,
+                  Reinweiß RAL 9010. Wunschfarbe nach RAL gegen Aufpreis</td></tr>
+          <tr><th scope="row">Garantie</th>
+              <td>5 Jahre Herstellergarantie auf Markisen</td></tr>
+        </tbody>
+      </table>
     </div>
   </div>
 </section>
