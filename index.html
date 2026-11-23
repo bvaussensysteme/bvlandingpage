@@ -498,7 +498,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   <!-- Premium-Schicht NUR fuer die Startseite (Stufe 5, 14.11.2026).
        Liegt bewusst hinter style.css und nur hier - die uebrigen Seiten
        behalten ihr Aussehen. Quelle: src/css/start.css -->
-  <link rel="stylesheet" href="css/start.css?v=20261122p" />
+  <link rel="stylesheet" href="css/start.css?v=20261123a" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
      Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
@@ -888,18 +888,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <div class="galerie-kopf">
       <p class="galerie-streifen-hinweis">
       Alle Dessins zum Wischen. Eigenschaften und Großansicht auf der Stoffseite.
-      </p><div class="galerie-steuer">
-        <span class="galerie-zaehler" aria-hidden="true"
-              data-zaehler="stoffe">1 / 53</span>
-        <button type="button" class="galerie-pfeil galerie-pfeil--zurueck"
-                data-pfeil="zurueck" aria-label="Vorherige Muster zeigen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
-        </button>
-        <button type="button" class="galerie-pfeil galerie-pfeil--vor"
-                data-pfeil="vor" aria-label="Weitere Muster zeigen">
-          <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
-        </button>
-      </div>
+      </p>
     </div><ul class="galerie-streifen galerie-streifen--muster" id="galerieStreifen-stoffe"
         role="list" aria-labelledby="stoffe-h"
         data-galerie="stoffe" data-gross="nein">
@@ -1330,9 +1319,26 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </li>
       <!-- ENDE Stoffmuster -->
     </ul>
-    <p class="stoffe-mehr">
+    <!-- Zaehler und Pfeile stehen seit 23.11.2026 hier unten neben dem
+         Knopf, nicht mehr ueber dem Streifen. Ansage des Betreibers:
+         "mach das hier unten neben dem orangenen Alle Stoffe ansehen
+         button". js/galerie.js sucht beides ueber .container, der
+         Umzug innerhalb desselben Containers aendert daran nichts. -->
+    <div class="stoffe-mehr">
       <a class="btn btn-gold" href="/stoffe.html">Alle Stoffe ansehen</a>
-    </p>
+      <div class="galerie-steuer">
+      <span class="galerie-zaehler" aria-hidden="true"
+            data-zaehler="stoffe">1 / 53</span>
+      <button type="button" class="galerie-pfeil galerie-pfeil--zurueck"
+              data-pfeil="zurueck" aria-label="Vorherige Muster zeigen">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m15 18-6-6 6-6"/></svg>
+      </button>
+      <button type="button" class="galerie-pfeil galerie-pfeil--vor"
+              data-pfeil="vor" aria-label="Weitere Muster zeigen">
+        <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 18 6-6-6-6"/></svg>
+      </button>
+      </div>
+    </div>
   </div>
 </section>
 

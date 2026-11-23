@@ -624,7 +624,15 @@
    noch kein Button, das soll ein Button sein". Jetzt derselbe
    gefuellte Knopf wie "Katalog ansehen" weiter oben auf der Seite:
    Goldflaeche, schwarze Schrift. */
-.start-premium .stoffe-mehr { margin: 18px 0 0; }
+/* Knopf und Blaetterhilfe in einer Zeile, seit 23.11.2026. Der
+   Zaehler sagt, wie weit man ist, die Pfeile blaettern, und der Knopf
+   fuehrt auf die Stoffseite: Alles, was man am Ende des Streifens
+   braucht, steht an einer Stelle. */
+.start-premium .stoffe-mehr {
+  margin: 18px 0 0;
+  display: flex; align-items: center; gap: 18px; flex-wrap: wrap;
+}
+.start-premium .stoffe-mehr .galerie-steuer { margin-bottom: 0; }
 @media (hover: hover) and (pointer: fine) {
   .start-premium .leistungen-grid--neu .leistung-link:hover,
   .start-premium .kontakt-card .leistung-link:hover {
