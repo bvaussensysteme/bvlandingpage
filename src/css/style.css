@@ -4520,8 +4520,14 @@ body.bv-konfig-open #bvKonfigBubble {
    Datei ausdruecklich mit "zwei Kopien waeren zwei Wahrheiten", und
    die Textstile standen trotzdem weiter in der Vorlage. */
 .eindeck-block { margin-top: var(--sp-7); }
+/* GEAENDERT 23.11.2026. Hier stand font-size: var(--txt-md), also
+   18 px. Das war aus dem Inline-Stil (1,1 rem) uebernommen und
+   setzte das globale h3 (--txt-lg, 22 px) ohne Begruendung herab.
+   Zusammen mit dem Kartentitel auf 16 px und den Werten auf 15 px
+   ergab das drei fast gleiche Stufen. Ohne eigene Groesse gilt
+   wieder die globale h3-Stufe, und die Leiter lautet 22 / 18 / 15. */
 .eindeck-block > h3 {
-  margin: 0 0 var(--sp-3); font-size: var(--txt-md);
+  margin: 0 0 var(--sp-3);
 }
 .eindeck-intro {
   margin: 0 0 var(--sp-1); font-size: var(--txt-sm);
@@ -4569,9 +4575,18 @@ body.bv-konfig-open #bvKonfigBubble {
 @media (min-width: 1000px) {
   .eindeck-karten { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
+/* ANGEGLICHEN 23.11.2026. Vorher --radius-lg (16 px) und kein
+   Schatten. Damit war die Materialkarte die einzige Karte der
+   Seite auf dieser Stufe: .start-premium .produkt-card hat 10 px
+   mit Schatten, .produkt-grid .produkt-card gar keinen Kasten.
+   Alle drei sassen auf der Skala, aber auf verschiedenen Stufen,
+   und genau daran erkennt man "jede fuer sich richtig, keine mit
+   den anderen zusammen". Jetzt dieselbe Sprache wie die
+   Produktkarte: --radius und --schatten-1. */
 .eindeck-karte {
   background: var(--white); border: 1px solid var(--border);
-  border-radius: var(--radius-lg); overflow: hidden;
+  border-radius: var(--radius); box-shadow: var(--schatten-1);
+  overflow: hidden;
 }
 .eindeck-bild {
   background: var(--light-bg); aspect-ratio: 4 / 3;
@@ -4580,7 +4595,9 @@ body.bv-konfig-open #bvKonfigBubble {
 .eindeck-bild img { width: 100%; height: 100%; object-fit: contain; display: block; }
 .eindeck-text { padding: var(--sp-4); }
 .eindeck-text h4 {
-  font-size: var(--txt-base); margin: 0 0 var(--sp-3); color: var(--black);
+  /* 23.11.2026: war --txt-base (16 px) und lag damit nur 1 px ueber
+     den Werten darunter. Jetzt --txt-md. */
+  font-size: var(--txt-md); margin: 0 0 var(--sp-3); color: var(--black);
   font-family: var(--schrift); font-weight: 700;
 }
 .eindeck-werte { list-style: none; margin: 0; padding: 0; }
@@ -4590,7 +4607,11 @@ body.bv-konfig-open #bvKonfigBubble {
   padding: var(--sp-2) 0; border-bottom: 1px solid var(--border);
 }
 .eindeck-werte li:last-child { border-bottom: none; }
-.eindeck-werte b { color: var(--black); font-weight: 700; font-variant-numeric: tabular-nums; }
+/* 23.11.2026: Gewicht von 700 auf 600. Die Zahl war genauso schwer
+   und genauso schwarz wie der Kartentitel und nur 1 px kleiner, sie
+   hat ihm damit den Rang abgelaufen. 600 haelt sie lesbar und
+   ordnet sie unter. */
+.eindeck-werte b { color: var(--black); font-weight: 600; font-variant-numeric: tabular-nums; }
 /* VIER KARTEN STATT SECHS. Die Stufen oben sind fuer die sechs
    Eindeckungen der Terrassenseite gebaut: 1, 2, 3 Spalten. Mit vier
    Karten steht damit die vierte allein in einer zweiten Reihe und
