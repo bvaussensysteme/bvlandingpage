@@ -33,13 +33,43 @@
 # ueberschrieben.
 
 # --- Meistverkauft, Angabe des Betreibers vom 22.11.2026 ---
+# MOUNTAIN NACH VORNE, 23.11.2026. Ansage des Betreibers: "kannst du
+# die mountain stoffe eher nach ganz vorne packen". Mountain ist mit
+# 20 Dessins die groesste Gruppe.
+#
+# Die fuenf meistverkauften bleiben dabei ganz oben, weil der
+# Betreiber sie am 22.11.2026 ausdruecklich benannt hat. PA626 ist
+# selbst ein Mountain-Stoff und steht schon dort. Danach folgen die
+# uebrigen 19 Mountain-Dessins, dann der Rest in Katalogreihenfolge.
+#
+# Soll Mountain wirklich VOR den fuenf meistverkauften stehen, ist das
+# eine Zeile Arbeit; dann aber verlieren die Meistverkauften ihren
+# Platz, und beides zugleich geht nicht.
+
 AC320
 AC519
 PA626
 AC423
 AC112
-
-# --- Uebrige, in Katalogreihenfolge ---
+AC626
+AC627
+AC630
+AC631
+AC632
+PA612
+PA614
+PA616
+PA617
+PA627
+PA630
+PA632
+PA633
+PA636
+PA637
+PA639
+PA642
+PA643
+PA645
 AC117
 AC118
 AC119
@@ -64,27 +94,8 @@ AC521
 AC522
 AC523
 AC524
-AC626
-AC627
-AC630
-AC631
-AC632
 PA425
 PA522
 PA524
 PA528
 PA532
-PA612
-PA614
-PA616
-PA617
-PA627
-PA630
-PA632
-PA633
-PA636
-PA637
-PA639
-PA642
-PA643
-PA645
