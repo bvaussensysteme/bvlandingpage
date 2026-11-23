@@ -22841,3 +22841,84 @@ Die vier Garantiestellen der Seite laufen in keiner Breite über.
 nicht in der Seitenliste von `scripts/pruefe-mitwachsend.mjs` (Zeile 37
 bis 41). Das ist derselbe Grund wie beim 320-px-Befund auf der
 Fassadenseite. Siehe `docs/offene-nebenbefunde.md`.
+
+## 23.11.2026 · Fokusringe, zweite Runde: acht dunkle Abschnitte und die Bildpfeile
+
+**Anlass.** Der Prüferdurchgang zu Schritt 4, Fachbereich 3. Derselbe
+Fehlertyp wie am Vormittag bei Kopfleiste und Cookie-Fenster, nur an
+anderen Stellen. Beides fällt unter die Dauerregel vom 15.11.2026.
+
+### Befund 1: acht dunkle Abschnitte ohne Kennzeichnung
+
+**Was falsch war.** Am Fuß von sechs Produktseiten, auf der
+Baugenehmigungsseite und auf der Pflegeseite steht ein Beratungsblock
+als `<section style="background:var(--black);padding:56px 0;">`. Der
+Grund ist per Inline-Stil gesetzt, die Fläche trägt **keine Klasse**.
+Die Liste der dunklen Orte in `src/css/start.css` kennt sie deshalb
+nicht, und der Ring läuft dort in seine eigene Farbe.
+
+**Gemessen vorher, auf allen acht Seiten gleich:** Ring
+`rgb(11,11,12)` auf Grund `rgb(11,11,12)`, also **1,00:1**. Verlangt
+sind 3:1. WCAG 2.2, 1.4.11 und 2.4.7.
+
+**Der Prüfer hatte sechs Seiten genannt, es sind acht.**
+`baugenehmigung.njk:1540` und `pflege.njk:408` fehlten in seiner
+Liste. Deshalb wurde vor dem Beheben selbst gesucht, statt die Liste
+zu übernehmen.
+
+**Was jetzt gilt.** Die acht Abschnitte tragen `class="pr-dunkel"`.
+Diese Klasse existierte bereits und hat **keine eigene Gestaltung**:
+Sie steht ausschließlich in der Fokusring-Liste in `start.css`. Am
+Aussehen ändert sich damit nichts, nur der Ring wird Champagner.
+
+**Gemessen nachher, alle acht:** **14,19:1**.
+
+### Befund 2: die Bildpfeile sitzen auf einem Foto
+
+**Was falsch war.** Die Karussell-Pfeile `.vd-carousel-btn` haben
+`background: rgba(0,0,0,.45)` und liegen über dem Produktfoto. Wegen
+`outline-offset` liegt der Ring **außerhalb** des Knopfes, also direkt
+auf dem Bild.
+
+**Gemessen vorher:** Ring `rgb(29,32,35)` auf `rgb(26,26,26)`, also
+**1,06:1**.
+
+**Warum eine einzelne Ringfarbe hier nicht reicht.** Der Untergrund
+ist ein beliebiges Foto. Gegen ein mittelgraues Bild (`#808080`)
+ergibt Champagner nur 2,4:1, Anthrazit 4,6:1; gegen ein helles Bild
+ist es umgekehrt. Es gibt keine Farbe, die auf jedem Foto trägt.
+
+**Was jetzt gilt.** Zwei Ringe: innen Champagner als `outline`, außen
+ein dunkler Saum aus `box-shadow` mit 7 px Streuung. Der Browser
+zeichnet die Umrandung über den Schatten, sichtbar bleibt also dunkel,
+hell, dunkel. **Mindestens einer der beiden Ränder trägt auf jedem
+Foto**, weil ein Bildpunkt nicht gleichzeitig nahe Weiß und nahe
+Schwarz sein kann.
+
+**Nachgesehen, nicht nur gerechnet:** Der fokussierte Pfeil wurde mit
+echter Tastatur angesteuert und fotografiert. Der Ring ist gegen
+Himmel, helle Wand, dunkle Verkleidung und Rasen gleichzeitig
+sichtbar.
+
+### Zwei Messfehler auf dem Weg, damit sie sich nicht wiederholen
+
+1. **Ohne Fokus gemessen.** Der erste Lauf las `outlineColor` an
+   Elementen, die gar nicht fokussiert waren. `:focus-visible`-Regeln
+   greifen dann nicht, und der gelesene Wert hat mit dem Fokusring
+   nichts zu tun. Er zeigte 1,00:1 für die dunklen Abschnitte, **auch
+   nachdem die Korrektur schon wirkte**, und 17,40:1 für die
+   Bildpfeile, die in Wahrheit bei 1,06:1 lagen. Beide Zahlen waren
+   wertlos. **Vor dem Messen eines Fokusrings muss das Element
+   fokussiert sein.**
+2. **Nach einem Mausklick greift `:focus-visible` nicht mehr.**
+   Chromium schaltet nach einem Klick in den Mausmodus. Wer vorher das
+   Cookie-Fenster wegklickt und danach `element.focus()` aufruft,
+   bekommt keinen Ring zu sehen. Für ein Bild des Rings muss mit
+   echter Tastatur hingetabbt werden; auf der Balkonseite sind das 88
+   Schritte bis zum Bildpfeil.
+
+### Was gegengelesen werden soll
+
+Mit der Tastatur bis zum Beratungsblock am Seitenfuß tabben, auf einer
+Produktseite und auf `baugenehmigung.html`. Der Ring muss hell sein.
+Dann auf der Balkonseite bis zu den Pfeilen des Bildkarussells.

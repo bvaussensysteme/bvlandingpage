@@ -876,3 +876,35 @@ grün sind**, plus `pruefe-schrittwechsel.mjs`, das in beide Richtungen
 flackert. Das ist ein Zehntel aller Prüfungen. Wer einen roten
 Reihenlauf sieht, muss jedes rote Skript einzeln nachfahren, bevor er
 von einem Befund spricht.
+
+## Offen nach der zweiten Fokusring-Runde (23.11.2026)
+
+- **`pruefe-planken-editor.mjs` widerspricht sich.** Der Prüfer des
+  Fachbereichs 3 hat es dreimal einzeln in der Arbeitskopie gefahren,
+  jedes Mal rot mit denselben zwei Meldungen („Die Rücktaste leert das
+  Höhenfeld wirklich" und „Zu klein wird erst beim Verlassen
+  berichtigt"). Aus `git archive` von `HEAD` **und** von `38a1a41`
+  entpackt ist es grün, und `diff -rq` findet zwischen Arbeitskopie
+  und Archiv keinen Unterschied außer dem ignorierten Ordner
+  `pruefbilder/`. **Ich selbst habe es zweimal einzeln gefahren und
+  beide Male grün bekommen.** Drei rot gegen zwei grün bei gleichem
+  Stand: Die Ursache ist ungeklärt. Es kommt nicht aus den Änderungen
+  dieses Tages.
+- **Die Prüfung der Ringfarbe fehlt weiterhin.** Beide Befunde dieser
+  Runde wurden von keinem der 82 Skripte gefunden;
+  `pruefe-fokusring.mjs` war grün. Das ist jetzt das dritte Mal an
+  einem Tag, dass ein unsichtbarer Fokusring nur auffiel, weil jemand
+  gezielt danach gesucht hat. Eine Prüfung, die Ringfarbe gegen den
+  tatsächlichen Untergrund rechnet, wäre die wirksamste einzelne
+  Ergänzung am Prüfwerk. **Sie muss das Element fokussieren und darf
+  vorher nicht mit der Maus klicken**, sonst misst sie nichts.
+- **Noch nicht gemessen, gleiche Bauart:** Zwei feste Bedienelemente
+  fielen in der Rechnung des Prüfers auf, ohne dass der echte
+  Untergrund bekannt war: „Barrierefreiheits-Einstellungen" (Ring
+  gegen Seitenfarbe 2,78:1) und „Konfigurator öffnen, Anfrage"
+  (1,97:1). Beide sitzen auf einer festen Leiste. Ob es echte Befunde
+  sind, braucht eine Bildpunktprobe.
+- **Nur auf `balkon-fassade` geprüft:** Die Bildpfeile wurden dort
+  gemessen und behoben. Auf anderen Seiten mit Bildkarussell wurde
+  nicht nachgesehen. Die Korrektur in `start.css` wirkt zwar
+  seitenübergreifend, gemessen ist sie aber nur an einer Stelle.

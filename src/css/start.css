@@ -134,6 +134,28 @@
 .start-premium .anfrage-wizard :focus-visible {
   outline-color: var(--champagner);
 }
+
+/* 1b. FOKUSRING AUF EINEM FOTO. Ergaenzt am 23.11.2026.
+      Die Karussell-Pfeile (.vd-carousel-btn, src/css/style.css) sitzen
+      mit background: rgba(0,0,0,.45) ueber dem Produktfoto. Der Ring
+      liegt wegen outline-offset AUSSERHALB des Knopfes, also direkt
+      auf dem Bild.
+      Gemessen am 23.11.2026 auf balkon-fassade: Ring rgb(29,32,35) auf
+      rgb(26,26,26), also 1,06:1. WCAG 1.4.11 verlangt 3:1.
+      Eine einzelne Ringfarbe kann hier nicht sicher tragen, weil der
+      Untergrund ein beliebiges Foto ist. Gegen ein mittelgraues Bild
+      (#808080) ergibt Champagner nur 2,4:1, Anthrazit 4,6:1; gegen ein
+      helles Bild ist es umgekehrt. Deshalb ZWEI Ringe: innen
+      Champagner, aussen ein dunkler Saum aus box-shadow. Der Browser
+      zeichnet die Umrandung ueber den Schatten, sichtbar bleibt also
+      dunkel, hell, dunkel. Mindestens einer der beiden Raender traegt
+      auf jedem Foto, weil ein Bildpunkt nicht gleichzeitig nahe Weiss
+      und nahe Schwarz sein kann. */
+.start-premium .vd-carousel-btn:focus-visible {
+  outline: 3px solid var(--champagner);
+  outline-offset: 2px;
+  box-shadow: 0 0 0 7px rgba(11, 11, 12, 0.9);
+}
 /* WO DER RING NACH INNEN MUSS (21.11.2026, gemessen).
    Die Regel oben gilt fuer die ganze Startseite und hat dieselbe
    Spezifitaet (0,2,0) wie die Regeln einzelner Bauteile in
