@@ -335,23 +335,41 @@ werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 | `pruefe-prozess-ringe.mjs` | **grün** | Wettlauf im Skript, siehe `docs/pruefungen.md` |
 | `pruefe-planken-editor.mjs` | **rot** | siehe unten, echter Altbefund |
 
-### `pruefe-planken-editor.mjs` ist kein Wackelkandidat, sondern ein Befund
+### `pruefe-planken-editor.mjs`: ein Fehler von mir, behoben
 
-Bisher stand er auf der Liste „unter Last rot, allein grün". Am
-24.11.2026 war er **allein rot**, zweimal, mit identischer Meldung:
+**Hier stand zuerst das Falsche.** Ich hatte den roten Lauf als
+„echten Altbefund" eingeordnet, mit der Begründung, er sei auch auf
+dem Stand vor der Symbolrunde rot. Diese Gegenprobe war **ungültig**:
+Ich hatte `produkte/`, `src/produkte/`, `css/` und `src/css/`
+zurückgeholt, aber nicht `konfigurator.html`, und genau dort sitzt
+der Plankeneditor.
 
-```
-FEHLER  Die Ruecktaste leert das Hoehenfeld wirklich   (im Feld steht "900")
-FEHLER  Zu klein wird erst beim Verlassen berichtigt   (beim Tippen "900", nach dem Verlassen "900")
-```
+Mit der richtigen Gegenprobe, nur `konfigurator.html` auf den Stand
+`1a96333` zurück: **grün.** Mit meinen Symbolen: **rot.** Also kein
+Altbefund, sondern von mir verursacht.
 
-Gegen den Stand **vor** der Symbolrunde geprüft (`1a96333`, nur
-`produkte/`, `src/produkte/`, `css/`, `src/css/` zurückgeholt):
-**dieselben zwei Meldungen.** Es ist also kein Rückschritt durch die
-Symbole, aber auch kein Lastproblem. Dem Benutzer gegenüber heißt
-das: Die Rücktaste leert das Höhenfeld im Plankeneditor
-möglicherweise nicht. Das ist ein Funktionsfehler auf einer
-Produktseite und gehört geprüft.
+**Ursache, einzeln nachgewiesen.** Von den vier Symbolen, die die
+Symbolrunde in `konfigurator.html` gesetzt hat, war genau eines das
+Problem: das am Knopf `#k3dWeiter`. Nur dieses entfernt, sonst
+nichts geändert: **grün.**
+
+Der Inhalt dieses Knopfes gehört dem Skript, nicht dem Markup.
+`js/konfigurator-3d.js:11071` und `:11078` setzen ihn per `innerHTML`
+neu, je nachdem ob gerade „Weiter" oder „Anfrage abschicken" gilt,
+und setzen dabei ihr eigenes Symbol über `bvSymbol()`. Ein Symbol im
+Markup wird also beim ersten Schrittwechsel ohnehin überschrieben und
+stört vorher die Erkennung.
+
+An der Stelle steht jetzt ein Kommentar, der das erklärt, damit es
+niemand wieder einbaut. Die anderen drei Knöpfe in derselben Datei
+(`k3dResetOk`, `k3dResetAb`, `k3dMassInfoOk`, `k3dTestOk`) werden
+nicht per `innerHTML` überschrieben und behalten ihr Symbol; geprüft.
+
+**Was daraus zu lernen ist.** Eine Gegenprobe, die nicht alle
+geänderten Dateien zurücknimmt, beweist nichts. Sie hat hier das
+Gegenteil des Wahren gezeigt und wäre als „Altbefund" stehen
+geblieben. Beim nächsten Mal `git diff <stand> HEAD --stat` lesen und
+**jede** betroffene Datei zurückholen, nicht die vermuteten.
 
 ### Prüfstand der Symbolrunde selbst
 

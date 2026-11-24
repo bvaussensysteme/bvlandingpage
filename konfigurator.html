@@ -2936,7 +2936,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <span class="k3d-nav-z" id="k3dZurueckZiel"></span>
           </button>
           <span class="k3d-fortschritt" id="k3dSchrittZahl">1 von 5</span>
-          <button type="button" id="k3dWeiter" class="btn btn-gold"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg> Weiter</button>
+          <!-- KEIN SYMBOL AN DIESEM KNOPF, 24.11.2026. Am 24.11. bekamen 129
+               Knoepfe ein Symbol ("vor jedem button ein icon"). Dieser hier
+               hatte es auch, eine halbe Stunde lang, und hat den Konfigurator
+               beschaedigt: `scripts/pruefe-planken-editor.mjs` wurde rot, mit
+               Symbol rot und ohne Symbol gruen, einzeln nachgewiesen.
+               Grund: Der Inhalt dieses Knopfes gehoert dem Skript, nicht dem
+               Markup. `js/konfigurator-3d.js:11071` und `:11078` setzen ihn
+               per innerHTML neu, je nachdem ob gerade "Weiter" oder
+               "Anfrage abschicken" gilt, und setzen dabei ihr eigenes Symbol
+               ueber bvSymbol(). Ein Symbol im Markup wird also ohnehin beim
+               ersten Schrittwechsel ueberschrieben und stoert vorher die
+               Erkennung.
+               Wer hier wieder ein <svg> einfuegt, macht den Konfigurator
+               kaputt, ohne es zu sehen. -->
+          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter</button>
         </div>
         <button type="button" class="k3d-anfrage-fuss" id="k3dAnfrageFuss">
           <svg class="bvs" aria-hidden="true"><use href="#bvs-angebot"></use></svg>

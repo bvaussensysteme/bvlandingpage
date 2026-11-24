@@ -900,16 +900,15 @@ Mitschrift verwerfen, oder das Seitenskript eine Marke am
 Wurzelelement setzen lassen, auf die das Prüfskript wartet.
 
 
-## Korrektur am 24.11.2026: `pruefe-planken-editor.mjs` ist kein Wackelkandidat
+## Zurückgenommen: `pruefe-planken-editor.mjs` ist weiter ein Wackelkandidat
 
-Er stand hier als Skript, das unter Last rot wird und allein grün
-ist. Am 24.11.2026 war er **allein rot**, zweimal, mit identischer
-Meldung, und auch auf dem Stand vor den Änderungen dieses Tages.
+Hier stand am 24.11.2026 kurzzeitig, das Skript sei kein
+Wackelkandidat, sondern melde einen echten Fehler. **Das war falsch.**
+Der rote Lauf kam von einem Symbol, das die Symbolrunde desselben
+Tages am Knopf `#k3dWeiter` in `konfigurator.html` gesetzt hatte;
+dessen Inhalt wird vom Skript per `innerHTML` überschrieben. Symbol
+entfernt, Skript grün.
 
-Ein rotes Ergebnis dieses Skripts ist damit **ein Befund und keine
-Störung**. Die Meldung lautet: „Die Ruecktaste leert das Hoehenfeld
-wirklich (im Feld steht 900)" und „Zu klein wird erst beim Verlassen
-berichtigt".
-
-Wer den Eintrag wieder auf „wackelt" zurücksetzen will, braucht dafür
-mehrere grüne Einzelläufe als Beleg, nicht einen.
+Die ursprüngliche Einordnung gilt also weiter: Das Skript wird unter
+Last rot und ist allein grün. Die falsche Korrektur entstand, weil
+die Gegenprobe `konfigurator.html` nicht zurückgenommen hatte.
