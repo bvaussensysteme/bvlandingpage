@@ -4167,11 +4167,28 @@ body.bv-konfig-open #bvKonfigBubble {
    seinem Elternteil vergleicht. pruefe-mitwachsend meldete am
    23.11.2026 dreimal "ragt aus seinem Kasten" fuer Knoepfe, die in
    Wirklichkeit richtig sassen. */
-/* Unter 600 px untereinander, wie vorher. Gemessen bei 390 px ergaben
-   drei Spalten 115 px breite Knoepfe, in denen "Kostenlos anfragen"
-   auf drei Zeilen umbrach und der Knopf 77 px hoch wurde. */
+/* ZWEI SPALTEN STATT EINER, 24.11.2026. Drei Spalten bleiben falsch:
+   Gemessen ergaben sie bei 390 px 115 px breite Knoepfe, in denen
+   "Kostenlos anfragen" auf drei Zeilen umbrach und der Knopf 77 px
+   hoch wurde. EINE Spalte war aber genauso falsch, nur unauffaellig:
+   Sechs Knoepfe untereinander ergaben einen 350 px hohen Block, und
+   dadurch stand die Vertrauenszeile bei 800 px und lag auf jedem
+   geprueften Telefon unter dem Bildrand (bei 390 x 750 um 111 px,
+   beim iPhone SE um 373 px). Der erste Bildschirm zeigte Ueberschrift,
+   Untertitel und Knopfreihe, aber kein einziges Vertrauenssignal.
+   Zwei Spalten halten alle sechs Knoepfe GLEICH GROSS. Das ist keine
+   Nebensache: Der Betreiber hat am 15.11.2026 ausdruecklich verlangt,
+   "die buttons muessen beide gleich gross sein wie vorher", nachdem
+   ein Umbau sie unterschiedlich breit gemacht hatte. Eine Loesung mit
+   grossem Haupt- und kleinen Nebenknoepfen schied deshalb aus; die
+   Rangfolge traegt die Farbe (btn-gold) und nicht die Groesse.
+   `grid-auto-rows: 1fr` haelt auch die Hoehen gleich, falls ein Text
+   in einer Reihe umbricht und in der anderen nicht. */
 @media (max-width: 600px) {
-  .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
+  .hero--neu .hs-slide-btns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+  }
 }
 .hero--neu .hs-slide-btns > .btn {
   width: 100%;

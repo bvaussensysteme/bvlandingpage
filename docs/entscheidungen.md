@@ -23735,3 +23735,99 @@ auf `20261124f`.
 **Nebenbefund für `docs/NEXT_TASK.md`:** Das Cache-Buster-Skript
 sollte den Änderungszeitpunkt der Datei mit der Version vergleichen,
 nicht nur das Datum. Zwei Änderungen am selben Tag fallen sonst durch.
+
+## 24.11.2026 · Der erste Bildschirm: sechs Knöpfe in zwei Spalten
+
+### Anlass und Auswahl
+
+Ansage des Betreibers: „mach was du willst hauptsache es is krass."
+Freie Hand, aber keine Richtung. Gewählt wurde nicht die auffälligste
+Spielerei, sondern der größte **gemessene** Mangel an der Stelle, die
+jeder Besucher zuerst sieht.
+
+### Was falsch war
+
+Gemessen auf sechs Gerätegrößen, ohne zu scrollen:
+
+| Gerät | Vertrauenszeile `.hero-trust` |
+|---|---|
+| 320 × 568 | 373 px unter dem Rand |
+| 375 × 667 | 223 px unter dem Rand |
+| 390 × 750 | 111 px unter dem Rand |
+| 390 × 844 | angeschnitten |
+| 412 × 780 | 81 px unter dem Rand |
+| 430 × 830 | angeschnitten |
+
+Auf **keinem** geprüften Telefon war ein Vertrauenssignal im ersten
+Bildschirm. Ursache war nicht die Zeile selbst, sondern was über ihr
+steht: `div.hs-slide-btns` war **350 px hoch**, weil dort sechs
+gleich große Knöpfe untereinander standen, jeder 52 px, dazu Abstände.
+
+Zwischen Untertitel (endet 240 px) und erstem Knopf (436 px) lagen
+196 px, zwischen letztem Knopf (786 px) und Zeile nochmals 14 px. Ein
+halber Bildschirm für eine Knopfliste.
+
+### Was jetzt gilt
+
+```css
+@media (max-width: 600px) {
+  .hero--neu .hs-slide-btns {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-auto-rows: 1fr;
+  }
+}
+```
+
+| | vorher | nachher |
+|---|---|---|
+| Knopfblock | 350 px | **248 px** |
+| Vertrauenszeile beginnt | 800 px | **698 px** |
+| sichtbar bei 390 × 844 | nein | **ja** |
+| sichtbar bei 412 × 780 | nein | **ja** |
+| sichtbar bei 430 × 830 | nein | **ja** |
+| Rechner ab 768 px | 3 Spalten, 123 px | unverändert |
+
+### Warum keine Rangfolge über die Größe
+
+Das wäre der übliche Weg: ein großer Hauptknopf, fünf kleine
+daneben. Er scheidet aus. Der Betreiber hat am 15.11.2026
+ausdrücklich verlangt: „die buttons muessen beide gleich gross sein
+wie vorher", nachdem ein Umbau sie unterschiedlich breit gemacht
+hatte (gemessen damals 200, 152 und 362 px nebeneinander).
+
+Deshalb sind alle sechs Knöpfe **exakt gleich groß**, bei jeder
+geprüften Breite eine einzige Breite und eine einzige Höhe.
+`grid-auto-rows: 1fr` sorgt dafür auch dann, wenn ein Text umbricht
+und ein anderer nicht. Die Rangfolge trägt die Farbe: ein goldener
+Knopf unter fünf mit Umriss.
+
+### Was verworfen wurde, und warum
+
+**Kleinere Knopfschrift.** Geprüft bei 0,90, 0,86 und 0,82 rem. Der
+Umbruch von „Kostenlos anfragen" bleibt bei 320 und 375 px in jeder
+Variante; erst ab 390 px wird der Knopf einzeilig. Für 6 px Gewinn
+wäre die Schrift unter die 14-px-Grenze aus
+`docs/WEBSITE_DESIGN_SYSTEM.md:194` gerutscht. Nicht gemacht.
+
+**Symbol im Knopf ausblenden.** Bringt allein nichts, weil
+`grid-auto-rows: 1fr` alle Reihen an die höchste angleicht. Erst
+zusammen mit einem Polster von 8 px wurden die Knöpfe einzeilig, und
+dann wirken sie gedrängt. Nicht gemacht.
+
+**Vertrauenszeile über die Knöpfe setzen.** Dann wäre sie überall
+sichtbar, aber der Anfrageknopf rutschte von 436 auf etwa 510 px und
+wäre auf einem 320 × 568 großen Bildschirm angeschnitten. Der Weg zur
+Anfrage wiegt schwerer als das Vertrauenssignal darüber. Nicht
+gemacht.
+
+**Knöpfe entfernen.** Jeder Weg bleibt erhalten, das verlangt der
+Bestandsschutz. Dass sechs gleichwertige Wege im Heldenbereich viel
+sind, ist eine Frage an den Betreiber und steht in
+`docs/NEXT_TASK.md`, nicht in diesem Umbau.
+
+### Was offen bleibt
+
+Auf 320 × 568 und 375 × 667 liegt die Vertrauenszeile weiterhin unter
+dem Rand. Das ist keine Nachlässigkeit, sondern Arithmetik: Allein der
+Beschreibungstext `.hs-desc` ist dort 154 px hoch. Ohne Textkürzung
+geht es nicht, und Texte werden nicht ohne Ansage geändert.
