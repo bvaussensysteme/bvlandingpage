@@ -324,7 +324,34 @@ die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
 
-## Prüfstand vom 24.11.2026, letzter Lauf (nach der Symbolrunde)
+## Prüfstand vom 24.11.2026, Abschluss
+
+**83 Skripte, 82 grün, 1 rot, 0 übersprungen.** Das beste Ergebnis
+des Tages.
+
+Rot ist allein `pruefe-konfigurator-oberflaeche.mjs` mit der
+bekannten einen Abweichung von 182 („Der Zeiger auf dem Schild ändert
+das Bild"). `pruefe-schrittwechsel.mjs` war diesmal grün; der
+Altbefund B3 tritt also nicht in jedem Lauf auf.
+
+Auf der Vorschau gegengeprüft: 58 von 59 Knöpfen auf acht Seiten mit
+Symbol (der eine Rest ist der Rechtstext-Knopf), kein waagerechtes
+Scrollen bei 320, 390 und 1280 px.
+
+### Zwei eigene Fehler in dieser Runde, beide behoben
+
+1. **Symbol am Knopf `#k3dWeiter`** im Konfigurator. Dessen Inhalt
+   gehört dem Skript, nicht dem Markup. Entfernt, Kommentar gesetzt.
+2. **Leerzeichen hinter jedem Symbol.** Dadurch hieß ein Knopf im
+   Text „ Abbrechen" statt „Abbrechen", und eine Prüfung, die
+   Beschriftungen vergleicht, fiel darüber. An 233 Stellen entfernt;
+   der Abstand kommt ohnehin aus `.btn { gap }`.
+
+Beide wurden **nur gefunden, weil die Skripte liefen**, nicht beim
+Durchsehen. Das ist das Argument dafür, nach jeder breiten Änderung
+alle laufen zu lassen und nicht die vermuteten.
+
+## Prüfstand vom 24.11.2026, nach der Symbolrunde (Zwischenstand)
 
 **83 Skripte, 79 grün, 4 rot, 0 übersprungen.**
 
