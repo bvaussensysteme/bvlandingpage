@@ -294,7 +294,41 @@ die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
 
-## Prüfstand vom 24.11.2026, zweiter Lauf (Endstand der Kopfleiste)
+## Prüfstand vom 24.11.2026, dritter Lauf (Endstand des Tages)
+
+Nach der Umstellung auf `html`-only und der Stoffbeschriftung noch
+einmal vollständig: **83 Skripte, 80 grün, 3 rot, 0 übersprungen.**
+
+| Skript | Urteil |
+|---|---|
+| `pruefe-konfigurator-oberflaeche.mjs` | bekannter Dauerbefund, 1 von 182 |
+| `pruefe-schrittwechsel.mjs` | Altbefund B3, `pageYOffset 362`, 6 von 7 |
+| `pruefe-prozess-ringe.mjs` | **Wettlauf im Skript, kein Befund** (siehe unten) |
+
+### `pruefe-prozess-ringe.mjs` ist von Haus aus unzuverlässig
+
+Nicht geraten, nachgemessen. Das Skript liest alle 120 ms den Wert
+`strokeDashoffset` der vier Ringe (`MITSCHRIFT`, Zeile 68) und
+verlangt bei „Bewegung reduzieren" **null Wechsel**.
+`js/prozess-animation.js` setzt die Ringe bei dieser Einstellung
+sofort auf voll und bewegt nichts. Läuft die erste Messung aber
+**vor** dem Seitenskript, sieht sie den Ausgangswert aus dem
+`stroke-dasharray` und danach die 0, zählt also einen Wechsel und
+meldet „4 von 4 Ringen blinken".
+
+Beleg, fünf Läufe desselben Codes: **grün, grün, grün, rot, grün.**
+Gegenprobe mit den Stilblättern von vor der Kopfleisten-Arbeit
+(Stand `a1cf1fe`): grün, also auf den ersten Blick ein Rückschritt.
+Das war Zufall, wie die fünf Läufe zeigen.
+
+**Vorschlag für den nächsten Durchgang:** Die Mitschrift erst
+auswerten, nachdem das Seitenskript gelaufen ist, etwa indem die
+ersten 500 ms verworfen werden oder `js/prozess-animation.js` am
+Wurzelelement eine Marke setzt, auf die das Skript wartet. Ein Test,
+der jeden fünften Lauf grundlos rot wird, bringt niemandem bei,
+rote Tests ernst zu nehmen.
+
+## Prüfstand vom 24.11.2026, zweiter Lauf (Zwischenstand)
 
 Nach der Rückkehr zum 32-px-Logo noch einmal vollständig gelaufen:
 **83 Skripte, 81 grün, 2 rot, 0 übersprungen.**

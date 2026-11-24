@@ -878,3 +878,23 @@ handgepflegten Seiten, für die ein `git checkout` zu grob wäre.
 Nachgeprüft wird er von `pruefe-staedte-galerie.mjs` (alle 14 Seiten,
 Zeichen für Zeichen) und von `pruefe-galerie.mjs` (drei Seiten im
 echten Browser).
+
+## `pruefe-prozess-ringe.mjs`: bekannter Wettlauf, 24.11.2026
+
+Das Skript misst alle 120 ms `strokeDashoffset` der vier Ablaufringe
+und verlangt bei „Bewegung reduzieren" null Wechsel.
+`js/prozess-animation.js` setzt die Ringe bei dieser Einstellung
+sofort auf voll. Fällt die erste Messung **vor** das Seitenskript,
+sieht sie den Ausgangswert und danach die 0 und meldet fälschlich
+„4 von 4 Ringen blinken".
+
+Gemessen am 24.11.2026, fünf Läufe desselben Codes: grün, grün, grün,
+rot, grün. Ein rotes Ergebnis dieses Skripts ist deshalb **erst nach
+Wiederholung** ein Befund. Dasselbe gilt für `pruefe-keil-editor`,
+`pruefe-planken-editor`, `pruefe-freie-planung`, `pruefe-galerie` und
+`pruefe-referenz-lauf`, die unter Last rot werden und allein grün
+sind.
+
+Behebung vorgeschlagen, nicht umgesetzt: die ersten 500 ms der
+Mitschrift verwerfen, oder das Seitenskript eine Marke am
+Wurzelelement setzen lassen, auf die das Prüfskript wartet.
