@@ -294,7 +294,26 @@ die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
 
-## Prüfstand vom 24.11.2026 (nach der Kopfleisten-Änderung)
+## Prüfstand vom 24.11.2026, zweiter Lauf (Endstand der Kopfleiste)
+
+Nach der Rückkehr zum 32-px-Logo noch einmal vollständig gelaufen:
+**83 Skripte, 81 grün, 2 rot, 0 übersprungen.**
+
+Rot sind nur die zwei bekannten Dauerbefunde:
+`pruefe-konfigurator-oberflaeche.mjs` (1 von 182, „Der Zeiger auf dem
+Schild ändert das Bild") und `pruefe-schrittwechsel.mjs` (Altbefund
+B3, `pageYOffset 362`, 6 von 7 bestanden).
+
+`pruefe-keil-editor.mjs` und `pruefe-planken-editor.mjs` waren im
+ersten Lauf rot und sind diesmal **grün**. Damit ist bestätigt, dass
+sie unter Last wackeln und keinen Befund tragen.
+
+Auf der Vorschau gegengeprüft, nicht nur lokal: Leiste 66 px am
+Handy (hoch und quer) und 72 px am Rechner, Logo 208 × 32 px,
+Freiraum 16/16 bzw. 19/19, nach 1500 px Scrollen bei 0 px, Mobilmenü
+8 von 8 Einträgen erreichbar.
+
+## Prüfstand vom 24.11.2026, erster Lauf (zwischenzeitlicher Stand)
 
 Vollständiger Lauf über **alle 83** `scripts/pruefe-*`, alle vier
 Endungen abgedeckt, **0 übersprungen**: **79 grün, 4 rot.**
