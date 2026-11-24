@@ -23968,3 +23968,44 @@ in `style.css` und berührt keinen Satz in den Dateien. `break-word`
 und nicht `anywhere`: `anywhere` verändert zusätzlich die
 kleinstmögliche Breite eines Elements und kann Raster anders
 umbrechen lassen.
+
+### Nachtrag: zwei Symbole sagten das Falsche
+
+Die Gestaltungsprüfung hat zwei meiner Zuordnungen als irreführend
+bezeichnet. Beide Male hatte sie recht, und beides sind
+Bedeutungsfehler, keine Geschmacksfragen. Deshalb korrigiert, ohne
+Rückfrage:
+
+| Beschriftung | vorher | jetzt | Grund |
+|---|---|---|---|
+| Was kostet das? Kostenfaktoren | Fragezeichen im Kreis | Blatt | Das Fragezeichen ist gelernt als „Hilfe/FAQ". Der Knopf führt aber zu einem Ratgeberartikel, nicht zu einer Hilfeseite. |
+| Alle Stoffe ansehen, Markisenstoffe & Farben ansehen | Tropfen | Musterkarten | Beim Markisentuch liest sich ein Tropfen als „wasserdicht", nicht als „Farben und Muster ansehen". |
+
+Neun Knöpfe geändert. Der Tropfen bleibt im Stoffbereich selbst
+stehen, wo er an 53 Stellen tatsächlich Wasserbeständigkeit meint.
+
+Das Symbol „Musterkarten" ist neu gezeichnet: zwei versetzte Felder,
+24 × 24, Strich 2, runde Ecken wie der Rest.
+
+### Richtigstellung zur Zahl der neuen Symbole
+
+Oben steht, drei Symbole seien neu gezeichnet worden: Pfeil, Auge und
+Taschenrechner. Nachgezählt im Ergebnis: Das **Auge wurde nie
+benutzt**. Es war im Vorrat definiert, aber keine Beschriftung zeigte
+darauf. Tatsächlich neu sind damit **drei**: Pfeil nach rechts
+(9 Vorkommen), Taschenrechner (1) und Musterkarten (aus diesem
+Nachtrag). Das Auge ist nirgends im Markup.
+
+### Was die Prüfer offen gelassen haben
+
+**Nicht umgesetzt, Entscheidung des Betreibers:** Die
+Gestaltungsprüfung hält wiederholte Listen gleicher Knöpfe für
+unruhig, etwa die fünf „Details zu …"-Knöpfe untereinander auf
+`garten-aussenbereich`, die jetzt alle denselben Pfeil tragen. Ihr
+Vorschlag war, solche Listen auszunehmen. Die Ansage lautete
+ausdrücklich „vor jedem button", deshalb steht das nur als Option in
+`docs/NEXT_TASK.md`.
+
+**Später prüfen:** Ob die Knöpfe in Produktkarten bei 360 px
+umbrechen und das Symbol dabei oben hängen bleibt. Gehört nach
+`scripts/pruefe-mitwachsend.mjs`.
