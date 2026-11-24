@@ -2746,20 +2746,26 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 }
 
 /* Prevent any horizontal overflow globally */
-/* Zwei Zeilen fuer dieselbe Sache, mit Absicht. `hidden` in EINER
-   Achse macht das Element in BEIDEN zu einem Scroll-Container; damit
-   verliert `position: sticky` seinen Bezugspunkt, und die Kopfleiste
-   scrollt weg, obwohl sie sticky ist (gemessen 24.11.2026: nach
-   1500 px Scrollen sass sie bei -1500 px). `clip` schneidet genauso
-   ab, ohne Scroll-Container. Die `hidden`-Zeile bleibt als Rueckfall
-   fuer Safari vor 16 davor stehen; dort gilt das alte Verhalten.
-   Dieselbe Kette steht in start.css auf `.start-premium` und ist
-   dort die wirksame, weil hoeher gewichtete Regel. Hier steht sie
-   fuer Seiten mit `premium: false`, damit die Leiste nicht still
-   wieder kaputtgeht, wenn jemand das Flag setzt. */
+/* NUR `html`, NICHT `body`. Das ist der Kern und keine Schlamperei.
+   `overflow-x: hidden` am KOERPER macht ihn in beiden Achsen zu
+   einem Scroll-Container und nimmt `position: sticky` den
+   Bezugspunkt: Die Kopfleiste scrollt weg, obwohl sie sticky ist
+   (gemessen 24.11.2026, -1500 px nach 1500 px Scrollen).
+   Am WURZELELEMENT ist es anders: Dort wandert `overflow` an den
+   Anzeigebereich, das Wurzelelement verhaelt sich selbst wie
+   `visible`, und der Koerper bleibt ein normaler Kasten. Das
+   Abschneiden nach rechts bleibt erhalten, ohne dass sticky
+   kaputtgeht.
+   Der erste Versuch am 24.11. loeste das mit `overflow-x: clip` am
+   Koerper. Das wirkt in Chrome ab 90 und Firefox ab 81, aber NICHT
+   in Safari vor 16: Dort ist das Schluesselwort unbekannt, die
+   Zeile wird uebersprungen, und `hidden` bleibt stehen. Der
+   Betreiber sah die Leiste deshalb weiter wegscrollen. Diese
+   Fassung braucht `clip` nicht.
+   Wer hier `body` wieder dazuschreibt, macht die Kopfleiste auf
+   allen Seiten kaputt, und zwar lautlos. */
+html { overflow-x: hidden; }
 html, body {
-  overflow-x: hidden;
-  overflow-x: clip;
   max-width: 100%;
 }
 * { max-width: 100%; box-sizing: border-box; }

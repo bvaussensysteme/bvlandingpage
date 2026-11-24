@@ -397,30 +397,35 @@
    HANDY ZUERST. Kein waagerechtes Scrollen, lesbare Größen, Knöpfe, die
    ohne Zielen zu treffen sind. Geprüft von scripts/pruefe-startseite.mjs.
    -------------------------------------------------------------------------- */
-/* clip STATT hidden, seit 24.11.2026. Ansage des Betreibers: Die
-   Kopfleiste soll beim Scrollen oben stehen bleiben.
+/* HIER STAND `overflow-x`, JETZT NICHT MEHR. 24.11.2026, zweiter
+   Anlauf, und die Begruendung gehoert hierher, weil an dieser Stelle
+   sonst jemand die Zeile wieder einbaut.
 
-   Sie war dafuer laengst gebaut: src/css/style.css:353 setzt
-   .navbar auf position: sticky, top: 0, z-index: 100. Nur wirkte es
-   nicht. Grund: overflow-x: hidden macht aus dem Koerper einen
-   eigenen Scrollbereich, und darin bezieht sich sticky auf diesen
-   Bereich statt auf das Fenster. Die Leiste scrollte deshalb mit,
-   am Handy wie am Rechner. Gemessen vor der Aenderung: nach 1500 px
-   Scrollen stand sie bei -1500 px, war also weg.
+   Die Kopfleiste soll beim Scrollen oben stehen bleiben. Gebaut war
+   sie dafuer laengst: src/css/style.css:353 setzt .navbar auf
+   position: sticky, top: 0. Es wirkte nur nicht, weil
+   `overflow-x: hidden` an dieser Stelle aus dem Koerper einen
+   eigenen Scrollbereich machte; darin bezieht sich sticky auf diesen
+   Bereich statt auf das Fenster. Gemessen: nach 1500 px Scrollen
+   stand die Leiste bei -1500 px.
 
-   overflow-x: clip schneidet genauso ab, erzeugt aber KEINEN
-   Scrollbereich. Das Ziel dieser Regel, kein waagerechtes Scrollen,
-   bleibt damit erfuellt.
+   Der erste Versuch setzte `overflow-x: clip` dahinter. Das
+   schneidet genauso ab, ohne Scrollbereich, und wirkte in Chrome ab
+   90 und Firefox ab 81. In Safari vor 16 wirkte es NICHT: Dort ist
+   `clip` unbekannt, die Zeile wird uebersprungen, `hidden` bleibt
+   stehen. Der Betreiber hat genau das gemeldet, woertlich: "bei mir
+   in der vorschau is es nicht so".
 
-   Die Zeile mit hidden steht bewusst davor: Browser, die clip nicht
-   kennen (Safari vor 16), ueberspringen die zweite Zeile und
-   behalten das bisherige Verhalten. Dort scrollt die Leiste weiter
-   mit, so wie bisher. Das ist kein Rueckschritt, sondern der
-   heutige Stand.
+   Jetzt traegt nur noch `html` ein `overflow-x` (siehe style.css,
+   "Prevent any horizontal overflow globally"). `overflow` am
+   Wurzelelement wandert an den Anzeigebereich, das Wurzelelement
+   verhaelt sich selbst wie `visible`, der Koerper bleibt ein
+   normaler Kasten, und sticky haelt. Das Abschneiden nach rechts
+   bleibt erhalten, weil es am Anzeigebereich geschieht. Das braucht
+   kein `clip` und wirkt in jedem Browser, der sticky kennt.
 
    scroll-padding-top: 96px weiter unten haelt den Platz frei, damit
    Sprungmarken und der Tastaturfokus nicht unter der Leiste landen. */
-.start-premium { overflow-x: hidden; overflow-x: clip; }
 @media (max-width: 560px) {
   .start-premium .hs-slide-btns { gap: 10px; }
   .start-premium .hs-slide-btns .btn { width: 100%; }

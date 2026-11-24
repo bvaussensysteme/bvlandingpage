@@ -1029,3 +1029,19 @@ Datei, wäre der Freiraum knapper als gerechnet (das galt aber auch
 bei 32 px). Und bei Teilpixel-Rundung kann der Wert um Bruchteile
 darunter liegen. Wer die Logohöhe anfasst, muss das Polster
 mitrechnen; der Kommentar an beiden Stellen im CSS sagt das.
+
+## 24.11.2026 · `pruefe-cache-buster.sh` erkennt zwei Änderungen am selben Tag nicht
+
+Das Skript vergleicht die Abrufversion (`?v=JJJJMMTT<buchstabe>`) mit
+dem Datum der Datei. Wird eine CSS-Datei am selben Tag ein zweites Mal
+geändert, ohne dass der Buchstabe hochgezählt wird, bleibt die Prüfung
+grün, obwohl Besucher mit offenem Tab das alte Stilblatt behalten.
+
+Am 24.11.2026 passiert: `src/css/start.css` wurde geändert, die
+Version blieb auf `20261124c`, das Skript meldete „aktuell". Aufgefallen
+nur, weil ich die Versionen von Hand verglichen habe.
+
+Vorschlag: Änderungszeitpunkt der Quelldatei gegen den Zeitpunkt
+prüfen, zu dem die Version zuletzt hochgezählt wurde. Das steht nicht
+im Dateisystem, ließe sich aber aus `git log` der Datei und dem letzten
+Commit ablesen, der die Version in `layout.njk` geändert hat.

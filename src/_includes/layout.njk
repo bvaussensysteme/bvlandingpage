@@ -91,11 +91,11 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261124e" />
+  <link rel="stylesheet" href="/css/style.css?v=20261124f" />
   {# start.css MUSS nach style.css kommen: Beide setzen Regeln mit
      gleicher Spezifitaet, die spaetere gewinnt. Genau darauf baut die
      Designschicht auf. #}
-  <link rel="stylesheet" href="/css/start.css?v=20261124c" />
+  <link rel="stylesheet" href="/css/start.css?v=20261124f" />
 {% if extraStyles %}
   <style>
 {{ extraStyles | safe }}

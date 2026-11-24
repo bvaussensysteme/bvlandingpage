@@ -23660,3 +23660,78 @@ nichts: 26 px, 17 Prozent der Kachel.
   „PA626Mountain".
 - **Symbole auf `stoffe.html`** sind nur per `title` beschriftet und
   damit am Telefon nicht abrufbar (`src/stoffe.njk:95`).
+
+## 24.11.2026 · Die stehende Kopfleiste ein zweites Mal, diesmal ohne `clip`
+
+### Was falsch war
+
+Meldung des Betreibers, wörtlich: „bei mir in der vorschau is es
+nicht so." Gemeint war die stehende Kopfleiste am Rechner, die ich
+zuvor als erledigt gemeldet hatte.
+
+Meine Messung sagte das Gegenteil: zwölf Seiten, alle klebend. Beides
+stimmte. Der Unterschied war der **Browser**.
+
+Die erste Lösung setzte `overflow-x: clip` hinter `overflow-x: hidden`
+auf den Körper. `clip` schneidet genauso ab, erzeugt aber keinen
+Scroll-Container, und nur deshalb hält `position: sticky`. Das
+Schlüsselwort gibt es in Chrome ab 90 und Firefox ab 81, in **Safari
+erst ab 16** (September 2022). Ältere Browser überspringen die Zeile
+und behalten `hidden`. Dort scrollte die Leiste weiter weg.
+
+Das war im Code als Einschränkung vermerkt und galt als vertretbar.
+Es war es nicht: Der Betreiber selbst saß in diesem Fall. Eine
+Abstufung, die ausgerechnet den trifft, der die Seite abnimmt, ist
+keine Abstufung, sondern ein Fehler.
+
+### Was jetzt gilt
+
+`overflow-x` steht nur noch auf **`html`**, nicht mehr auf dem Körper.
+
+```css
+html { overflow-x: hidden; }
+html, body { max-width: 100%; }
+```
+
+Am Wurzelelement verhält sich `overflow` anders als sonst: Es wandert
+an den Anzeigebereich, und das Wurzelelement selbst verhält sich wie
+`visible`. Der Körper bleibt damit ein gewöhnlicher Kasten, `sticky`
+behält seinen Bezug zum Fenster, und das Abschneiden nach rechts
+bleibt trotzdem erhalten, weil es am Anzeigebereich geschieht.
+
+Die Regel auf `.start-premium` in `start.css` ist **ersatzlos
+entfallen**. An ihrer Stelle steht nur noch der Kommentar, der
+erklärt, warum dort nichts mehr stehen darf.
+
+### Gegenprobe
+
+Zwölf Seiten mal acht Bildschirmbreiten (320, 360, 390, 430, 768,
+1024, 1280, 1920), also 96 Kombinationen:
+
+- Leiste bleibt stehen: **96 von 96**
+- waagerechtes Scrollen: **nirgends**
+- `clip` im gebauten Stilblatt: **0 Vorkommen** in `css/style.css`
+  und `css/start.css`
+
+Geprüft wurden auch `/_template.html` (ohne `.start-premium`) und
+`/ratgeber/index.html`.
+
+### Was daraus zu lernen ist
+
+Eine Rückfallkette ist kein Beweis, dass es überall wirkt, sondern
+nur, dass nichts abstürzt. Wer eine Eigenschaft benutzt, die ein
+verbreiteter Browser nicht kennt, hat die Aufgabe nicht gelöst,
+sondern verschoben. Beim nächsten Mal zuerst fragen, ob es eine
+Lösung ohne neue Eigenschaft gibt; hier gab es sie, und sie ist
+sogar kürzer.
+
+Dazu ein zweiter Fehler: `start.css` stand nach der Änderung noch
+auf der alten Abrufversion `20261124c`. `scripts/pruefe-cache-buster.sh`
+meldete trotzdem grün, weil es nur Datumsgleichheit prüft und nicht,
+ob die Datei seit der letzten Version geändert wurde. Wer die Seite
+offen hatte, hätte das alte Stilblatt behalten. Jetzt stehen beide
+auf `20261124f`.
+
+**Nebenbefund für `docs/NEXT_TASK.md`:** Das Cache-Buster-Skript
+sollte den Änderungszeitpunkt der Datei mit der Version vergleichen,
+nicht nur das Datum. Zwei Änderungen am selben Tag fallen sonst durch.
