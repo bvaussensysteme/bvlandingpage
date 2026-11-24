@@ -22,7 +22,28 @@ robots: "index, follow"
   .stoff-props .ic b { position:relative; font-weight:700; font-size:.66rem; letter-spacing:.01em; background:#fff; padding:0 1px; }
   .stoff-flat { width:100%; height:auto; display:block; border-radius:8px; border:1px solid var(--border); }
   .stoff-flat.span2 { grid-column:2 / -1; }
-  .stoff-markise-img { width:100%; height:auto; display:block; }
+  /* WEISSER KASTEN HINTER DER MARKISE, behoben am 24.11.2026 auf
+     Ansage des Betreibers ("die markisen dinger neben den stoffen
+     haben nen weissen kasten als hintergrund").
+     Die 53 Bilder sind JPG und koennen deshalb keine Transparenz
+     tragen; die Markise ist auf Weiss freigestellt. Gemessen: alle
+     vier Ecken von AC112, AC117, AC118 und AC119 sind exakt
+     rgb(255,255,255), der Abschnitt dahinter ist warmweiss. Daher
+     der sichtbare Kasten.
+     multiply rechnet Quelle mal Untergrund: Reines Weiss nimmt damit
+     exakt die Farbe des Untergrunds an, der Kasten verschwindet.
+     Die Markise selbst wird nur um den Faktor des Untergrunds
+     dunkler, bei #F8F6F1 sind das unter 3 Prozent.
+     WARUM NICHT DIE BILDER FREISTELLEN: Es sind 155 Dateien mit
+     17,5 MB. Freistellen hiesse jedes Original anfassen, mit
+     Ausfransen an den Kanten, und es muesste bei jedem neuen Stoff
+     wiederholt werden. Diese Zeile gilt fuer alle, auch fuer
+     kuenftige.
+     WARUM ES HIER SICHER IST: Die Seite hat keinen Dunkelmodus
+     (kein prefers-color-scheme im Stilblatt, nachgesehen). Auf
+     dunklem Grund waere multiply falsch. Wer diesen Abschnitt
+     jemals dunkel hinterlegt, muss diese Zeile mit aendern. */
+  .stoff-markise-img { width:100%; height:auto; display:block; mix-blend-mode:multiply; }
 
   /* T-Serie – 2-spaltiges Raster */
   .zip-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:30px 44px; margin-top:8px; }
