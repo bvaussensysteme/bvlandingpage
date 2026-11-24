@@ -261,6 +261,36 @@ dagegen sprechen würde, wäre der Anteil Besucher im Querformat. Der
 liegt in den eigenen Messdaten, siehe `docs/zahlen-lesen.md`, und ist
 noch nicht abgefragt.
 
+### 3.19 Knopfsymbole: drei Entscheidungen des Betreibers
+
+Am 24.11.2026 tragen **437 von 439 Knöpfen** auf 60 Seiten ein
+Symbol (Ansage: „Stelle sicher das vor jedem button … ein icon is").
+Drei Punkte blieben bewusst offen.
+
+**a) Die zwei Knöpfe im Widerrufstext.** „Online-Widerrufsformular
+ausfüllen" und „Widerruf absenden" auf `widerruf.html` haben kein
+Symbol. Grund: Die Hausregel vom 14.11.2026 verbietet Änderungen an
+`agb`, `datenschutz`, `impressum` und `widerruf`. Ein Symbol wäre
+„nur schnell schöner machen", und genau das schließt die Regel aus.
+**Wenn der Betreiber sie trotzdem will, ist es eine Zeile je Knopf.**
+
+**b) Wiederholte Knopflisten.** Die Gestaltungsprüfung hält es für
+unruhig, wenn fünf „Details zu …"-Knöpfe untereinander alle denselben
+Pfeil tragen, etwa auf `garten-aussenbereich`. Ihr Vorschlag: solche
+Listen ausnehmen und Symbole nur bei den Hauptaktionen behalten
+(Anfrage, Termin, Download). Dagegen steht die wörtliche Ansage „vor
+jedem button". Als Wirkungsaussage ist beides **Hypothese ohne
+Daten**.
+
+**c) Zwei alte Knöpfe in `index.html`** (Zeilen 633, 1716, 2237)
+tragen ihr Symbol als `<svg>` mit Inline-Stil statt mit der Klasse
+`btn-icon`. Sie sehen gleich aus, folgen aber nicht derselben Regel.
+Kosmetisch, nicht dringend.
+
+**Später prüfen:** Ob die Knöpfe in Produktkarten bei 360 px
+umbrechen und das Symbol dabei oben hängen bleibt. Das gehört nach
+`scripts/pruefe-mitwachsend.mjs` und ist bisher nicht abgedeckt.
+
 ### Weiteres, ausgelagert
 
 - **Fragen an den Betreiber**, offene wie beantwortete:
@@ -327,57 +357,6 @@ ersten 500 ms verworfen werden oder `js/prozess-animation.js` am
 Wurzelelement eine Marke setzt, auf die das Skript wartet. Ein Test,
 der jeden fünften Lauf grundlos rot wird, bringt niemandem bei,
 rote Tests ernst zu nehmen.
-
-## Prüfstand vom 24.11.2026, zweiter Lauf (Zwischenstand)
-
-Nach der Rückkehr zum 32-px-Logo noch einmal vollständig gelaufen:
-**83 Skripte, 81 grün, 2 rot, 0 übersprungen.**
-
-Rot sind nur die zwei bekannten Dauerbefunde:
-`pruefe-konfigurator-oberflaeche.mjs` (1 von 182, „Der Zeiger auf dem
-Schild ändert das Bild") und `pruefe-schrittwechsel.mjs` (Altbefund
-B3, `pageYOffset 362`, 6 von 7 bestanden).
-
-`pruefe-keil-editor.mjs` und `pruefe-planken-editor.mjs` waren im
-ersten Lauf rot und sind diesmal **grün**. Damit ist bestätigt, dass
-sie unter Last wackeln und keinen Befund tragen.
-
-Auf der Vorschau gegengeprüft, nicht nur lokal: Leiste 66 px am
-Handy (hoch und quer) und 72 px am Rechner, Logo 208 × 32 px,
-Freiraum 16/16 bzw. 19/19, nach 1500 px Scrollen bei 0 px, Mobilmenü
-8 von 8 Einträgen erreichbar.
-
-## Prüfstand vom 24.11.2026, erster Lauf (zwischenzeitlicher Stand)
-
-Vollständiger Lauf über **alle 83** `scripts/pruefe-*`, alle vier
-Endungen abgedeckt, **0 übersprungen**: **79 grün, 4 rot.**
-
-Alle vier Roten sind nachgesehen, nicht angenommen:
-
-| Skript | allein nachgelaufen | Befund |
-|---|---|---|
-| `pruefe-keil-editor.mjs` | **grün** | wackelt nur unter Last |
-| `pruefe-planken-editor.mjs` | **grün** | wackelt nur unter Last |
-| `pruefe-schrittwechsel.mjs` | rot | Altbefund B3, unverändert: „Am großen Bildschirm bleibt die Seite stehen (pageYOffset 362)", 6 von 7 bestanden |
-| `pruefe-konfigurator-oberflaeche.mjs` | rot | bekannter Dauerbefund, 1 von 182: „Der Zeiger auf dem Schild ändert das Bild" |
-
-Die zwei Skripte, die bei einer stehenden Kopfleiste am ehesten
-anschlagen würden, sind grün: `pruefe-fokus-verdeckung.mjs` (95 s)
-und `pruefe-mitwachsend.mjs` (181 s, sieben Bildschirmbreiten).
-Ebenso `pruefe-wirkung.mjs`, `pruefe-darstellung.mjs` und
-`pruefe-startseite.mjs`.
-
-**Zwei Fehler beim Prüfen selbst**, damit sie sich nicht wiederholen:
-Ein `pkill` auf den Namen der Protokolldatei traf die Suite selbst,
-weil der Dateiname in ihrer Befehlszeile stand (Abbruch mit Code 144,
-nicht rot). Danach liefen zwei Läufe gleichzeitig in dieselbe
-Ergebnisdatei, weil der erste nur seinen Wrapper verloren hatte, nicht
-sich selbst. Lehre: Läufe über die Prozessnummer beenden, nie über ein
-Namensmuster, und vor dem Start `pgrep -fc alle82` prüfen.
-
-Die Ergebnisse stehen unverändert in
-`.../scratchpad/ergebnis82.txt`; das Verzeichnis ist sitzungsgebunden
-und beim nächsten Mal weg.
 
 ## 4. Was gerade läuft: die Lieferanten-Runde
 
