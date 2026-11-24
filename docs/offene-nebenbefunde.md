@@ -1030,21 +1030,25 @@ bei 32 px). Und bei Teilpixel-Rundung kann der Wert um Bruchteile
 darunter liegen. Wer die Logohöhe anfasst, muss das Polster
 mitrechnen; der Kommentar an beiden Stellen im CSS sagt das.
 
-## 24.11.2026 · `pruefe-cache-buster.sh` erkennt zwei Änderungen am selben Tag nicht
+## 24.11.2026 · ZURÜCKGENOMMEN: `pruefe-cache-buster.sh` erkennt sehr wohl
 
-Das Skript vergleicht die Abrufversion (`?v=JJJJMMTT<buchstabe>`) mit
-dem Datum der Datei. Wird eine CSS-Datei am selben Tag ein zweites Mal
-geändert, ohne dass der Buchstabe hochgezählt wird, bleibt die Prüfung
-grün, obwohl Besucher mit offenem Tab das alte Stilblatt behalten.
+Hier stand, das Skript vergleiche nur das Datum und übersehe deshalb
+eine zweite Änderung am selben Tag. **Das war falsch.**
 
-Am 24.11.2026 passiert: `src/css/start.css` wurde geändert, die
-Version blieb auf `20261124c`, das Skript meldete „aktuell". Aufgefallen
-nur, weil ich die Versionen von Hand verglichen habe.
+`scripts/pruefe-cache-buster.sh:88` und `:95` holen beide Zeitpunkte
+aus der Git-Historie: den letzten Commit, der die Datei geändert hat,
+und den letzten, der ihre Version in einer HTML-Datei geändert hat.
+Verglichen werden Sekunden, nicht Tage.
 
-Vorschlag: Änderungszeitpunkt der Quelldatei gegen den Zeitpunkt
-prüfen, zu dem die Version zuletzt hochgezählt wurde. Das steht nicht
-im Dateisystem, ließe sich aber aus `git log` der Datei und dem letzten
-Commit ablesen, der die Version in `layout.njk` geändert hat.
+Belegt am 24.11.2026: Nach einer Änderung an `style.css` meldete das
+Skript „style.css wurde geändert, die Version aber nicht
+hochgezählt. Datei zuletzt: 24.11.2026 21:30, Version zuletzt:
+24.11.2026 17:53." Genau der Fall, den ich ihm abgesprochen hatte.
+
+Was dabei auffällt und stimmt: Solange das Hochzählen **nicht
+committet** ist, sieht das Skript es nicht und meldet rot. Das ist
+kein Fehler, sondern die Folge davon, dass es die Historie liest. Wer
+die Meldung sieht, soll committen und erneut prüfen.
 
 ## 24.11.2026 · Drei Punkte aus der Heldenbereich-Runde
 

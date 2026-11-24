@@ -4216,8 +4216,17 @@ body.bv-konfig-open #bvKonfigBubble {
 
    Drei Spalten bleiben falsch: Gemessen ergaben sie bei 390 px
    115 px breite Knoepfe, in denen "Kostenlos anfragen" auf drei
-   Zeilen umbrach. */
-@media (max-width: 600px) {
+   Zeilen umbrach.
+
+   GRENZE 699 STATT 600 PX, nachgemessen am 24.11.2026. Bei 600 px
+   endete die Handy-Regel, und ab 601 px standen wieder sechs Knoepfe
+   in drei Spalten: 182 px breit, und drei davon brachen zweizeilig
+   um (77 statt 52 px). Das war genau der Zustand, den der Betreiber
+   am Handy verworfen hat, nur eine Bildschirmbreite weiter. Erst ab
+   700 px sind die Spalten 213 px breit und alle Beschriftungen
+   einzeilig. Gemessen bei 560, 600, 601, 640, 700, 767, 768 und
+   844 px. */
+@media (max-width: 699px) {
   .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
   .hero--neu .hs-slide-btns > .hero-btn-pc { display: none; }
 }
