@@ -898,3 +898,18 @@ sind.
 Behebung vorgeschlagen, nicht umgesetzt: die ersten 500 ms der
 Mitschrift verwerfen, oder das Seitenskript eine Marke am
 Wurzelelement setzen lassen, auf die das Prüfskript wartet.
+
+
+## Korrektur am 24.11.2026: `pruefe-planken-editor.mjs` ist kein Wackelkandidat
+
+Er stand hier als Skript, das unter Last rot wird und allein grün
+ist. Am 24.11.2026 war er **allein rot**, zweimal, mit identischer
+Meldung, und auch auf dem Stand vor den Änderungen dieses Tages.
+
+Ein rotes Ergebnis dieses Skripts ist damit **ein Befund und keine
+Störung**. Die Meldung lautet: „Die Ruecktaste leert das Hoehenfeld
+wirklich (im Feld steht 900)" und „Zu klein wird erst beim Verlassen
+berichtigt".
+
+Wer den Eintrag wieder auf „wackelt" zurücksetzen will, braucht dafür
+mehrere grüne Einzelläufe als Beleg, nicht einen.

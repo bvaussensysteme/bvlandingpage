@@ -267,9 +267,9 @@ Am 24.11.2026 tragen **437 von 439 Knöpfen** auf 60 Seiten ein
 Symbol (Ansage: „Stelle sicher das vor jedem button … ein icon is").
 Drei Punkte blieben bewusst offen.
 
-**a) Die zwei Knöpfe im Widerrufstext.** „Online-Widerrufsformular
-ausfüllen" und „Widerruf absenden" auf `widerruf.html` haben kein
-Symbol. Grund: Die Hausregel vom 14.11.2026 verbietet Änderungen an
+**a) Die zwei Knöpfe in den Rechtstexten.** „Online-Widerrufsformular
+ausfüllen" steht auf **`agb.html`**, „Widerruf absenden" auf
+`widerruf.html`. Beide haben kein Symbol. Grund: Die Hausregel vom 14.11.2026 verbietet Änderungen an
 `agb`, `datenschutz`, `impressum` und `widerruf`. Ein Symbol wäre
 „nur schnell schöner machen", und genau das schließt die Regel aus.
 **Wenn der Betreiber sie trotzdem will, ist es eine Zeile je Knopf.**
@@ -323,6 +323,42 @@ Garantie- und Statikzusagen, gesperrter Konfigurator in der Sitemap,
 die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
+
+## Prüfstand vom 24.11.2026, letzter Lauf (nach der Symbolrunde)
+
+**83 Skripte, 79 grün, 4 rot, 0 übersprungen.**
+
+| Skript | allein nachgelaufen | Urteil |
+|---|---|---|
+| `pruefe-konfigurator-oberflaeche.mjs` | rot | bekannter Dauerbefund, 1 von 182 |
+| `pruefe-schrittwechsel.mjs` | rot | Altbefund B3, `pageYOffset 362` |
+| `pruefe-prozess-ringe.mjs` | **grün** | Wettlauf im Skript, siehe `docs/pruefungen.md` |
+| `pruefe-planken-editor.mjs` | **rot** | siehe unten, echter Altbefund |
+
+### `pruefe-planken-editor.mjs` ist kein Wackelkandidat, sondern ein Befund
+
+Bisher stand er auf der Liste „unter Last rot, allein grün". Am
+24.11.2026 war er **allein rot**, zweimal, mit identischer Meldung:
+
+```
+FEHLER  Die Ruecktaste leert das Hoehenfeld wirklich   (im Feld steht "900")
+FEHLER  Zu klein wird erst beim Verlassen berichtigt   (beim Tippen "900", nach dem Verlassen "900")
+```
+
+Gegen den Stand **vor** der Symbolrunde geprüft (`1a96333`, nur
+`produkte/`, `src/produkte/`, `css/`, `src/css/` zurückgeholt):
+**dieselben zwei Meldungen.** Es ist also kein Rückschritt durch die
+Symbole, aber auch kein Lastproblem. Dem Benutzer gegenüber heißt
+das: Die Rücktaste leert das Höhenfeld im Plankeneditor
+möglicherweise nicht. Das ist ein Funktionsfehler auf einer
+Produktseite und gehört geprüft.
+
+### Prüfstand der Symbolrunde selbst
+
+60 Seiten bei 320, 390, 768 und 1280 px: kein Text ragt aus einem
+Knopf, keine Fläche unter 24 px, nirgends waagerechtes Scrollen.
+Auf der Vorschau gegengeprüft: 58 von 59 Knöpfen auf acht Seiten
+tragen ein Symbol, der eine Rest ist der Rechtstext-Knopf aus a).
 
 ## Prüfstand vom 24.11.2026, dritter Lauf (Endstand des Tages)
 
