@@ -374,8 +374,16 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
      verlangt rundum die halbe Hoehe des BV-Zeichens frei, und das
      Logo ist jetzt 28 px hoch. Oben und unten muessen gleich sein,
      sonst sitzt das Logo nicht in der Mitte.
-     Rechnung: 14 + 28 + 14 + 2 px Rand = 58 px, vorher 68 px. */
-  justify-content: space-between; padding: 14px 0;
+     Ansage des Betreibers am 24.11.2026, nachdem er die flachere
+     Leiste gesehen hatte: "mach das Logo dann halt nicht irgendwie
+     schmaler oder so. Also nur so viel geht, so dass das Logo
+     bleiben kann." Das Logo bleibt deshalb 32 px hoch, und der
+     Freiraum muss 16 px betragen, nicht 14.
+     Rechnung: 16 + 32 + 16 + 2 px Rand = 66 px, vorher 68 px.
+     Mehr ist mit unveraendertem Logo nicht moeglich: Die 10 px des
+     ersten Versuchs kamen fast vollstaendig aus dem kleineren Logo,
+     nicht aus dem Polster. */
+  justify-content: space-between; padding: 16px 0;
 }
 /* SCHUTZRAUM DES LOGOS, 17.11.2026.
    Die Markenbibliothek verlangt rundum mindestens die halbe Hoehe des
@@ -388,19 +396,19 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
    noetig sind 16 px. Breite 32 x 6,5 = 208 px, die Bibliothek verlangt
    mindestens 160 px. Am Telefon ist das Logo damit breiter als vorher
    (208 statt 166 px), nicht kleiner. */
-/* HOEHE 28 STATT 32 PX, 24.11.2026. Beide Regeln der Bibliothek sind
-   weiter erfuellt, und die Rechnung vom 17.11. war zu vorsichtig:
-   Dort stand, das Logo koenne nicht niedriger werden, weil es bei
-   20 px Hoehe nur 130 px breit waere und die Mindestbreite von 160 px
-   unterschritte. Das gilt fuer 20 px, nicht fuer 28: Bei 6,5:1 ist
-   das Logo hier 182 px breit, also 22 px ueber der Grenze. Erst
-   unter 24,6 px Hoehe wird es zu schmal. Am Telefon ist es damit
-   immer noch breiter als vor dem 17.11. (182 gegen 166 px).
-   `display: block` ist kein Schoenheitsfehler, sondern spart 8 px:
-   Als Inline-Bild steht das Logo in einem Zeilenkasten, und der
-   Verweis darum war deshalb 40 px hoch bei 32 px Bild. Gemessen am
-   24.11.2026, das waren 8 px, die niemand sehen konnte. */
-.nav-logo { height: 28px; width: auto; padding: 0; display: block; }
+/* HOEHE 32 PX, unveraendert seit dem 17.11.2026. Am 24.11.2026 war
+   sie kurz auf 28 px, um die Leiste flacher zu bekommen; der
+   Betreiber hat das Logo zurueckverlangt: "nur so viel geht, so dass
+   das Logo bleiben kann". Die Rechnung dazu steht im Logbuch.
+   `display: block` BLEIBT und ist der einzige Teil des Versuchs, der
+   ueberlebt hat: Als Inline-Bild steht das Logo in einem
+   Zeilenkasten, und der Verweis darum war deshalb 40 px hoch bei
+   32 px Bild. Diese 8 px waren unsichtbar und ohne Zweck. Sie
+   lassen die Leiste nicht schrumpfen, weil der Schutzraum von 16 px
+   den Platz jetzt sichtbar belegt statt unsichtbar, aber der
+   Fokusring sitzt dadurch genau um das Logo statt locker darum
+   herum (gemessen: Verweis 208 x 32 statt 208 x 40). */
+.nav-logo { height: 32px; width: auto; padding: 0; display: block; }
 .nav-links { display: flex; list-style: none; gap: 28px; align-items: center; }
 .nav-links a {
   text-decoration: none; color: #FFFFFF;
@@ -2574,8 +2582,10 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
    24.11.2026, waehrend sie am Telefon 10 px flacher wurde. Das war
    nicht gewollt und faellt nur auf, wenn man beides misst.
    12 px sind hier erlaubt, weil der Schutzraum am Logo trotzdem
-   eingehalten ist: (70 - 28) / 2 = 21 px frei, noetig sind 14.
-   Rechnung: 12 + 46 + 12 + 2 px Rand = 72 px, vorher 74 px.
+   eingehalten ist: (70 - 32) / 2 = 19 px frei, noetig sind 16.
+   Rechnung: 12 + 46 + 12 + 2 px Rand = 72 px, vorher 74 px. Diese
+   Regel ueberlebt die Rueckkehr zum 32-px-Logo, weil am Rechner die
+   Menueleiste die Hoehe traegt und nicht das Logo.
    Die Grenze 961 px ist nicht frei gewaehlt: Bis 960 px ist die
    Menueleiste ausgeblendet (siehe oben), erst darueber traegt sie
    die Hoehe. */
@@ -2592,7 +2602,7 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
      festhaelt: Die Logohoehe ist am Telefon absichtlich dieselbe wie
      am Rechner, siehe Schutzraum weiter oben. Wer eine der beiden
      Zahlen aendert, aendert zwei. */
-  .nav-logo { height: 28px; }
+  .nav-logo { height: 32px; }
   .navbar .navbar-inner { padding-left: 14px; padding-right: 10px; }
 }
 

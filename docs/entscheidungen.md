@@ -23444,3 +23444,90 @@ Der Menüknopf ist unverändert 38 × 28 px. Das liegt über dem
 WCAG-Minimum von 24 px, aber unter den empfohlenen 44 px, und es ist
 jetzt weniger Luft um ihn. Nicht angefasst, weil er nicht kleiner
 geworden ist.
+
+## 24.11.2026 · Logo bleibt, Leiste wird dafür nur 2 px flacher
+
+### Anlass
+
+Ansage des Betreibers, nachdem er die flachere Leiste mit dem
+kleineren Logo gesehen hatte, wörtlich: „Ja, aber mach das Logo dann
+halt nicht irgendwie schmaler oder so. Also nur so viel geht, so dass
+das Logo bleiben kann."
+
+Damit ist die Rangfolge entschieden: **Logo vor Leistenhöhe.** Die
+Entscheidung von heute Vormittag, das Logo auf 28 px zu setzen, ist
+zurückgenommen.
+
+### Was jetzt gilt
+
+| | 17.11. bis 24.11. | Versuch 24.11. | **jetzt** |
+|---|---|---|---|
+| Logo | 208 × 32 px | 182 × 28 px | **208 × 32 px** |
+| Freiraum, Handy | oben 16, unten 18 | 14 / 14 | **16 / 16** |
+| Leiste am Handy | 68 px | 58 px | **66 px** |
+| Leiste am Rechner | 74 px | 72 px | **72 px** |
+
+```css
+.nav-logo { height: 32px; width: auto; padding: 0; display: block; }
+.navbar-inner { padding: 16px 0; }                     /* war 16px 0 10px */
+@media (min-width: 961px) { .navbar-inner { padding: 12px 0; } }
+```
+
+### Warum es nur 2 px sind, und das keine Nachlässigkeit ist
+
+Die 10 px des Versuchs kamen **fast vollständig aus dem kleineren
+Logo**, nicht aus dem Polster. Die Rechnung mit unveränderten 32 px:
+Der Schutzraum der Markenbibliothek verlangt rundum die halbe Höhe
+des BV-Zeichens frei, also 16 px. 16 + 32 + 16 + 2 px Rand = 66 px.
+Weniger geht nicht, ohne entweder das Logo zu verkleinern oder den
+Schutzraum zu verletzen.
+
+Gemessen: Der belegte Anteil des Bildschirms geht dadurch **nicht
+messbar zurück**. Er liegt wieder bei 24 % (320 × 568), 16 %
+(390 × 844) und 35 % (Querformat 844 × 390), also auf den
+Ausgangswerten. Das gehört so berichtet und nicht als Erfolg
+verkauft.
+
+### Was vom Versuch überlebt hat, und warum
+
+Zwei Dinge bleiben, weil sie das Logo nicht anfassen:
+
+1. **`display: block` am Logo.** Als Inline-Bild saß es in einem
+   Zeilenkasten, und der Verweis darum war 40 px hoch bei 32 px Bild.
+   Diese 8 px waren unsichtbar und ohne Zweck. Sie machen die Leiste
+   jetzt nicht flacher, weil der Schutzraum von 16 px den Platz
+   sichtbar belegt statt unsichtbar. Der **Fokusring** sitzt dadurch
+   aber genau um das Logo statt locker darum herum: gemessen Verweis
+   208 × 32 statt 208 × 40, Ring 3 px champagner mit 3 px Versatz,
+   vollständig innerhalb der Leiste, auf 390 und 1280 px Breite mit
+   echten Tab-Anschlägen.
+2. **Die Regel ab 961 px mit 12 px Polster.** Am Rechner trägt
+   `.nav-links` mit 46 px die Höhe, nicht das Logo. Der Schutzraum ist
+   dort mit (70 − 32) / 2 = 19 px eingehalten, nötig sind 16. Die
+   Leiste bleibt deshalb bei 72 statt 74 px.
+
+### Die Abwägung, die beim Betreiber liegt
+
+Wer die Leiste wirklich flacher will, muss das Logo antasten. Die
+Zahlen, alle mit eingehaltenem Schutzraum und über der Mindestbreite
+von 160 px:
+
+| Logohöhe | Logobreite | Leiste am Handy |
+|---|---|---|
+| 32 px (jetzt) | 208 px | 66 px |
+| 30 px | 195 px | 62 px |
+| 28 px | 182 px | 58 px |
+| 25 px (Grenze) | 162 px | 52 px |
+
+Unter 24,6 px Höhe ist die Mindestbreite unterschritten, dort ist
+Schluss. Der Betreiber hat 32 px gewählt; das steht, bis er etwas
+anderes sagt.
+
+### Nicht gemacht, obwohl es 2 px brächte
+
+Die goldene Linie unter der Leiste ist 2 px hoch und liegt unterhalb
+des gemessenen Freiraums. Man könnte sie als Teil des Schutzraums
+lesen und das untere Polster auf 14 px setzen, Leiste 64 px. Das wäre
+eine **Neuauslegung einer Markenregel für 2 px** und unterbleibt. Der
+Eintrag vom 17.11. hat den Freiraum ohne den Rand gerechnet; dabei
+bleibt es.
