@@ -23520,8 +23520,15 @@ von 160 px:
 | 25 px (Grenze) | 162 px | 52 px |
 
 Unter 24,6 px Höhe ist die Mindestbreite unterschritten, dort ist
-Schluss. Der Betreiber hat 32 px gewählt; das steht, bis er etwas
-anderes sagt.
+Schluss.
+
+**Entschieden und abgeschlossen am 24.11.2026.** Dem Betreiber wurde
+die Tabelle vorgelegt, mit dem ausdrücklichen Hinweis, dass die 2 px
+etwa einen halben Millimeter sind und der belegte Anteil des
+Bildschirms dadurch nicht messbar zurückgeht. Seine Antwort: „lass es
+einfach jz so". Es bleibt bei **Logo 208 × 32 px und Leiste 66 px**.
+Die Tabelle ist Hintergrund, **keine offene Frage**. Wer sie wieder
+aufmacht, braucht einen neuen Anlass vom Betreiber.
 
 ### Nicht gemacht, obwohl es 2 px brächte
 
