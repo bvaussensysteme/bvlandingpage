@@ -908,3 +908,53 @@ von einem Befund spricht.
   gemessen und behoben. Auf anderen Seiten mit Bildkarussell wurde
   nicht nachgesehen. Die Korrektur in `start.css` wirkt zwar
   seitenübergreifend, gemessen ist sie aber nur an einer Stelle.
+
+## Lokal grün ist nicht Vorschau grün: die Inhaltsrichtlinie (24.11.2026)
+
+**Aufgefallen** bei der Gegenprobe zum weißen Kasten auf der
+Stoffseite. Eine Messung, die lokal durchlief, scheiterte auf der
+Vorschau mit `EncodingError: The source image cannot be decoded`.
+
+**Ursache.** Die Vorschau liefert die Inhaltsrichtlinie aus
+`_headers` mit, der lokale Dateiserver (`python3 -m http.server`)
+nicht. Dort verbietet `img-src` unter anderem `data:`-Bilder. Das
+Messskript legte seinen Screenshot als `data:`-URL auf eine Leinwand,
+um die gerenderten Bildpunkte auszulesen, und genau das wurde
+blockiert.
+
+**Behelf im Messskript:** Die Auswertung läuft auf einer leeren Seite
+(`about:blank`), für die keine Richtlinie gilt. Die Aufnahme kommt
+weiter von der echten Seite.
+
+**Warum das über diesen Einzelfall hinausgeht.** Alle 83 Prüfskripte
+messen gegen `python3 -m http.server`, also **ohne** die
+Inhaltsrichtlinie, ohne die Kopfzeilen aus `_headers` und ohne den
+Worker aus `worker/index.js`. Ein Fehler, der nur unter der
+Richtlinie auftritt, etwa ein blockiertes Skript, eine blockierte
+Schrift oder ein blockiertes Bild, **kann von keiner der Prüfungen
+gefunden werden**. Das ist dieselbe Art Lücke wie bei den Ringfarben:
+Es wird etwas geprüft, aber nicht das, was der Besucher bekommt.
+
+**Zu prüfen, nicht gemessen:** Ob die Richtlinie auf der Vorschau
+etwas blockiert, das die Seite wirklich braucht. Ein Lauf, der die
+Kopfzeilen aus `_headers` mitliefert oder der direkt gegen die
+Vorschau misst, würde das zeigen. Vor einer Veröffentlichung wäre das
+sinnvoll, weil die Live-Seite dieselben Kopfzeilen sendet.
+
+## Geprüft und entwarnt: der Stoffstreifen der Startseite (24.11.2026)
+
+Der weiße Kasten hinter den Markisenbildern auf `stoffe.html` warf die
+Frage auf, ob die 53 Miniaturen des Streifens auf der Startseite
+dasselbe Problem haben.
+
+**Nein.** Gemessen am gerenderten Bild auf `index.html`, Kachel
+`PA626.webp`: Seitengrund daneben `rgb(248,247,244)`, Kachelrand
+`rgb(220,220,220)`, Kachelmitte `rgb(220,220,220)`. Rand und Mitte
+tragen dieselbe Stofffarbe, die Kachel ist also flächig ausgefüllt
+und nicht auf Weiß freigestellt.
+
+**Nebenbei eine Lehre zum Messen:** Der erste Versuch las alle 53
+Bilder über eine Leinwand aus und lief in die Zeitgrenze von 30
+Minuten, ohne ein Ergebnis zu liefern. Eine Kachel am gerenderten
+Bild zu messen dauerte wenige Sekunden und beantwortete dieselbe
+Frage. Mehr Daten sind nicht mehr Erkenntnis.
