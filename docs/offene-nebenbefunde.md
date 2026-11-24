@@ -988,3 +988,44 @@ verdeckt, und nach dem Schließen steht sie wieder bei 0 px. Also
 sichtbar folgenlos, aber der Zusammenhang gehört aufgeschrieben: Wer
 diese Inline-Zuweisung einmal durch etwas anderes ersetzt, bekommt
 einen Sprung in der Kopfleiste und wird die Ursache nicht finden.
+
+## 24.11.2026 · Vier Nebenbefunde aus der flacheren Kopfleiste
+
+**1. Zwei Sprungabstände sind jetzt zu groß, folgenlos.**
+`src/css/start.css:197` setzt `scroll-padding-top: 96px` und
+`src/css/style.css:3402` `.anfrage-wizard { scroll-margin-top: 90px }`.
+Die Leiste ist nur noch 58 px (Telefon) bzw. 72 px (Rechner) hoch, die
+Zahlen sind also 18 bis 38 px zu groß. Zu groß heißt: mehr Luft als
+nötig, kein verdeckter Fokus. Gemessen bleibt der Fokus frei
+(`pruefe-fokus-verdeckung` grün). Die maßgebliche Zahl steht ohnehin
+in `--fokus-frei-oben` und wird von `js/main.js:675` zur Laufzeit
+gemessen. Nicht angefasst, weil eine Änderung hier nur Kosmetik ist
+und zwei Dateien berührt.
+
+**2. Der Menüknopf könnte 44 × 44 px bekommen, ohne die Leiste wieder
+höher zu machen.** Er ist 38 × 28 px, also über dem WCAG-Minimum von
+24 px, aber unter der üblichen Empfehlung. Vorschlag, nicht gebaut:
+`padding: 14px 9px; margin: -8px -3px -8px 0;` an `.hamburger`
+(`src/css/style.css:439`). Die Fläche wird 44 × 44 px, die Zeilenhöhe
+bleibt durch den negativen Rand bei 28 px, die Leiste bei 58 px. Über
+und unter dem Knopf liegt kein anderes Bedienelement, die Fläche darf
+dort überragen. Vor dem Einbau prüfen, ob die vorhandenen Skripte die
+überragende Fläche mitzählen.
+
+**3. Die Häkchenzeile der Startseite fällt aus dem ersten Bild.**
+`.hero-trust` endet bei 853 px; bei 390 × 750 fehlen 103 px, bei
+390 × 844 noch 9 px. **Nicht Folge der flacheren Leiste:** mit der
+alten Leiste waren es 863 px, die Änderung verbessert es um genau
+10 px. Am 17.11.2026 endete die Zeile bei 744 px, in der
+Gestaltungsrunde danach ist also etwas im Heldenbereich gewachsen.
+Die Einzelhöhen sind nicht gemessen; `src/css/start.css:273` und
+`:584` allein erklären die rund 100 px nicht.
+
+**4. Der Schutzraum ist jetzt genau erfüllt, ohne Reserve.**
+14 px Freiraum bei 14 px Vorgabe, am Telefon. Vorher waren es 16 px
+bei 16 px Vorgabe oben und 18 px unten. Zwei Vorbehalte, beide nicht
+gemessen: Ist das BV-Zeichen in der SVG-Datei niedriger als die ganze
+Datei, wäre der Freiraum knapper als gerechnet (das galt aber auch
+bei 32 px). Und bei Teilpixel-Rundung kann der Wert um Bruchteile
+darunter liegen. Wer die Logohöhe anfasst, muss das Polster
+mitrechnen; der Kommentar an beiden Stellen im CSS sagt das.

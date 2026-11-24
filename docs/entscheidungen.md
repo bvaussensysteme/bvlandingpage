@@ -18387,6 +18387,18 @@ Mindestbreite 160 px) ließen sich nur über die Leiste lösen:
 130 px breit und unterschritte die Mindestbreite aus derselben
 Bibliothek.
 
+> **ÜBERHOLT AM 24.11.2026.** Die Zahlen in diesem Abschnitt gelten
+> nicht mehr: Das Logo ist **28 px hoch und 182 px breit**, die
+> Kopfzeile **58 px** am Telefon und 72 px am Rechner. Der Satz
+> „Verworfen: das Logo weiter zu verkleinern" wurde später als
+> allgemeine Regel gelesen, war aber eine Rechnung für 20 px. Bei
+> 6,5:1 ist die Mindestbreite von 160 px erst unter 24,6 px Höhe
+> unterschritten. Begründung und neue Rechnung im Eintrag
+> „Die Kopfleiste 10 px flacher, ohne eine Markenregel zu brechen"
+> vom 24.11.2026 am Ende dieser Datei. Die **Absicht** dieses
+> Eintrags gilt weiter: gleiche Logohöhe am Telefon wie am Rechner,
+> Schutzraum rundum die halbe Zeichenhöhe, Mindestbreite 160 px.
+
 Die Kopfzeile wurde dadurch 6 px höher. Dieselben 6 px sind im
 Heldenbereich abgezogen (`padding-top` 36 → 30 px), sonst wäre die
 Häkchenzeile wieder aus dem ersten Bild gefallen; sie endete vorher bei
