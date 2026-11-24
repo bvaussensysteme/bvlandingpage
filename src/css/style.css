@@ -4197,42 +4197,29 @@ body.bv-konfig-open #bvKonfigBubble {
    seinem Elternteil vergleicht. pruefe-mitwachsend meldete am
    23.11.2026 dreimal "ragt aus seinem Kasten" fuer Knoepfe, die in
    Wirklichkeit richtig sassen. */
-/* ZWEI SPALTEN STATT EINER, 24.11.2026. Drei Spalten bleiben falsch:
-   Gemessen ergaben sie bei 390 px 115 px breite Knoepfe, in denen
-   "Kostenlos anfragen" auf drei Zeilen umbrach und der Knopf 77 px
-   hoch wurde. EINE Spalte war aber genauso falsch, nur unauffaellig:
-   Sechs Knoepfe untereinander ergaben einen 350 px hohen Block, und
-   dadurch stand die Vertrauenszeile bei 800 px und lag auf jedem
-   geprueften Telefon unter dem Bildrand (bei 390 x 750 um 111 px,
-   beim iPhone SE um 373 px). Der erste Bildschirm zeigte Ueberschrift,
-   Untertitel und Knopfreihe, aber kein einziges Vertrauenssignal.
-   Zwei Spalten halten alle sechs Knoepfe GLEICH GROSS. Das ist keine
-   Nebensache: Der Betreiber hat am 15.11.2026 ausdruecklich verlangt,
-   "die buttons muessen beide gleich gross sein wie vorher", nachdem
-   ein Umbau sie unterschiedlich breit gemacht hatte. Eine Loesung mit
-   grossem Haupt- und kleinen Nebenknoepfen schied deshalb aus; die
-   Rangfolge traegt die Farbe (btn-gold) und nicht die Groesse.
-   `grid-auto-rows: 1fr` haelt auch die Hoehen gleich, falls ein Text
-   in einer Reihe umbricht und in der anderen nicht. */
+/* AM HANDY NUR DREI KNOEPFE, UNTEREINANDER. 24.11.2026, zweite
+   Fassung, nach Ansage des Betreibers: "Mach bei der mobilen version
+   nur 3 buttons: Kostenlos Anfragen, Anrufen, Whatsapp. und mach sie
+   wie vorher. In der PC Variante kannste alle 6 lassen."
+
+   Was davor stand und warum es weg ist: Sechs Knoepfe untereinander
+   waren 350 px hoch und schoben die Vertrauenszeile aus dem ersten
+   Bildschirm. Der Versuch, das mit zwei Spalten zu loesen, brachte
+   den Block auf 248 px, liess die Beschriftungen aber zweizeilig
+   umbrechen ("Kostenlos / anfragen"). Das sah gedraengt aus. Der
+   Betreiber geht die Ursache an statt der Folge: weniger Knoepfe.
+
+   Die drei, die am Handy verschwinden, tragen `hero-btn-pc`. Kein
+   Weg geht verloren: "Produkte" und "Katalog ansehen" stehen im
+   Handy-Menue, die Stoffe haben weiter unten einen eigenen Abschnitt
+   mit eigenem Knopf. Nachgemessen am 24.11.2026.
+
+   Drei Spalten bleiben falsch: Gemessen ergaben sie bei 390 px
+   115 px breite Knoepfe, in denen "Kostenlos anfragen" auf drei
+   Zeilen umbrach. */
 @media (max-width: 600px) {
   .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
-}
-/* Zwei Spalten erst ab 361 px. Unter 360 px bleibt es bei einer,
-   und das ist gemessen, nicht vorsichtshalber: Bei 320 px sind die
-   Spalten 142 px breit, und bei 150 Prozent Textvergroesserung ragte
-   "WhatsApp" 5 px aus seinem Knopf. Das Wort laesst sich nicht
-   umbrechen, und das Symbol davor braucht 18 px plus Abstand. Ein
-   kleineres Polster half nicht: Es verkleinert den Innenraum
-   genauso, wie es Platz schafft (nachgemessen, unveraendert 5 px).
-   Der Verzicht kostet dort fast nichts. Bei 320 x 568 brachten zwei
-   Spalten die Vertrauenszeile von 861 auf 839 px, sie blieb also so
-   oder so unter dem Bildrand; der Gewinn waren 22 von noetigen
-   271 px. */
-@media (min-width: 361px) and (max-width: 600px) {
-  .hero--neu .hs-slide-btns {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-auto-rows: 1fr;
-  }
+  .hero--neu .hs-slide-btns > .hero-btn-pc { display: none; }
 }
 .hero--neu .hs-slide-btns > .btn {
   width: 100%;

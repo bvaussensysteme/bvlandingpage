@@ -24009,3 +24009,66 @@ ausdrücklich „vor jedem button", deshalb steht das nur als Option in
 **Später prüfen:** Ob die Knöpfe in Produktkarten bei 360 px
 umbrechen und das Symbol dabei oben hängen bleibt. Gehört nach
 `scripts/pruefe-mitwachsend.mjs`.
+
+## 24.11.2026 · Zurückgenommen: am Handy nur drei Knöpfe im Heldenbereich
+
+### Was der Betreiber gesagt hat
+
+Mit einem Bildschirmfoto der zweispaltigen Knöpfe: „wieso hastn du
+das jz so gemacht? Mach bei der mobilen version nur 3 buttons:
+Kostenlos Anfragen, Anrufen, Whatsapp. und mach sie wie vorher. In
+der PC Variante kannste alle 6 lassen."
+
+### Warum meine Lösung schlechter war
+
+Ich hatte die Folge behandelt statt der Ursache. Sechs Knöpfe
+untereinander waren 350 px hoch und schoben die Vertrauenszeile aus
+dem ersten Bildschirm. Zwei Spalten brachten den Block auf 248 px,
+aber die Beschriftungen brachen zweizeilig um („Kostenlos /
+anfragen"), und bei 320 px ragte „WhatsApp" bei 150 Prozent
+Textvergrößerung aus seinem Knopf. Lauter Folgeprobleme einer
+Knopfzahl, die am Handy zu hoch war.
+
+Der Betreiber nimmt die Knöpfe weg. Das löst alles drei auf einmal.
+
+### Was jetzt gilt
+
+```css
+@media (max-width: 600px) {
+  .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
+  .hero--neu .hs-slide-btns > .hero-btn-pc { display: none; }
+}
+```
+
+Die Klasse `hero-btn-pc` tragen in `index.html` genau drei Verweise:
+„Produkte ansehen", „Katalog ansehen" und „Stoffe ansehen".
+
+| | sechs untereinander | zwei Spalten | **jetzt** |
+|---|---|---|---|
+| sichtbare Knöpfe am Handy | 6 | 6 | **3** |
+| Knopfhöhe | 52 px | 77 px, zweizeilig | **52 px, einzeilig** |
+| Block | 350 px | 248 px | **171 px** |
+| Vertrauenszeile beginnt | 800 px | 698 px | **621 px** |
+| sichtbar bei 390 × 750 | nein | nein | **ja** |
+| Rechner ab 768 px | 6 in drei Spalten | unverändert | unverändert |
+
+### Kein Weg geht verloren
+
+Gemessen am Handy, nicht angenommen:
+
+| ausgeblendet | weiter erreichbar über |
+|---|---|
+| Produkte (`#leistungen`) | Handy-Menü, 1 Verweis |
+| Katalog (`/broschuere.html`) | sichtbar auf der Seite (1) und im Menü (1) |
+| Stoffe (`/stoffe.html`) | eigener Abschnitt mit 55 Verweisen |
+
+Das ist die Bedingung dafür, dass das Ausblenden mit dem
+Bestandsschutz vereinbar ist. Wer die drei Klassen später entfernt
+oder einen Abschnitt umbaut, muss das erneut prüfen.
+
+### Was offen bleibt
+
+Bei 320 × 568 liegt die Vertrauenszeile weiter unter dem Rand, bei
+375 × 667 ist sie angeschnitten. Allein der Beschreibungstext
+`.hs-desc` ist dort 154 px hoch. Das ginge nur über eine
+Textkürzung, und Texte werden nicht ohne Ansage geändert.
