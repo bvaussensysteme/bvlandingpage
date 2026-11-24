@@ -149,14 +149,16 @@ const SCHRITTE = 120;
    sichtbar fetter machen. Die Pruefung MELDET sie weiterhin, laesst
    sie aber nicht fehlschlagen. Neue Faelle schlagen fehl.
    Wer einen davon behebt, nimmt ihn hier heraus. */
-const BEKANNT_GEWICHT = new Set([
-  'kontakt-quick-lead', 'bg-search-label', 'bro-ende-frage', 'stoff-dessin',
-  /* Nachgetragen 24.11.2026: Der fuenfte Fall stand im Bericht und
-     fehlte hier. Er fiel erst auf, als die Seitenliste alle Seiten
-     umfasste, denn .vd-model-tile gibt es nur auf den beiden
-     Sonnenschutz-Seiten. */
-  'vd-model-tile',
-]);
+/* LEER SEIT 24.11.2026, und das ist der Punkt. Hier standen fuenf
+   Klassen, deren Gewicht nie auf dem Schirm ankam, weil
+   ".start-premium p" sie schlug. Statt sie einzeln zu entschuldigen,
+   wurde die Ursache beseitigt: Die Regel in src/css/start.css steht
+   jetzt als ":where(.start-premium) p" und hat damit Spezifitaet 0.
+   Gemessen ueber 55 Seiten und 2428 Absaetze: genau 70 Absaetze
+   aendern sich, alle in diesen fuenf Klassen, keine Ueberraschung.
+   Wer hier wieder etwas eintraegt, entschuldigt einen Fehler, statt
+   ihn zu beheben. Das ist fast immer der falsche Weg. */
+const BEKANNT_GEWICHT = new Set([]);
 
 /* ---- Absichten aus dem Stilblatt lesen ----
    Nur Regeln, deren Selektor EINE Klasse ist, auf Wunsch gefolgt von

@@ -23070,3 +23070,62 @@ Zehn unsichtbare Fokusringe am 23.11.2026, drei weitere am
 Skripte gefunden.** Die Ursache war jedes Mal dieselbe: eine dunkle
 Fläche, die in der Liste fehlt, und ein Ring, der in seine eigene
 Hintergrundfarbe läuft.
+
+## 24.11.2026 · Die Ursache beseitigt statt fünfmal entschuldigt
+
+**Was falsch war.** `src/css/start.css` enthielt
+`.start-premium p { font-weight: 400 }`. Das ist Klasse plus Typ, also
+Spezifität (0,1,1), und die Datei wird später geladen. Damit gewann
+die Regel gegen **jede** einzelne Klasse. Folge: Jedes `font-weight`
+in `style.css`, das an einem `<p>` per Klasse hing, war wirkungslos.
+Der Text, der hervorgehoben sein sollte, war normal, und im Quelltext
+sah alles richtig aus.
+
+**Zwei Wege standen zur Wahl.** Je Fall eine Ausnahme in `start.css`
+nachtragen, so wie es am 23.11.2026 für `.eindeck-fuss` gemacht wurde.
+Oder die Regel selbst entschärfen. Der erste Weg flickt fünf Fälle und
+lässt die Falle stehen; die nächste Klasse mit eigenem Gewicht tappt
+wieder hinein. Gewählt wurde der zweite.
+
+**Was jetzt gilt.** `:where(.start-premium) p`. `:where()` zählt mit
+Spezifität 0, die Regel fällt auf (0,0,1) und verliert gegen jede
+Klasse, bleibt aber der Grundwert für alle Absätze ohne eigene Angabe.
+
+### Vorher gemessen, nicht hinterher gehofft
+
+Der `cto` hatte zu diesem Weg angemerkt, er ändere das Aussehen
+**aller** Absätze mit Klassengewicht und brauche deshalb eine Messung
+vorher und nachher. Genau das wurde gemacht: Das berechnete Gewicht
+**jedes** Absatzes auf allen 55 Seiten wurde aufgenommen, die Regel
+umgestellt, erneut aufgenommen und verglichen.
+
+**2428 Absätze, 70 verändert, alle in den fünf erwarteten Klassen:**
+
+| Klasse | vorher | nachher | Anzahl |
+|---|---|---|---|
+| `stoff-dessin` | 400 | 600 | 53 |
+| `.vd-model-tile p` (ohne eigene Klasse) | 400 | 600 | 12 |
+| `kontakt-quick-lead` | 400 | 700 | 3 |
+| `bg-search-label` | 400 | 600 | 1 |
+| `bro-ende-frage` | 400 | 700 | 1 |
+
+**Keine einzige unbeabsichtigte Änderung.** Ohne diese Messung wäre
+die Umstellung eine Wette gewesen.
+
+### Die Liste der Ausnahmen ist jetzt leer
+
+`BEKANNT_GEWICHT` in `scripts/pruefe-wirkung.mjs` enthielt fünf
+Klassen, deren Fehler die Prüfung melden, aber nicht beanstanden
+sollte. Sie ist leer, und im Quelltext steht, warum dort nichts mehr
+hineingehört: **Wer eine Klasse einträgt, entschuldigt einen Fehler,
+statt ihn zu beheben.** Die Prüfung meldet jetzt 110 bestandene
+Prüfungen ohne eine einzige Ausnahme.
+
+### Was davon sichtbar ist
+
+Am stärksten auf `stoffe.html`: 53 Dessin-Bezeichnungen tragen jetzt
+das Gewicht, das im Stilblatt immer schon stand. Dazu der Vorspann
+„Lieber direkt Kontakt aufnehmen?" auf drei Seiten, die Frage am Ende
+der Broschüre, die Beschriftung im Baugenehmigungs-Check und die zwölf
+Modellnamen der Markisen. Ein Bild vorher und nachher ging an den
+Betreiber.

@@ -99,7 +99,22 @@
 .start-premium h1, .start-premium h2, .start-premium h3,
 .start-premium .hs-heading { font-weight: 800; letter-spacing: -0.02em; }
 .start-premium h2 { letter-spacing: -0.015em; }
-.start-premium p  { font-weight: 400; }
+/* :where() UND NICHT .start-premium, seit 24.11.2026.
+   Die Regel soll den Grundwert fuer Absaetze setzen, nicht jede
+   Einzelregel schlagen. Als ".start-premium p" hatte sie Klasse plus
+   Typ, also Spezifitaet (0,1,1), und gewann damit gegen jede
+   einzelne Klasse; dazu wird diese Datei spaeter geladen. Folge:
+   JEDES font-weight in style.css, das an einem <p> per Klasse hing,
+   war wirkungslos. Gemessen ueber 55 Seiten waren fuenf Regeln
+   betroffen, darunter .kontakt-quick-lead (soll 700) und
+   .vd-model-tile p (soll 600). Der Text, der hervorgehoben sein
+   sollte, war normal.
+   :where() zaehlt mit Spezifitaet 0. Die Regel faellt damit auf
+   (0,0,1) und verliert gegen jede Klasse, bleibt aber der Grundwert
+   fuer alle Absaetze ohne eigene Angabe. Das beseitigt die
+   Fehlerklasse, statt sie je Fall mit einer Ausnahme zu flicken.
+   Abgesichert von scripts/pruefe-wirkung.mjs. */
+:where(.start-premium) p  { font-weight: 400; }
 /* AUSNAHME 23.11.2026. Die Regel darueber hat als Klasse plus Typ
    eine hoehere Spezifitaet als eine einzelne Klasse und steht
    zusaetzlich in der spaeter geladenen Datei. Sie schlaegt damit
