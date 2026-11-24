@@ -23605,3 +23605,58 @@ Bei allen 53 Kacheln geprüft, ob der Text aus dem Band ragt
 sobald ein Dessin mit längerem Namen dazukommt. Der Streifen wird von
 `scripts/baue-stoffstreifen.mjs` erzeugt; wer dort Namen ergänzt,
 sollte bei 320 px Breite nachsehen.
+
+### Nachtrag: Anthrazit statt Fast-Schwarz, und ein abgeschnittener Name
+
+Ansage des Betreibers nach dem ersten Bild: „nicht so schwarz machen,
+sondern hier diese andere dunkle Farbe, die du auch im Header oder im
+Footer hast."
+
+Das ist `var(--dark)`, dieselbe Marke wie `.navbar`
+(`src/css/style.css:354`) und `footer` (`:1536`). Gemessen am
+gerenderten Bildpunkt, drei Stellen im Band: `rgb(29, 32, 35)`,
+identisch mit Kopf- und Fußzeile. Kontrast der weißen Schrift
+darauf: **16,37:1**.
+
+**Vorsicht bei der Zahl dahinter.** `--dark` steht in `style.css` auf
+`#1a1a1a`, wird in `start.css:50` aber auf `#1D2023` umdefiniert. Auf
+allen echten Seiten gilt deshalb `#1D2023`. Wer den Wert in
+`style.css` nachschlägt, sieht nicht, was gerendert wird. Das ist
+dieselbe Falle wie bei `--radius` und `--gold-text`.
+
+**Zwei Fehler nebenbei behoben, beide von Prüfern gefunden:**
+
+1. Der Kommentar behauptete seit dem 22.11., der Grund sei „deckend"
+   und der Kontrast betrage „15,3:1 bei allen 53". Tatsächlich stand
+   dort `rgba(17, 17, 17, 0.92)`, also 8 Prozent durchscheinend. Die
+   Zahl galt damit nur für einen bestimmten Stoff dahinter, nicht für
+   alle. Jetzt ist der Grund wirklich deckend, und die Aussage
+   stimmt.
+2. Bei 200 Prozent Zoom schrumpft die Kachel von 150 auf 78 px.
+   Nummer und Dessinname standen starr nebeneinander, der Text ragte
+   gemessen **34 px** heraus, und `overflow: hidden` an der Kachel
+   schnitt ihn ab. Ein abgeschnittener Name ist Inhaltsverlust beim
+   Vergrößern (WCAG 2.2, 1.4.4, Stufe AA). Mit `flex-wrap: wrap` und
+   `overflow-wrap: break-word` rutscht der Name in eine zweite Zeile:
+   nachgemessen 0 px Überhang.
+
+**Der Preis davon, offen gesagt:** Bei 200 Prozent Zoom belegt das
+Band dadurch 59 Prozent der Kachel statt 33. Das ist beabsichtigt.
+Wer auf 200 Prozent zoomt, braucht den Text lesbar; das Muster
+bleibt zu 41 Prozent sichtbar. Bei normaler Ansicht ändert sich
+nichts: 26 px, 17 Prozent der Kachel.
+
+### Noch offen aus den Prüfberichten
+
+- **Schriftgröße.** `docs/WEBSITE_DESIGN_SYSTEM.md:194` verlangt für
+  Kleintext mindestens 14 px. Das Band hat 11,5 px, die Nummer
+  12,8 px. Nicht geändert, weil 14 px das Band auf etwa 30 px
+  brächten und damit dem Wunsch „nur unten dezent" zuwiderliefen.
+  Das ist eine Abwägung für den Betreiber, nicht für den Assistenten.
+- **Fehlendes Leerzeichen** zwischen Nummer und Name im Markup
+  (`scripts/baue-stoffstreifen.mjs:116`). Sichtbar getrennt werden
+  sie nur durch `gap: 6px`. Ohne Folge für Vorlesesoftware, weil das
+  Band `aria-hidden` trägt, aber beim Kopieren steht dort
+  „PA626Mountain".
+- **Symbole auf `stoffe.html`** sind nur per `title` beschriftet und
+  damit am Telefon nicht abrufbar (`src/stoffe.njk:95`).

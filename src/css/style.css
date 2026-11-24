@@ -2401,15 +2401,41 @@ footer h4 {
    2. Sie erscheint auch beim Tastaturfokus, nicht nur mit der Maus.
       Sonst waere die Angabe fuer jeden unerreichbar, der nicht mit
       der Maus bedient.
-   3. Der Grund ist deckend dunkel und nicht durchscheinend. Bei einem
+   3. Der Grund ist deckend und nicht durchscheinend. Bei einem
       hellen Dessin faellt sonst der Kontrast der weissen Schrift
-      unter 4,5:1, und zwar je nach Stoff verschieden. Deckend ist es
-      bei allen 53 gleich: 15,3:1 gemessen. */
+      je nach Stoff verschieden aus. Deckend ist er bei allen 53
+      gleich.
+      KORREKTUR 24.11.2026: Hier stand "deckend" und "15,3:1
+      gemessen", der Wert war aber `rgba(17,17,17,0.92)`, also zu
+      8 Prozent durchscheinend. Die Zahl galt damit nur fuer einen
+      bestimmten Stoff dahinter, nicht fuer alle. Jetzt ist der
+      Grund wirklich deckend, und der Kontrast ist bei allen 53
+      derselbe. */
 .kachel-info {
   position: absolute; left: 0; right: 0; bottom: 0;
+  /* UMBRUCH ERLAUBT, 24.11.2026. Ohne `flex-wrap` stand Nummer und
+     Dessinname starr nebeneinander. Bei 200 Prozent Zoom schrumpft
+     die Kachel von 150 auf 78 px, und der Text ragte gemessen 34 px
+     heraus; `overflow: hidden` an der Kachel schnitt ihn ab. Ein
+     abgeschnittener Dessinname ist Inhaltsverlust beim Vergroessern
+     (WCAG 2.2, 1.4.4 Resize Text, Stufe AA). Mit Umbruch rutscht der
+     Name in eine zweite Zeile, das Band wird hoeher, und nichts
+     geht verloren. `overflow-wrap: break-word` faengt zusaetzlich
+     ein einzelnes zu langes Wort ab, falls spaeter ein Dessin mit
+     langem Namen dazukommt. */
   display: flex; align-items: baseline; gap: 6px;
+  flex-wrap: wrap; overflow-wrap: break-word;
   padding: 7px 9px;
-  background: rgba(17, 17, 17, 0.92);
+  /* ANTHRAZIT STATT FAST-SCHWARZ, 24.11.2026. Ansage des
+     Betreibers: "nicht so schwarz machen, sondern hier diese andere
+     dunkle Farbe, die du auch im Header oder im Footer hast."
+     Das ist `--dark`, dieselbe Marke wie `.navbar` (Zeile 354) und
+     `footer` (Zeile 1536). Achtung bei der Zahl dahinter: `--dark`
+     ist in style.css #1a1a1a, wird aber in start.css auf #1D2023
+     umdefiniert. Auf allen echten Seiten gilt deshalb #1D2023. Wer
+     den Wert in style.css nachschlaegt, sieht nicht, was gerendert
+     wird. */
+  background: var(--dark);
   color: #fff; line-height: 1.25;
   font-size: 0.72rem; font-weight: 500;
   letter-spacing: 0.01em;
