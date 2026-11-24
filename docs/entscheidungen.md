@@ -23538,3 +23538,70 @@ lesen und das untere Polster auf 14 px setzen, Leiste 64 px. Das wäre
 eine **Neuauslegung einer Markenregel für 2 px** und unterbleibt. Der
 Eintrag vom 17.11. hat den Freiraum ohne den Rand gerechnet; dabei
 bleibt es.
+
+## 24.11.2026 · Stoffnamen am Handy dauerhaft statt nur beim Überfahren
+
+### Was falsch war
+
+Ansage des Betreibers, mit Bildschirmfoto vom Handy: „wenn man mit
+Maus drüber fährt, wird ja die Stoffnummer und alles angezeigt.
+Kannst du es bei Handy so machen, dass es direkt angezeigt wird,
+also, aber das soll jetzt nicht den ganzen Stoffkasten einnehmen,
+sondern nur unten dezent, dass man halt einfach sieht, was das ist,
+direkt, bevor man draufklickt."
+
+Die Beschriftung war längst gebaut. Jede der 53 Kacheln trägt
+`<span class="kachel-info"><b>PA626</b>Mountain</span>`. Die Regel,
+die sie zeigt, steckt aber in
+`@media (hover: hover) and (pointer: fine)` und greift auf einem
+Telefon nie. Dort war die Angabe nur über den Tastaturfokus
+erreichbar, und den benutzt am Telefon niemand. Wer wischte, sah
+53 graue Quadrate ohne Namen.
+
+Das ist genau der Fall, den die Prüfliste des Design-Skills unter
+„Hover vs Tap" mit hoher Dringlichkeit führt: „Hover effects don't
+work on touch devices. Don't rely only on hover for important
+actions."
+
+### Was jetzt gilt
+
+```css
+@media (hover: none) {
+  .galerie-streifen--muster .kachel-info {
+    opacity: 1; transform: none;
+    padding: 5px 8px;          /* war 7px 9px */
+  }
+}
+```
+
+`hover: none` statt einer Breitenabfrage: Entscheidend ist nicht, wie
+breit das Gerät ist, sondern ob es einen Mauszeiger hat. Ein schmales
+Fenster am Rechner behält deshalb das Verhalten beim Überfahren, ein
+großes Tablet bekommt die dauerhafte Angabe.
+
+Das Polster ist 5 statt 7 px, weil das Band hier nicht kurz
+erscheint, sondern steht.
+
+| | Rechner (Maus) | Handy |
+|---|---|---|
+| sichtbare Beschriftungen | 0 von 53, erst beim Überfahren | **53 von 53** |
+| Bandhöhe | 30 px | **26 px** |
+| Anteil der Kachel, 390 px breit | 20 % | **17 %** |
+| Anteil der Kachel, 320 px breit | – | 20 % |
+
+### Was ausdrücklich nicht geändert wurde
+
+Grund, Farbe und Schriftgröße. Der Grund ist deckend dunkel, weil bei
+einem hellen Dessin sonst der Kontrast der weißen Schrift je nach
+Stoff unter 4,5:1 fällt; die 15,3:1 aus dem Eintrag vom 22.11.
+gelten unverändert, weil an den Farben nichts bewegt wurde. Eine
+kleinere Schrift wäre hier falsch: Sie wird jetzt dauerhaft gelesen
+und nicht nur im Vorbeifahren.
+
+### Was gegengelesen werden soll
+
+Bei allen 53 Kacheln geprüft, ob der Text aus dem Band ragt
+(`scrollWidth` gegen `clientWidth`): keine. Das kann sich ändern,
+sobald ein Dessin mit längerem Namen dazukommt. Der Streifen wird von
+`scripts/baue-stoffstreifen.mjs` erzeugt; wer dort Namen ergänzt,
+sollte bei 320 px Breite nachsehen.

@@ -2421,6 +2421,33 @@ footer h4 {
 @media (hover: hover) and (pointer: fine) {
   .galerie-streifen--muster .galerie-kachel:hover .kachel-info { opacity: 1; transform: translateY(0); }
 }
+/* OHNE MAUSZEIGER DAUERHAFT SICHTBAR, 24.11.2026.
+   Ansage des Betreibers mit Bildschirmfoto vom Handy: "wenn man mit
+   Maus drueber faehrt, wird ja die Stoffnummer und alles angezeigt.
+   Kannst du es bei Handy so machen, dass es direkt angezeigt wird
+   ... aber das soll jetzt nicht den ganzen Stoffkasten einnehmen,
+   sondern nur unten dezent."
+   Die Regel darueber ist in `hover: hover` eingesperrt und greift am
+   Telefon nie. Die Angabe war dort also nur ueber den Tastaturfokus
+   erreichbar, und den benutzt am Telefon niemand. Wer wischt, sah
+   53 graue Quadrate ohne Namen.
+   `hover: none` statt einer Breitenabfrage: Entscheidend ist nicht,
+   wie breit das Geraet ist, sondern ob es einen Mauszeiger hat. Ein
+   schmales Fenster am Rechner behaelt deshalb das Verhalten beim
+   Ueberfahren, ein grosses Tablet bekommt die dauerhafte Angabe.
+   Polster 5 statt 7 px, weil das Band hier nicht kurz erscheint,
+   sondern steht: 26 statt 30 px, das sind 17 Prozent der Kachel
+   statt 20 (bei 390 px Breite gemessen).
+   NICHT geaendert: Grund, Farbe und Schriftgroesse. Der Grund ist
+   deckend dunkel, der Kontrast betraegt 15,3:1 bei allen 53 Dessins,
+   und eine kleinere Schrift waere hier falsch, weil sie jetzt
+   dauerhaft gelesen wird und nicht nur im Vorbeifahren. */
+@media (hover: none) {
+  .galerie-streifen--muster .kachel-info {
+    opacity: 1; transform: none;
+    padding: 5px 8px;
+  }
+}
 .galerie-streifen--muster .galerie-kachel:focus-visible .kachel-info {
   opacity: 1; transform: translateY(0);
 }
