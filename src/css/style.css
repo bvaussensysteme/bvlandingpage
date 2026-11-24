@@ -442,8 +442,33 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
      stehen und ist nach dem Schliessen unveraendert da. */
   z-index: 10000;
   flex-direction: column; align-items: center;
-  justify-content: center; gap: 32px;
+  gap: 32px;
+  /* Scrollbar und trotzdem mittig, gemessen am 24.11.2026.
+     Vorher stand hier `justify-content: center` ohne `overflow-y`.
+     Im Querformat (844x390) ragte das Menue 230 px aus dem
+     Bildschirm, bei 568x320 sogar 300 px, und zwar nach OBEN und
+     nach UNTEN gleichzeitig. Nur 4 von 8 Eintraegen waren sichtbar;
+     "Leistungen", "Galerie", "FAQ" und "Jetzt anfragen" lagen
+     draussen und waren nicht anklickbar. Der Tastaturfokus auf
+     "Jetzt anfragen" landete bei 431 px, also ausserhalb. Scrollen
+     half nicht: `js/main.js` setzt bei offenem Menue
+     body.style.overflow = 'hidden', und ein zentrierter Flex-Kasten
+     ohne eigenes Scrollen schneidet den Anfang ab, selbst wenn man
+     es versucht (WCAG 2.2: 1.4.10 Reflow und 2.4.3, Stufe AA).
+     Warum nicht `justify-content: safe center`: Das kennen aeltere
+     Browser nicht, und dort bliebe der Fehler still stehen. Die
+     automatischen Aussenabstaende wirken ueberall: Ist Platz, fallen
+     sie gleich gross aus und zentrieren; ist keiner, werden sie 0,
+     und der volle Inhalt ist erreichbar. Das Polster oben haelt die
+     Eintraege vom Schliessen-Knopf frei, der absolut bei 20 px sitzt.
+     Oben und unten gleich gross, sonst waere die Mitte verschoben. */
+  justify-content: flex-start;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 56px 16px;
 }
+.mobile-menu > a:first-of-type { margin-top: auto; }
+.mobile-menu > a:last-of-type { margin-bottom: auto; }
 .mobile-menu.open { display: flex; }
 
 /* Fix: Konfigurator-Button/A11y-Widget/Scroll-Top haben absichtlich sehr
@@ -2615,8 +2640,20 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
 }
 
 /* Prevent any horizontal overflow globally */
+/* Zwei Zeilen fuer dieselbe Sache, mit Absicht. `hidden` in EINER
+   Achse macht das Element in BEIDEN zu einem Scroll-Container; damit
+   verliert `position: sticky` seinen Bezugspunkt, und die Kopfleiste
+   scrollt weg, obwohl sie sticky ist (gemessen 24.11.2026: nach
+   1500 px Scrollen sass sie bei -1500 px). `clip` schneidet genauso
+   ab, ohne Scroll-Container. Die `hidden`-Zeile bleibt als Rueckfall
+   fuer Safari vor 16 davor stehen; dort gilt das alte Verhalten.
+   Dieselbe Kette steht in start.css auf `.start-premium` und ist
+   dort die wirksame, weil hoeher gewichtete Regel. Hier steht sie
+   fuer Seiten mit `premium: false`, damit die Leiste nicht still
+   wieder kaputtgeht, wenn jemand das Flag setzt. */
 html, body {
   overflow-x: hidden;
+  overflow-x: clip;
   max-width: 100%;
 }
 * { max-width: 100%; box-sizing: border-box; }

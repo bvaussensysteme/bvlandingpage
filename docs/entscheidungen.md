@@ -23129,3 +23129,217 @@ das Gewicht, das im Stilblatt immer schon stand. Dazu der Vorspann
 der Broschüre, die Beschriftung im Baugenehmigungs-Check und die zwölf
 Modellnamen der Markisen. Ein Bild vorher und nachher ging an den
 Betreiber.
+
+## 24.11.2026 · Weißer Kasten hinter den Markisenbildern: eine Zeile statt 53 Freistellungen
+
+### Was falsch war
+
+Ansage des Betreibers, wörtlich: „die markisen dinger neben den
+stoffen haben nen weißen kasten hals hintergrund". Gemessen auf
+`stoffe.html`: 53 Markisenbilder sind JPG-Dateien, die Ecken tragen
+exakt `rgb(255,255,255)`, der Seitengrund daneben `rgb(248,247,244)`.
+Ein JPG kann keine Durchsichtigkeit speichern, der weiße Grund ist
+also in die Datei eingebacken und kein CSS-Fehler.
+
+### Was jetzt gilt
+
+Eine Regel in `src/stoffe.njk`:
+
+```css
+.stoff-markise-img { mix-blend-mode: multiply; }
+```
+
+`multiply` multipliziert das Bild mit dem Grund dahinter. Reines Weiß
+ist der neutrale Faktor und nimmt deshalb die Farbe des Grundes an;
+alles Dunklere bleibt, wie es ist. Gegenprobe auf der Vorschau am
+gerenderten Bildpunkt: Seitengrund und Bildecke sind jetzt beide
+`rgb(248,247,244)`, also gleich.
+
+### Warum so und nicht anders
+
+Verworfen: **53 Bilder freistellen.** Die Bildersammlung umfasst 155
+Dateien und 17,5 MB. PNG mit Alphakanal wäre bei Fotos ein Mehrfaches
+an Dateigröße, WebP mit Alpha hätte eine neue Verarbeitungsstrecke
+gebraucht, und die Kanten der Tuchmuster sind weich, also hätte
+Freistellen von Hand sichtbare Ränder hinterlassen. Für ein Problem,
+das eine Zeile löst, ist das unverhältnismäßig.
+
+### Was gegengelesen werden soll
+
+**Die Regel hängt daran, dass der Grund hell ist.** Wird der Abschnitt
+jemals dunkel, werden die Bilder mit dem dunklen Grund multipliziert
+und damit matschig bis unsichtbar. Dieser Satz steht als Kommentar an
+der Regel selbst, nicht nur hier, damit niemand den Abschnitt
+umfärbt, ohne darüber zu stolpern. Der Stoffstreifen auf der
+Startseite wurde geprüft und ist nicht betroffen: Dort trägt der
+Kachelrand Stofffarbe, kein Weiß.
+
+## 24.11.2026 · Die Kopfleiste bleibt stehen. Sie wollte es seit Langem
+
+### Was falsch war
+
+Wunsch des Betreibers, mit einem Bildschirmfoto vom Handy: „dieser
+Header hier, wenn man weiter scrollt, lässt er sich mit wegscrollen.
+Kann man es so machen, dass man die Seite zwar scrollen lassen kann,
+aber dieser Header immer da oben stehen bleibt."
+
+Beim Nachsehen stand die Antwort schon im Code. `src/css/style.css:353`
+gibt `.navbar` seit Langem `position: sticky; top: 0; z-index: 100`.
+Es wirkte nur nie. Gemessen vorher: nach 1500 px Scrollen saß die
+Leiste bei **−1500 px**, und zwar auf 390 px Breite **und** auf
+1280 px. Der Fehler betraf also nicht nur das Handy, sondern jeden
+Besucher seit dem Tag, an dem die Regel geschrieben wurde.
+
+Ursache: `.start-premium` in `src/css/start.css` trug
+`overflow-x: hidden`. `overflow` in einer Achse auf `hidden` macht das
+Element in **beiden** Achsen zu einem Scroll-Container. Damit scrollt
+nicht mehr das Fenster, sondern der Körper, und `sticky` hat nichts
+mehr, woran es haften kann. Die Messung las die Eigenschaften der
+Vorfahren aus und meldete `body.start-premium  hidden auto hidden auto`.
+
+### Was jetzt gilt
+
+```css
+.start-premium { overflow-x: hidden; overflow-x: clip; }
+```
+
+`clip` schneidet waagerecht genauso ab wie `hidden`, erzeugt aber
+keinen Scroll-Container. Nach der Änderung: Leiste bei **0 px**,
+bleibt stehen, auf 390 px und 1280 px. Der Vorfahren-Bericht liest
+jetzt `clip visible clip visible`.
+
+Die `hidden`-Zeile bleibt **absichtlich davor** stehen. Safari vor
+Version 16 kennt `clip` nicht, überspringt die zweite Zeile und
+behält die erste. Dort verhält sich die Seite wie bisher: kein
+waagerechtes Scrollen, Kopfleiste scrollt weg. Das ist eine
+Verschlechterung gegenüber niemandem, sondern der heutige Zustand.
+
+### Warum nicht `position: fixed`
+
+`fixed` hätte die Leiste aus dem Textfluss genommen. Dann hätte der
+erste Abschnitt 68 px Abstand von oben gebraucht, von Hand gesetzt,
+und bei jeder Änderung an der Leistenhöhe hätte man diese Zahl
+mitpflegen müssen. `sticky` rechnet das selbst. Außerdem war `sticky`
+schon da: die Änderung repariert eine vorhandene Absicht, statt eine
+neue einzubauen.
+
+### Die drei Nebenwirkungen, gemessen statt behauptet
+
+Skript `pruef-folgen.mjs`, `index.html`, Cookie-Fenster entfernt:
+
+| | Handy 390×844 | Rechner 1280×900 |
+|---|---|---|
+| Sprungmarken `#kontakt`, `#galerie`, `#faq` | alle frei sichtbar | alle frei sichtbar |
+| Tastaturfokus hinter der Leiste | 0 von 70 Haltepunkten | 0 von 70 |
+| dauerhaft belegte Bildschirmhöhe | 68 + 69 = 137 px = **16 %** | 74 + 70 = 144 px = 16 % |
+
+Die ersten zwei Punkte sind sauber, weil `scroll-padding-top: 96px`
+schon vorher gesetzt war. Ohne diese Zeile wäre jede Sprungmarke
+unter der Leiste gelandet.
+
+Der dritte Punkt ist der Preis der Änderung und wird nicht
+weggeredet: Am Handy belegen Kopfleiste und Anfrageleiste zusammen
+ab jetzt 16 % der Höhe statt 8 %. Bei einem kleinen Gerät (320×568)
+sind es rund 24 %, im Querformat mehr.
+
+### Zwei Fehler in der Messung selbst
+
+Erstens meldete der erste Lauf „Sprungmarke `#kontakt`, Ziel bei
+15116 px". Das Skript hatte nach `scrollIntoView()` nicht gewartet
+und deshalb die Lage **vor** dem Sprung gemessen. Zweitens stand in
+derselben Fassung „Anfrageleiste 0 px": Sie erscheint erst beim
+Scrollen, gemessen wurde am Seitenanfang. Beides steht als Kommentar
+im Skript, weil es die Art Fehler ist, die man zweimal macht.
+
+### Was gegengelesen werden soll
+
+Dass die Leiste auf einer Seite mit langem Formular keinen Fokus
+verdeckt, wurde nur auf `index.html` durchgetabbt. Und dass
+`overflow-x: clip` nichts bricht, was heute auf dem Scroll-Container
+des Körpers aufbaut, ist eine Frage an den 3D-Konfigurator und die
+Galerie-Lightbox.
+
+### Nachtrag: dieselbe Kette auch auf `html, body`
+
+`src/css/style.css:2618` setzte `html, body { overflow-x: hidden }`.
+Diese Regel hat weniger Gewicht als `.start-premium` und war für die
+55 echten Seiten deshalb ohne Wirkung. Sie greift aber, sobald eine
+Seite `premium: false` im Kopf trägt. Ohne Nachtrag wäre die
+Kopfleiste an dem Tag still wieder kaputt gegangen, an dem jemand
+dieses Flag setzt, ohne von diesem Zusammenhang zu wissen.
+
+Gemessen: `/_template.html` trägt keine Körperklasse, die Leiste
+blieb vorher weg, steht jetzt nach 1200 px Scrollen bei 0 px.
+
+Die Regel in `style.css` darf **nicht entfernt** werden, auch wenn sie
+jetzt doppelt aussieht: `overflow-x` am Wurzelelement wandert an den
+Anzeigebereich und ist der eigentliche Schutz gegen waagerechtes
+Scrollen. Fällt sie, fällt der Schutz.
+
+## 24.11.2026 · Das Mobilmenü war im Querformat zur Hälfte unerreichbar
+
+### Was falsch war
+
+Beim Nachmessen der stehenden Kopfleiste gefunden, nicht gesucht.
+`.mobile-menu` hatte `justify-content: center`, aber kein eigenes
+`overflow-y`. Ein mittig gesetzter Flex-Kasten, dessen Inhalt höher
+ist als er selbst, ragt nach **beiden** Seiten heraus. Gemessen am
+24.11.2026:
+
+| Bildschirm | sichtbare Einträge | ragt heraus |
+|---|---|---|
+| 844 × 390 (Handy quer) | 4 von 8 | 230 px |
+| 568 × 320 (kleines Handy quer) | 3 von 8 | 300 px |
+| 390 × 844 (hoch) | 8 von 8 | 0 px |
+
+Draußen lagen „Leistungen", „Galerie", „FAQ" und **„Jetzt
+anfragen"**, also der Weg zur Anfrage. Mit `elementFromPoint` auf der
+Mitte jedes Eintrags geprüft: nicht anklickbar. Der Tastaturfokus auf
+„Jetzt anfragen" landete bei 431 px, bei einem 390 px hohen Fenster.
+
+Scrollen half nicht. `js/main.js:68` setzt bei offenem Menü
+`body.style.overflow = 'hidden'`, die Seite dahinter steht also, und
+der Kasten selbst hatte kein Scrollen. Der Inhalt war damit nicht
+schwer erreichbar, sondern **gar nicht**: WCAG 2.2, 1.4.10 Reflow und
+2.4.3, beide Stufe AA.
+
+### Was jetzt gilt
+
+```css
+.mobile-menu { justify-content: flex-start; overflow-y: auto;
+               overscroll-behavior: contain; padding: 56px 16px; }
+.mobile-menu > a:first-of-type { margin-top: auto; }
+.mobile-menu > a:last-of-type  { margin-bottom: auto; }
+```
+
+Automatische Außenabstände statt `center`: Ist Platz, fallen beide
+gleich groß aus und der Block sitzt mittig. Ist kein Platz, werden sie
+null, und `overflow-y: auto` gibt den vollen Inhalt frei.
+
+Gegenprobe, jeder Eintrag einzeln angescrollt und mit
+`elementFromPoint` geprüft: **8 von 8 erreichbar** bei 844 × 390,
+568 × 320 und 390 × 844. Der erste Eintrag sitzt nach dem
+Zurückscrollen bei 56 px, ist also nicht abgeschnitten. Mittigkeit
+nachgemessen bei 390 × 844, 430 × 932 und 360 × 740: Luft oben und
+unten jeweils gleich (112/112, 156/156, 60/60).
+
+### Warum nicht `justify-content: safe center`
+
+Das wäre eine Zeile statt vier und löst genau dieses Problem. Ältere
+Browser kennen das Schlüsselwort `safe` aber nicht, überspringen die
+Zeile und behalten `center`. Der Fehler wäre dort **still** stehen
+geblieben, und zwar unbemerkt, weil niemand im Querformat testet. Die
+automatischen Außenabstände gibt es seit den Anfängen von Flexbox.
+
+### Was gegengelesen werden soll
+
+Das Polster von 56 px oben hält die Einträge vom Schließen-Knopf frei,
+der absolut bei 20 px sitzt. Oben und unten muss es gleich groß
+bleiben, sonst ist die Mitte verschoben. Wer dort eine Zahl ändert,
+ändert zwei.
+
+Nicht behoben, weil es eine Gestaltungsfrage ist und nicht gemessen
+falsch: Im Querformat belegen Kopfleiste und Anfrageleiste zusammen
+35 % der Höhe, beim Reflow-Prüfmaß 320 × 256 sogar 54 % (119 px
+Inhalt). Steht als Entscheidung für den Betreiber in
+`docs/NEXT_TASK.md`.

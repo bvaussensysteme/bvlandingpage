@@ -223,6 +223,44 @@ Breadcrumb-Position 2 heißt auf allen 16 Produktseiten „Produkte",
 sichtbar steht „Leistungen", und das Ziel ist `/#leistungen`. Eine
 Seite „Produkte" gibt es nicht. Welcher Name bleibt, ist eine Ansage.
 
+### 3.18 Stehende Kopfleiste im Querformat: eine Entscheidung
+
+Die Kopfleiste bleibt seit dem 24.11.2026 beim Scrollen oben stehen
+(Wunsch des Betreibers). Gemessen, was sie zusammen mit der
+Anfrageleiste unten dauerhaft belegt:
+
+| Bildschirm | belegt | Inhalt bleibt |
+|---|---|---|
+| 390 × 844 (üblich) | 137 px = 16 % | 707 px |
+| 320 × 568 (kleines Handy) | 137 px = 24 % | 431 px |
+| 844 × 390 (Handy quer) | 138 px = 35 % | 252 px |
+| 320 × 256 (Reflow-Prüfmaß, 400 % Zoom) | 137 px = 54 % | 119 px |
+
+Die ersten zwei Zeilen sind unauffällig. Die letzten zwei sind eng.
+**Kein gemessener WCAG-Verstoß**, deshalb nicht eigenmächtig geändert:
+Sprungmarken und Tastaturfokus sind nachweislich frei (0 von 70
+Haltepunkten verdeckt), der Inhalt scrollt weiter.
+
+Drei Möglichkeiten, der Betreiber entscheidet:
+
+1. **So lassen.** Der Wunsch ist erfüllt, die Zahlen sind nur im
+   Querformat unbequem, und wer am Handy quer liest, dreht meist
+   zurück.
+2. **Im Querformat nicht stehend.** Eine Regel
+   `@media (orientation: landscape) and (max-height: 500px)` nimmt
+   das Stehenbleiben dort heraus. Kleinste Änderung, drei Zeilen.
+   Nachteil: Das Verhalten ist dann nicht überall gleich.
+3. **Leiste schrumpft beim Herunterscrollen** (Logo kleiner, Polster
+   weg) und wächst beim Hochscrollen. Spart etwa 20 px, braucht
+   JavaScript und einen Prüflauf. Der Betreiber wollte ausdrücklich
+   nichts, was sich wegklicken lässt; schrumpfen ist kein Wegklicken,
+   aber es bewegt sich.
+
+Empfehlung: Möglichkeit 1, bis es jemand bemerkt. Die Zahl, die
+dagegen sprechen würde, wäre der Anteil Besucher im Querformat. Der
+liegt in den eigenen Messdaten, siehe `docs/zahlen-lesen.md`, und ist
+noch nicht abgefragt.
+
 ### Weiteres, ausgelagert
 
 - **Fragen an den Betreiber**, offene wie beantwortete:

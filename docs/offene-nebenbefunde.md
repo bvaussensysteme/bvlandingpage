@@ -958,3 +958,33 @@ Bilder über eine Leinwand aus und lief in die Zeitgrenze von 30
 Minuten, ohne ein Ergebnis zu liefern. Eine Kachel am gerenderten
 Bild zu messen dauerte wenige Sekunden und beantwortete dieselbe
 Frage. Mehr Daten sind nicht mehr Erkenntnis.
+
+## 24.11.2026 · Drei Nebenbefunde aus der Kopfleisten-Runde
+
+Alle drei von den Prüfern gemeldet, von mir nicht behoben, weil sie
+außerhalb des Auftrags lagen.
+
+**1. `.hero-slider` mit `height: 100vh` auf Seiten ohne
+`.start-premium`.** `src/css/style.css:2703`. Auf der Startseite ist
+das durch `src/css/start.css:561` überschrieben
+(`height: auto; min-height: 85svh`) und damit unkritisch. Seiten ohne
+die Premium-Klasse behielten `100vh`; am Handy springt die Höhe dort,
+wenn die Adressleiste des Browsers ein- und ausblendet. Heute betrifft
+das nur die zwei Vorlagendateien, also niemanden. Es wird zum Problem,
+sobald eine echte Seite `premium: false` bekommt. Nicht gemessen.
+
+**2. `#regionInfoTip` und die Kopfleiste können sich überlappen.**
+`src/css/style.css:971`, `position: fixed`, `z-index: 1000`, also über
+der Leiste (100). Die Lage wird per JavaScript gesetzt. Steht der
+Hinweis oben, legt er sich über die Leiste statt darunter. Nicht
+gemessen, ob das überhaupt vorkommt.
+
+**3. Die stehende Leiste löst sich kurz, solange Menü oder Lightbox
+offen sind.** `js/main.js:68` und `:205` setzen
+`body.style.overflow = 'hidden'`; das schlägt `overflow-x: clip` und
+macht den Körper wieder zum Scroll-Container. Gemessen: Die Leiste
+rutscht auf −814 px. Sie ist dort vollständig vom Vollbild-Overlay
+verdeckt, und nach dem Schließen steht sie wieder bei 0 px. Also
+sichtbar folgenlos, aber der Zusammenhang gehört aufgeschrieben: Wer
+diese Inline-Zuweisung einmal durch etwas anderes ersetzt, bekommt
+einen Sprung in der Kopfleiste und wird die Ursache nicht finden.

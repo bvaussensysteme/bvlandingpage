@@ -397,7 +397,30 @@
    HANDY ZUERST. Kein waagerechtes Scrollen, lesbare Größen, Knöpfe, die
    ohne Zielen zu treffen sind. Geprüft von scripts/pruefe-startseite.mjs.
    -------------------------------------------------------------------------- */
-.start-premium { overflow-x: hidden; }
+/* clip STATT hidden, seit 24.11.2026. Ansage des Betreibers: Die
+   Kopfleiste soll beim Scrollen oben stehen bleiben.
+
+   Sie war dafuer laengst gebaut: src/css/style.css:353 setzt
+   .navbar auf position: sticky, top: 0, z-index: 100. Nur wirkte es
+   nicht. Grund: overflow-x: hidden macht aus dem Koerper einen
+   eigenen Scrollbereich, und darin bezieht sich sticky auf diesen
+   Bereich statt auf das Fenster. Die Leiste scrollte deshalb mit,
+   am Handy wie am Rechner. Gemessen vor der Aenderung: nach 1500 px
+   Scrollen stand sie bei -1500 px, war also weg.
+
+   overflow-x: clip schneidet genauso ab, erzeugt aber KEINEN
+   Scrollbereich. Das Ziel dieser Regel, kein waagerechtes Scrollen,
+   bleibt damit erfuellt.
+
+   Die Zeile mit hidden steht bewusst davor: Browser, die clip nicht
+   kennen (Safari vor 16), ueberspringen die zweite Zeile und
+   behalten das bisherige Verhalten. Dort scrollt die Leiste weiter
+   mit, so wie bisher. Das ist kein Rueckschritt, sondern der
+   heutige Stand.
+
+   scroll-padding-top: 96px weiter unten haelt den Platz frei, damit
+   Sprungmarken und der Tastaturfokus nicht unter der Leiste landen. */
+.start-premium { overflow-x: hidden; overflow-x: clip; }
 @media (max-width: 560px) {
   .start-premium .hs-slide-btns { gap: 10px; }
   .start-premium .hs-slide-btns .btn { width: 100%; }
