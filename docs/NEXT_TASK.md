@@ -294,6 +294,38 @@ die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
 
+## Prüfstand vom 24.11.2026 (nach der Kopfleisten-Änderung)
+
+Vollständiger Lauf über **alle 83** `scripts/pruefe-*`, alle vier
+Endungen abgedeckt, **0 übersprungen**: **79 grün, 4 rot.**
+
+Alle vier Roten sind nachgesehen, nicht angenommen:
+
+| Skript | allein nachgelaufen | Befund |
+|---|---|---|
+| `pruefe-keil-editor.mjs` | **grün** | wackelt nur unter Last |
+| `pruefe-planken-editor.mjs` | **grün** | wackelt nur unter Last |
+| `pruefe-schrittwechsel.mjs` | rot | Altbefund B3, unverändert: „Am großen Bildschirm bleibt die Seite stehen (pageYOffset 362)", 6 von 7 bestanden |
+| `pruefe-konfigurator-oberflaeche.mjs` | rot | bekannter Dauerbefund, 1 von 182: „Der Zeiger auf dem Schild ändert das Bild" |
+
+Die zwei Skripte, die bei einer stehenden Kopfleiste am ehesten
+anschlagen würden, sind grün: `pruefe-fokus-verdeckung.mjs` (95 s)
+und `pruefe-mitwachsend.mjs` (181 s, sieben Bildschirmbreiten).
+Ebenso `pruefe-wirkung.mjs`, `pruefe-darstellung.mjs` und
+`pruefe-startseite.mjs`.
+
+**Zwei Fehler beim Prüfen selbst**, damit sie sich nicht wiederholen:
+Ein `pkill` auf den Namen der Protokolldatei traf die Suite selbst,
+weil der Dateiname in ihrer Befehlszeile stand (Abbruch mit Code 144,
+nicht rot). Danach liefen zwei Läufe gleichzeitig in dieselbe
+Ergebnisdatei, weil der erste nur seinen Wrapper verloren hatte, nicht
+sich selbst. Lehre: Läufe über die Prozessnummer beenden, nie über ein
+Namensmuster, und vor dem Start `pgrep -fc alle82` prüfen.
+
+Die Ergebnisse stehen unverändert in
+`.../scratchpad/ergebnis82.txt`; das Verzeichnis ist sitzungsgebunden
+und beim nächsten Mal weg.
+
 ## 4. Was gerade läuft: die Lieferanten-Runde
 
 Auftrag des Betreibers vom 23.11.2026, in vier Schritten:
