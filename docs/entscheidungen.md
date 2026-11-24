@@ -23343,3 +23343,92 @@ falsch: Im Querformat belegen Kopfleiste und Anfrageleiste zusammen
 35 % der Höhe, beim Reflow-Prüfmaß 320 × 256 sogar 54 % (119 px
 Inhalt). Steht als Entscheidung für den Betreiber in
 `docs/NEXT_TASK.md`.
+
+## 24.11.2026 · Die Kopfleiste 10 px flacher, ohne eine Markenregel zu brechen
+
+### Anlass
+
+Der Betreiber nach dem ersten Blick auf die stehende Leiste: „Ja, das
+klappt. Ich würde es aber leicht ein paar Millimeter höher machen.
+Also einfach, damit das nicht so viel Platz verbraucht." Berechtigt:
+Seit die Leiste stehen bleibt, ist ihr Platz dauerhaft belegt und
+zählt doppelt.
+
+### Was die Höhe wirklich verursachte
+
+Gemessen vor der Änderung, am Handy: Leiste 68 px = 16 px Polster
+oben + **40 px Logo-Verweis** + 10 px unten + 2 px Rand. Der Verweis
+war 40 px hoch, obwohl das Logo nur 32 px hat. Die Differenz ist der
+Zeilenkasten um ein Inline-Bild. Acht Pixel, die niemand sehen konnte
+und die niemand gewollt hatte.
+
+### Was jetzt gilt
+
+```css
+.navbar-inner { padding: 14px 0; }               /* war 16px 0 10px */
+.nav-logo { height: 28px; display: block; }      /* war 32px, inline */
+@media (min-width: 961px) { .navbar-inner { padding: 12px 0; } }
+```
+
+| | vorher | nachher |
+|---|---|---|
+| Leiste am Handy | 68 px | **58 px** |
+| Leiste am Rechner | 74 px | **72 px** |
+| Logo | 208 × 32 px | 182 × 28 px |
+| Freiraum um das Logo, Handy | oben 16, unten 18 | 14 / 14 |
+| belegt mit Anfrageleiste, 390 × 844 | 16 % | 15 % |
+| belegt, 320 × 568 | 24 % | 22 % |
+| belegt, Querformat 844 × 390 | 35 % | 33 % |
+
+### Warum 28 px erlaubt sind, obwohl am 17.11. das Gegenteil stand
+
+Der Eintrag vom 17.11.2026 („Schutzraum") verwarf ein kleineres Logo
+mit der Begründung: „Bei 20 px Höhe wäre es 130 px breit und
+unterschritte die Mindestbreite aus derselben Bibliothek." Das stimmt
+für 20 px. Es stimmt **nicht** als allgemeine Regel, und so wurde es
+gelesen.
+
+Nachgerechnet: Das Logo ist 6,5:1 breit. Die Mindestbreite von 160 px
+ist erst **unter 24,6 px Höhe** unterschritten. Bei 28 px sind es
+182 px, also 22 px Reserve. Der Schutzraum verlangt rundum die halbe
+Höhe des BV-Zeichens, bei 28 px also 14 px; Polster 14 px oben und
+unten erfüllt das genau. Am Telefon ist das Logo damit weiter breiter
+als vor dem 17.11. (182 gegen 166 px).
+
+Die Absicht des 17.11. bleibt: gleiche Logohöhe am Telefon wie am
+Rechner. Nur die Zahl ist eine andere.
+
+### Der Rechner wäre sonst höher geworden
+
+Beim ersten Versuch wurde die Leiste am Rechner **76 px**, also 2 px
+höher als vorher, während sie am Handy 10 px flacher wurde. Ursache:
+Dort bestimmt `.nav-links` mit 46 px die Höhe, nicht das Logo, und
+14 + 46 + 14 + 2 ist mehr als 16 + 46 + 10 + 2. Das fällt nur auf,
+wenn man beide Breiten misst statt einer. Deshalb die eigene Regel ab
+961 px mit 12 px Polster: Der Schutzraum am Logo ist dort trotzdem
+eingehalten, weil (70 − 28) / 2 = 21 px frei sind.
+
+Die Grenze 961 px ist nicht gewählt, sondern abgelesen: Bis 960 px ist
+`.nav-links` ausgeblendet (`src/css/style.css:1680`).
+
+### Beinahe-Fehler
+
+In `@media (max-width: 400px)` stand `.nav-logo { height: 32px }`. Die
+Zeile hätte die flachere Leiste genau dort wieder aufgehoben, wo der
+Platz am knappsten ist. Sie ist jetzt auf 28 px und bleibt stehen,
+statt gelöscht zu werden: Sie hält den Zusammenhang fest, dass die
+Logohöhe am Telefon absichtlich dieselbe ist wie am Rechner.
+
+### Was gegengelesen werden soll
+
+Die Häkchenzeile `.hero-trust` auf der Startseite endet bei 853 px und
+fällt damit bei 390 × 750 aus dem ersten Bild. **Das ist kein Ergebnis
+dieser Änderung:** Mit der alten Leiste waren es 863 px, die Änderung
+verbessert es um genau 10 px. Am 17.11. endete die Zeile noch bei
+744 px, es ist also in der Gestaltungsrunde danach etwas gewachsen.
+Als Befund notiert, nicht behoben, weil es eine Gestaltungsfrage ist.
+
+Der Menüknopf ist unverändert 38 × 28 px. Das liegt über dem
+WCAG-Minimum von 24 px, aber unter den empfohlenen 44 px, und es ist
+jetzt weniger Luft um ihn. Nicht angefasst, weil er nicht kleiner
+geworden ist.

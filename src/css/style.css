@@ -366,7 +366,16 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
      wird dadurch 6 px hoeher; dieselben 6 px sind im Heldenbereich
      der Startseite abgezogen (start.css), damit die Haekchenzeile
      weiter ins erste Bild passt. */
-  justify-content: space-between; padding: 16px 0 10px;
+  /* 14 px oben UND unten, 24.11.2026, auf Wunsch des Betreibers:
+     "ein paar Millimeter hoeher machen, damit das nicht so viel
+     Platz verbraucht". Seit dem 24.11. bleibt die Leiste beim
+     Scrollen stehen, der Platz ist also dauerhaft belegt und zaehlt
+     doppelt. 14 px ist nicht frei gewaehlt: Die Markenbibliothek
+     verlangt rundum die halbe Hoehe des BV-Zeichens frei, und das
+     Logo ist jetzt 28 px hoch. Oben und unten muessen gleich sein,
+     sonst sitzt das Logo nicht in der Mitte.
+     Rechnung: 14 + 28 + 14 + 2 px Rand = 58 px, vorher 68 px. */
+  justify-content: space-between; padding: 14px 0;
 }
 /* SCHUTZRAUM DES LOGOS, 17.11.2026.
    Die Markenbibliothek verlangt rundum mindestens die halbe Hoehe des
@@ -379,7 +388,19 @@ a[href^="mailto:"], a[href^="tel:"], .nowrap { white-space: nowrap; }
    noetig sind 16 px. Breite 32 x 6,5 = 208 px, die Bibliothek verlangt
    mindestens 160 px. Am Telefon ist das Logo damit breiter als vorher
    (208 statt 166 px), nicht kleiner. */
-.nav-logo { height: 32px; width: auto; padding: 0; }
+/* HOEHE 28 STATT 32 PX, 24.11.2026. Beide Regeln der Bibliothek sind
+   weiter erfuellt, und die Rechnung vom 17.11. war zu vorsichtig:
+   Dort stand, das Logo koenne nicht niedriger werden, weil es bei
+   20 px Hoehe nur 130 px breit waere und die Mindestbreite von 160 px
+   unterschritte. Das gilt fuer 20 px, nicht fuer 28: Bei 6,5:1 ist
+   das Logo hier 182 px breit, also 22 px ueber der Grenze. Erst
+   unter 24,6 px Hoehe wird es zu schmal. Am Telefon ist es damit
+   immer noch breiter als vor dem 17.11. (182 gegen 166 px).
+   `display: block` ist kein Schoenheitsfehler, sondern spart 8 px:
+   Als Inline-Bild steht das Logo in einem Zeilenkasten, und der
+   Verweis darum war deshalb 40 px hoch bei 32 px Bild. Gemessen am
+   24.11.2026, das waren 8 px, die niemand sehen konnte. */
+.nav-logo { height: 28px; width: auto; padding: 0; display: block; }
 .nav-links { display: flex; list-style: none; gap: 28px; align-items: center; }
 .nav-links a {
   text-decoration: none; color: #FFFFFF;
@@ -2547,9 +2568,31 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
   .topbar { display: none; }
 }
 
+/* Am Rechner bestimmt die Menueleiste die Hoehe, nicht das Logo:
+   gemessen 46 px gegen 28 px. Mit dem Polster von 14 px waere die
+   Leiste dort 76 px hoch geworden, also 2 px HOEHER als vor dem
+   24.11.2026, waehrend sie am Telefon 10 px flacher wurde. Das war
+   nicht gewollt und faellt nur auf, wenn man beides misst.
+   12 px sind hier erlaubt, weil der Schutzraum am Logo trotzdem
+   eingehalten ist: (70 - 28) / 2 = 21 px frei, noetig sind 14.
+   Rechnung: 12 + 46 + 12 + 2 px Rand = 72 px, vorher 74 px.
+   Die Grenze 961 px ist nicht frei gewaehlt: Bis 960 px ist die
+   Menueleiste ausgeblendet (siehe oben), erst darueber traegt sie
+   die Hoehe. */
+@media (min-width: 961px) {
+  .navbar-inner { padding: 12px 0; }
+}
+
 /* Navbar: tighter on mobile */
 @media (max-width: 400px) {
-  .nav-logo { height: 32px; }   /* gleiche Hoehe wie am Rechner, siehe Schutzraum oben */
+  /* 28 px, dieselbe Hoehe wie oben. Diese Zeile stand auf 32 px und
+     haette die flachere Leiste genau dort wieder aufgehoben, wo der
+     Platz am knappsten ist: unter 400 px Breite. Sie bleibt trotzdem
+     stehen, statt geloescht zu werden, weil sie den Zusammenhang
+     festhaelt: Die Logohoehe ist am Telefon absichtlich dieselbe wie
+     am Rechner, siehe Schutzraum weiter oben. Wer eine der beiden
+     Zahlen aendert, aendert zwei. */
+  .nav-logo { height: 28px; }
   .navbar .navbar-inner { padding-left: 14px; padding-right: 10px; }
 }
 
