@@ -4185,6 +4185,20 @@ body.bv-konfig-open #bvKonfigBubble {
    `grid-auto-rows: 1fr` haelt auch die Hoehen gleich, falls ein Text
    in einer Reihe umbricht und in der anderen nicht. */
 @media (max-width: 600px) {
+  .hero--neu .hs-slide-btns { grid-template-columns: 1fr; }
+}
+/* Zwei Spalten erst ab 361 px. Unter 360 px bleibt es bei einer,
+   und das ist gemessen, nicht vorsichtshalber: Bei 320 px sind die
+   Spalten 142 px breit, und bei 150 Prozent Textvergroesserung ragte
+   "WhatsApp" 5 px aus seinem Knopf. Das Wort laesst sich nicht
+   umbrechen, und das Symbol davor braucht 18 px plus Abstand. Ein
+   kleineres Polster half nicht: Es verkleinert den Innenraum
+   genauso, wie es Platz schafft (nachgemessen, unveraendert 5 px).
+   Der Verzicht kostet dort fast nichts. Bei 320 x 568 brachten zwei
+   Spalten die Vertrauenszeile von 861 auf 839 px, sie blieb also so
+   oder so unter dem Bildrand; der Gewinn waren 22 von noetigen
+   271 px. */
+@media (min-width: 361px) and (max-width: 600px) {
   .hero--neu .hs-slide-btns {
     grid-template-columns: repeat(2, minmax(0, 1fr));
     grid-auto-rows: 1fr;

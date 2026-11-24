@@ -1045,3 +1045,38 @@ Vorschlag: Änderungszeitpunkt der Quelldatei gegen den Zeitpunkt
 prüfen, zu dem die Version zuletzt hochgezählt wurde. Das steht nicht
 im Dateisystem, ließe sich aber aus `git log` der Datei und dem letzten
 Commit ablesen, der die Version in `layout.njk` geändert hat.
+
+## 24.11.2026 · Drei Punkte aus der Heldenbereich-Runde
+
+**1. Bei 200 Prozent Textvergrößerung und 320 px Breite werden die
+Heldenknöpfe 402 px breit und rechts abgeschnitten.** Gemessen am
+24.11.2026. Das Abschneiden geschieht am Anzeigebereich
+(`html { overflow-x: hidden }`), waagerechtes Scrollen entsteht
+deshalb nicht, der rechte Rand des Knopfes ist aber weg. **Kein
+Ergebnis der Umstellung auf zwei Spalten:** Unter 361 px steht dort
+eine Spalte, genau wie vorher. Betrifft WCAG 1.4.10. Nicht
+angefasst, weil es eine eigene Aufgabe ist.
+
+**2. Vorschlag der Mobil-Prüfung: „Anrufen" und „WhatsApp" in eine
+gemeinsame Reihe.** Heute lauten die Paare (Anfragen | Produkte),
+(Katalog | Anrufen), (WhatsApp | Stoffe). Die zwei Sofortkontakte
+stehen also getrennt. Eine Umsortierung in `index.html` ab Zeile 930
+würde (Anfragen | Produkte), (Anrufen | WhatsApp), (Katalog |
+Stoffe) ergeben. Zu bedenken: Dieselbe Reihenfolge gilt am Rechner
+für die Dreierreihen, dort entstünde (Anfragen, Produkte, Anrufen)
+und (WhatsApp, Katalog, Stoffe). Das müsste man ansehen. Als
+Wirkungsaussage ist das eine Hypothese ohne Daten.
+
+**3. Vorschlag der Conversion-Prüfung: weniger Knöpfe im
+Heldenbereich.** Sechs gleichwertige Wege seien viel; im Heldenbereich
+genügten Anfrage, Produkte und ein Kontaktweg, während Katalog und
+Stoffe zu ihren eigenen Abschnitten weiter unten gehörten. Ausdrücklich
+als **Hypothese** gekennzeichnet, nicht als Messergebnis. Dagegen
+spricht: Die Knöpfe sind auf ausdrückliche Ansage des Betreibers
+dort gelandet (Katalog am 15.11., Stoffe am 23.11.). Entscheidet der
+Betreiber.
+
+**4. Abstand zwischen den Knöpfen.** Er beträgt 8 px
+(`src/css/start.css:587`) und entspricht damit genau der Untergrenze
+der Prüfliste. 10 px wären ruhiger und kosten bei drei Reihen 4 px
+Höhe. Nicht geändert, weil 8 px die Vorgabe erfüllen.

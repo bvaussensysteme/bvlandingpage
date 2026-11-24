@@ -23825,9 +23825,37 @@ Bestandsschutz. Dass sechs gleichwertige Wege im Heldenbereich viel
 sind, ist eine Frage an den Betreiber und steht in
 `docs/NEXT_TASK.md`, nicht in diesem Umbau.
 
+### Nachtrag: zwei Spalten erst ab 361 px
+
+Die Barrierefreiheits-Prüfung hat einen Verdacht geäußert, ich habe
+ihn gemessen, und er traf zu: Bei **150 Prozent Textvergrößerung und
+320 px Breite ragte „WhatsApp" 5 px aus seinem Knopf**. Das Wort
+lässt sich nicht umbrechen, und das Symbol davor braucht 18 px plus
+Abstand; in einer 142 px schmalen Spalte geht das nicht auf.
+
+Ein kleineres Polster half nicht. Das klingt überraschend, ist aber
+folgerichtig: Es verkleinert den Innenraum genauso, wie es Platz
+schafft. Nachgemessen blieben es exakt dieselben 5 px.
+
+Deshalb gelten die zwei Spalten jetzt erst **ab 361 px**. Darunter
+bleibt es bei einer Spalte wie bisher. Der Verzicht kostet dort fast
+nichts: Bei 320 × 568 brachten zwei Spalten die Vertrauenszeile von
+861 auf 839 px, sie blieb also in beiden Fällen unter dem Bildrand.
+Der Gewinn waren 22 von nötigen 271 px.
+
+Nachgemessen über 100, 150 und 200 Prozent Textvergrößerung bei 320,
+375 und 390 px: **kein Knopftext ragt mehr heraus.**
+
 ### Was offen bleibt
 
 Auf 320 × 568 und 375 × 667 liegt die Vertrauenszeile weiterhin unter
 dem Rand. Das ist keine Nachlässigkeit, sondern Arithmetik: Allein der
 Beschreibungstext `.hs-desc` ist dort 154 px hoch. Ohne Textkürzung
 geht es nicht, und Texte werden nicht ohne Ansage geändert.
+
+**Zwei Vorschläge der Prüfer, bewusst nicht umgesetzt**, beide in
+`docs/NEXT_TASK.md`: „Anrufen" und „WhatsApp" in eine gemeinsame
+Reihe zu stellen (eine Umsortierung im Markup, die auch die
+Dreierreihe am Rechner umstellt), und die Zahl der Knöpfe im
+Heldenbereich überhaupt zu verringern. Beides sind Entscheidungen des
+Betreibers, keine Messbefunde.
