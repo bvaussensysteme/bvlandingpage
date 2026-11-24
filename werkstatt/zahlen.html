@@ -139,7 +139,10 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      die Messung. Er muss ins Auge fallen, sonst liest ihn niemand -
      und genau das ist am 04.11.2026 schiefgegangen. */
   .warnung{color:var(--gold-text,#7A5B12);font-weight:600}
-  .wahl{display:flex;gap:3px;background:var(--karte);border:1px solid var(--rand);
+  /* flex-wrap, 24.11.2026: Die fuenf Zeitraumknoepfe standen starr in
+     einer Zeile und waren zusammen 357 px breit. Bei 320 px Fenster
+     ragten sie 55 px hinaus und der letzte war nicht erreichbar. */
+  .wahl{display:flex;flex-wrap:wrap;gap:3px;background:var(--karte);border:1px solid var(--rand);
         border-radius:var(--r-mittel);padding:3px;box-shadow:var(--schatten)}
   .wahl button{padding:7px 13px;border:0;border-radius:var(--r-klein);background:none;
                color:var(--leise);font:650 .83rem inherit;cursor:pointer;white-space:nowrap;

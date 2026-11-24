@@ -23859,3 +23859,112 @@ Reihe zu stellen (eine Umsortierung im Markup, die auch die
 Dreierreihe am Rechner umstellt), und die Zahl der Knöpfe im
 Heldenbereich überhaupt zu verringern. Beides sind Entscheidungen des
 Betreibers, keine Messbefunde.
+
+## 24.11.2026 · Ein Symbol vor jedem Knopf, 129 Stück
+
+### Auftrag
+
+Ansage des Betreibers: „Stelle sicher das vor jedem button auf der
+internetseite und allen unterseiten ein icon is."
+
+### Bestandsaufnahme zuerst
+
+Vor dem Ändern gezählt, am gerenderten Stand über alle 60 Seiten:
+**439 Knöpfe, davon 289 mit Symbol und 150 ohne.** Die 150 verteilten
+sich auf nur **38 verschiedene Beschriftungen**, kamen also aus
+wenigen Vorlagen.
+
+### Was jetzt gilt
+
+**437 von 439 Knöpfen tragen ein Symbol.** 129 wurden gesetzt, in 34
+Dateien.
+
+Die beiden verbleibenden stehen auf `widerruf.html` („Online-Widerrufs\
+formular ausfüllen", „Widerruf absenden"). Dort wurde **absichtlich
+nichts geändert**: Die Hausregel vom 14.11.2026 verbietet Änderungen
+an `agb`, `datenschutz`, `impressum` und `widerruf`. Ein Symbol ist
+keine Umformulierung, aber die Regel sagt „kein nur schnell schöner
+machen", und genau das wäre es. Wenn der Betreiber die zwei auch
+haben will, sagt er es.
+
+### Woher die Symbole kommen
+
+**Keine fremde Symbolsammlung.** Im Projekt waren bereits 70
+verschiedene Inline-Symbole in einer einheitlichen Sprache vorhanden:
+24 × 24, Strichstärke 2, runde Enden. Geprüft wurde, welche
+Bedeutungen davon fehlen. Es waren genau drei: **Pfeil nach rechts,
+Auge, Taschenrechner.** Die sind in derselben Sprache gezeichnet,
+aus Linien und Rechtecken, nicht übernommen.
+
+Zuordnung nach Bedeutung, nicht nach Geschmack:
+
+| Beschriftung | Symbol |
+|---|---|
+| Jetzt anfragen, Anfrage starten, Kontakt aufnehmen, Muster anfordern | Stift auf Blatt (wie im Heldenbereich) |
+| Jetzt Termin anfragen, Termin vereinbaren | Kalender |
+| Häufige Fragen, Was kostet das? | Fragezeichen im Kreis |
+| Produkte ansehen | Raster |
+| Katalog ansehen | Buch |
+| Katalog als PDF, Widerrufsformular | Blatt |
+| PDF herunterladen | Pfeil nach unten in Ablage |
+| Alle Stoffe ansehen, Markisenstoffe | Tropfen (wie im Stoffbereich) |
+| Zertifikat ansehen | Schild mit Haken |
+| Details zu … | Pfeil nach rechts |
+| Weiter | Pfeil nach rechts |
+| Abbrechen | Kreuz im Kreis |
+| Zurücksetzen | Kreispfeile |
+| Neue Suche | Lupe |
+| Verstanden | Haken im Kreis |
+| Zurück zur Startseite | Haus |
+| Ausrechnen | Taschenrechner |
+
+### Wie es umgesetzt wurde
+
+Ein Skript (`scratchpad/symbole.py`, sitzungsgebunden) mit
+Probelauf. Drei Dinge daran sind wichtig:
+
+1. **Wiederholbar.** Ein Knopf, der schon ein `<svg>`, `<img>` oder
+   eine Symbolklasse enthält, wird übersprungen. Ein zweiter Lauf
+   ändert nichts.
+2. **Das Suchmuster war zuerst falsch.** `\bbtn\b` traf auch
+   `vd-carousel-btn`, also die Pfeile des Bilderkarussells, die keine
+   `.btn`-Knöpfe sind. Jetzt muss `btn` ein eigenes Klassenwort sein.
+   Der Probelauf hat das gezeigt, bevor etwas geschrieben wurde.
+3. **Geprüft wurde am gerenderten Stand**, nicht am Quelltext. Der
+   Zähler lief vorher und nachher über alle 60 Seiten im Browser.
+
+Der Strichstil steht als **eine** CSS-Regel (`.btn > svg.btn-icon`)
+und nicht 129 mal im Markup. Sie gilt ausdrücklich nicht für
+`.btn > svg` insgesamt: Das WhatsApp-Zeichen ist eine gefüllte
+Fläche, `fill: none` würde es unsichtbar machen.
+
+### Nebenwirkungen gemessen
+
+Alle 60 Seiten bei 320, 390, 768 und 1280 px:
+
+- Text ragt aus einem Knopf: **nirgends**
+- Knopf kleiner als 24 px: **nirgends**
+- waagerechtes Scrollen: **nirgends**
+
+### Dabei vier Altbefunde behoben
+
+Beim Durchmessen fielen vier Seiten mit waagerechtem Scrollen bei
+320 px auf. Gegen den Stand vor dieser Änderung geprüft: **alle vier
+waren vorher genauso**, es sind also keine Folgen der Symbole. Behoben
+wurden sie trotzdem, weil waagerechtes Scrollen auf der Liste vom
+15.11.2026 steht.
+
+| Seite | vorher | Ursache | Behebung |
+|---|---|---|---|
+| `datenschutz.html` | +38 px | zwei lange Adressen ohne Umbruchpunkt | `overflow-wrap: break-word` im Fließtext |
+| `agb.html` | +28 px | dieselbe Ursache | dieselbe Regel |
+| `zertifikate.html` | +14 px | `minmax(320px,1fr)` erzwingt 320 px Spalte im 320-px-Fenster | `minmax(min(320px,100%),1fr)` |
+| `werkstatt/zahlen.html` | +55 px | fünf Zeitraumknöpfe starr in einer Zeile | `flex-wrap: wrap` |
+
+Alle vier jetzt bei **+0 px**.
+
+Die zwei Rechtstexte wurden dabei **nicht angefasst**. Die Regel steht
+in `style.css` und berührt keinen Satz in den Dateien. `break-word`
+und nicht `anywhere`: `anywhere` verändert zusätzlich die
+kleinstmögliche Breite eines Elements und kann Raster anders
+umbrechen lassen.

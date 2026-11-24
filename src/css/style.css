@@ -293,6 +293,18 @@ h2 + p, h3 + p { max-width: 68ch; }
    und ohne flex-shrink: 0 quetscht der Flexkasten es im engen Knopf
    platt. Die Zeichen tragen aria-hidden, der Text steht daneben. */
 .btn > svg { width: 18px; height: 18px; flex-shrink: 0; }
+/* STRICHSTIL NUR FUER DIE NEUEN KNOPFSYMBOLE, 24.11.2026.
+   Ansage des Betreibers: "Stelle sicher das vor jedem button auf der
+   internetseite und allen unterseiten ein icon is." Dabei kamen 129
+   Symbole dazu; sie tragen alle die Klasse `btn-icon`.
+   Die Eigenschaften stehen hier und nicht 129 mal als inline-Stil im
+   Markup. Sie gelten ausdruecklich NICHT fuer `.btn > svg` insgesamt:
+   Das WhatsApp-Zeichen ist eine gefuellte Flaeche, `fill: none`
+   wuerde es unsichtbar machen. */
+.btn > svg.btn-icon {
+  stroke: currentColor; fill: none;
+  stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
+}
 
 .btn-gold         { background: var(--gold); color: var(--black); box-shadow: var(--schatten-1); }
 /* HOVER AUF --gold-text, NICHT --gold-dark: #9A7318 ist der ungluecklichste
@@ -2744,6 +2756,24 @@ h1, h2, h3 { overflow-wrap: break-word; hyphens: auto; }
   .section { padding: 48px 0; }
   .tag { font-size: 10px; }
 }
+
+/* LANGE UNTEILBARE ZEICHENKETTEN UMBRECHEN, 24.11.2026.
+   Gemessen bei 320 px: `datenschutz.html` ragte 38 px hinaus, weil
+   zwei Adressen (`https://www.sipgate.de/auftragsverarbeitung` und
+   `wiki.osmfoundation.org/wiki/Privacy_Policy`) nicht umbrechen
+   konnten, `agb.html` 28 px aus demselben Grund. Da `html` waagerecht
+   abschneidet, konnte man nicht einmal hinscrollen: Der Rest der
+   Adresse war schlicht weg.
+   `break-word` und NICHT `anywhere`: `anywhere` veraendert zusaetzlich
+   die kleinstmoegliche Breite eines Elements und kann damit Raster
+   und Flexzeilen anders umbrechen lassen. `break-word` greift nur
+   dann, wenn ein Wort sonst ueberlaufen wuerde, und laesst jede
+   Groessenberechnung unveraendert.
+   Beide Rechtstexte sind damit behoben, OHNE ihre Dateien
+   anzufassen. Das ist Absicht: Die Hausregel vom 14.11.2026 verbietet
+   Aenderungen an agb, datenschutz, impressum und widerruf. Eine
+   Stilregel ausserhalb dieser Dateien beruehrt keinen Satz darin. */
+p, li, dd, dt, td, th, figcaption, blockquote { overflow-wrap: break-word; }
 
 /* Prevent any horizontal overflow globally */
 /* NUR `html`, NICHT `body`. Das ist der Kern und keine Schlamperei.

@@ -85,7 +85,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261124h" />
+  <link rel="stylesheet" href="/css/style.css?v=20261124i" />
   <style>
     /* ===========================================================
        3D-Konfigurator – Aufbau als Anwendung
@@ -2933,7 +2933,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
             <span class="k3d-nav-z" id="k3dZurueckZiel"></span>
           </button>
           <span class="k3d-fortschritt" id="k3dSchrittZahl">1 von 5</span>
-          <button type="button" id="k3dWeiter" class="btn btn-gold">Weiter</button>
+          <button type="button" id="k3dWeiter" class="btn btn-gold"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><line x1="4" y1="12" x2="19" y2="12"/><polyline points="13 6 19 12 13 18"/></svg> Weiter</button>
         </div>
         <button type="button" class="k3d-anfrage-fuss" id="k3dAnfrageFuss">
           <svg class="bvs" aria-hidden="true"><use href="#bvs-angebot"></use></svg>
@@ -3579,8 +3579,8 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         Das lässt sich nicht rückgängig machen.</p>
     </div>
     <div class="k3d-reset-wege">
-      <button type="button" class="btn btn-abbruch" id="k3dResetAb">Abbrechen</button>
-      <button type="button" class="btn btn-gold" id="k3dResetOk">Zurücksetzen</button>
+      <button type="button" class="btn btn-abbruch" id="k3dResetAb"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg> Abbrechen</button>
+      <button type="button" class="btn btn-gold" id="k3dResetOk"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg> Zurücksetzen</button>
     </div>
   </div>
 </div>
@@ -3600,7 +3600,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
        aria-labelledby="k3dMassInfoTitel" aria-describedby="k3dMassInfoText">
     <h2 id="k3dMassInfoTitel">Maß</h2>
     <div id="k3dMassInfoText"><p></p></div>
-    <button type="button" class="btn btn-gold" id="k3dMassInfoOk">Verstanden</button>
+    <button type="button" class="btn btn-gold" id="k3dMassInfoOk"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg> Verstanden</button>
   </div>
 </div>
 

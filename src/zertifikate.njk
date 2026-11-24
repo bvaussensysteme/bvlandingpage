@@ -8,7 +8,12 @@ robots: "index, follow"
 ---
 <style>
   .zert-intro { max-width:760px; }
-  .zert-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(320px,1fr)); gap:28px; margin-top:32px; }
+  /* min(320px,100%) statt 320px, 24.11.2026. `minmax(320px,1fr)`
+     erzwingt eine 320 px breite Spalte auch dann, wenn das Fenster
+     selbst nur 320 px hat; abzueglich des Polsters der Umgebung ragte
+     die Karte gemessen 14 px hinaus und wurde rechts abgeschnitten.
+     `min(320px,100%)` nimmt den kleineren der beiden Werte. */
+  .zert-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(min(320px,100%),1fr)); gap:28px; margin-top:32px; }
   .zert-card { background:#fff; border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; display:flex; flex-direction:column; }
   .zert-card a.zert-thumb-link { display:block; }
   .zert-card img { width:100%; height:auto; display:block; border-bottom:1px solid var(--border); }
@@ -45,7 +50,7 @@ robots: "index, follow"
             <h2>Alexander Becker</h2>
             <p class="zert-role">Installateurzertifikat, VD AluSysteme Akademie</p>
             <div class="zert-card-actions">
-              <a href="/images/zertifikate/alexander-becker-vd-zertifikat.jpg" target="_blank" rel="noopener" class="btn btn-outline">Zertifikat ansehen</a>
+              <a href="/images/zertifikate/alexander-becker-vd-zertifikat.jpg" target="_blank" rel="noopener" class="btn btn-outline"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3z"/><polyline points="9 12 11 14 15 10"/></svg> Zertifikat ansehen</a>
             </div>
           </div>
         </div>
@@ -58,7 +63,7 @@ robots: "index, follow"
             <h2>Josef Voronin</h2>
             <p class="zert-role">Installateurzertifikat, VD AluSysteme Akademie</p>
             <div class="zert-card-actions">
-              <a href="/images/zertifikate/josef-voronin-vd-zertifikat.jpg" target="_blank" rel="noopener" class="btn btn-outline">Zertifikat ansehen</a>
+              <a href="/images/zertifikate/josef-voronin-vd-zertifikat.jpg" target="_blank" rel="noopener" class="btn btn-outline"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 2 4 5v6c0 5.5 3.4 9.7 8 11 4.6-1.3 8-5.5 8-11V5l-8-3z"/><polyline points="9 12 11 14 15 10"/></svg> Zertifikat ansehen</a>
             </div>
           </div>
         </div>
@@ -67,7 +72,7 @@ robots: "index, follow"
       <p class="zert-note">Die von uns verbauten Systeme sind zusätzlich CE-gekennzeichnet und nach DIN EN 1090 statisch geprüft.</p>
 
       <div style="text-align:center;margin-top:40px;">
-        <a href="/#kontakt" class="btn btn-gold">Kostenlose Beratung anfragen</a>
+        <a href="/#kontakt" class="btn btn-gold"><svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.1 2.1 0 0 1 3 3L12 15l-4 1 1-4z"/></svg> Kostenlose Beratung anfragen</a>
       </div>
     </div>
   </section>
