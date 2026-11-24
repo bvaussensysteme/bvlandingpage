@@ -90,17 +90,53 @@ function chromiumPfad() {
 
 const WURZEL = new URL('..', import.meta.url).pathname;
 
-/* Seiten mit moeglichst verschiedenen Untergruenden: helle und
-   dunkle Flaechen, Rechner, Broschuere, Stoffe. Genau auf diesen
-   Seiten lagen die Befunde vom 23.11.2026. */
-const SEITEN = [
-  '/index.html',
-  '/produkte/terrassenueberdachung.html',
-  '/produkte/balkon-fassade.html',
-  '/baugenehmigung.html',
-  '/pflege.html',
-  '/stoffe.html',
-];
+/* SEITEN WERDEN GESUCHT, NICHT AUFGEZAEHLT.
+   Erweitert am 24.11.2026 von sechs Seiten auf alle.
+
+   Grund: scripts/pruefe-mitwachsend.mjs hat eine feste Liste von
+   sieben Seiten, die nie nachgezogen wurde. Genau deshalb standen
+   produkte/fassade.html und produkte/sonnenschutz.html nicht darin,
+   und genau dort lagen am 23.11.2026 zwei abgeschnittene
+   Textstellen, die nur auffielen, weil jemand ausserhalb der Liste
+   gemessen hat. In CLAUDE.md steht, solche Pruefungen sollen dafuer
+   sorgen, dass "weder der Betreiber noch der Assistent daran denken"
+   muss. Eine feste Liste leistet das nicht.
+   Eine neue Seite ist ab sofort automatisch mitgeprueft. */
+const AUSGENOMMEN = new Set([
+  /* Vorlage, keine ausgelieferte Seite. */
+  '/_template.html',
+  /* Gesperrt, solange KONFIGURATOR_GESPERRT gilt: Besucher bekommen
+     eine 503. Die Seite hat bekannte Altbefunde (.k3d-marke unter
+     24 px), die hier jeden Lauf rot faerben wuerden, ohne dass sie
+     jemand sieht. Faellt die Sperre, diese Zeile entfernen. */
+  '/konfigurator.html',
+]);
+/* Die Werkstatt ist nicht oeffentlich und wird hier nicht geprueft.
+   Wenn sie bedient wird, gilt dieselbe Anforderung; das waere ein
+   eigener Schritt. */
+const AUSGENOMMENE_ORDNER = ['/werkstatt/'];
+
+function alleSeiten() {
+  const aus = [];
+  const suche = (unter, tiefe) => {
+    for (const e of readdirSync(`${WURZEL}${unter}`, { withFileTypes: true })) {
+      const pfad = `${unter}${e.name}`;
+      if (e.isDirectory()) {
+        if (tiefe > 0 && !/^(node_modules|_site|\.git|images|js|css|scripts|docs|src|worker|\.claude)$/.test(e.name)) {
+          suche(`${pfad}/`, tiefe - 1);
+        }
+        continue;
+      }
+      if (!e.name.endsWith('.html')) continue;
+      if (AUSGENOMMEN.has(pfad)) continue;
+      if (AUSGENOMMENE_ORDNER.some((o) => pfad.startsWith(o))) continue;
+      aus.push(pfad);
+    }
+  };
+  suche('/', 1);
+  return aus.sort();
+}
+const SEITEN = alleSeiten();
 
 /* Hoechstens so viele Tabulatorschritte je Seite. Die Startseite hat
    deutlich mehr Haltepunkte; die Pruefung soll aber in Minuten
@@ -115,6 +151,11 @@ const SCHRITTE = 120;
    Wer einen davon behebt, nimmt ihn hier heraus. */
 const BEKANNT_GEWICHT = new Set([
   'kontakt-quick-lead', 'bg-search-label', 'bro-ende-frage', 'stoff-dessin',
+  /* Nachgetragen 24.11.2026: Der fuenfte Fall stand im Bericht und
+     fehlte hier. Er fiel erst auf, als die Seitenliste alle Seiten
+     umfasste, denn .vd-model-tile gibt es nur auf den beiden
+     Sonnenschutz-Seiten. */
+  'vd-model-tile',
 ]);
 
 /* ---- Absichten aus dem Stilblatt lesen ----

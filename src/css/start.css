@@ -839,7 +839,19 @@
 .start-premium .topbar :focus-visible,
 .start-premium .bro-band :focus-visible,
 .start-premium .bg-search-box :focus-visible,
-.start-premium .pflege-hero :focus-visible {
+.start-premium .pflege-hero :focus-visible,
+/* NACHGETRAGEN 24.11.2026. Gefunden, nachdem die Seitenliste von
+   scripts/pruefe-wirkung.mjs von sechs Seiten auf alle erweitert
+   wurde. Drei weitere dunkle Flaechen, alle bei 1,20:1:
+     .gebiet-hero     Einzugsgebiet, Brotkrume
+     .gebiet-cta      Einzugsgebiet, "Anfrage starten" und Telefon
+     .wz-search-box   Windzonen, "Standort ermitteln"
+   Dass sie erst jetzt auffielen, liegt nicht an ihnen, sondern an
+   der Liste: Sechs geprueufte Seiten von 53 sind eine Stichprobe,
+   keine Absicherung. Die Pruefung sucht ihre Seiten jetzt selbst. */
+.start-premium .gebiet-hero :focus-visible,
+.start-premium .gebiet-cta :focus-visible,
+.start-premium .wz-search-box :focus-visible {
   outline-color: var(--champagner);
 }
 

@@ -23018,3 +23018,55 @@ ein. Eine Gegenprobe, die Dateien ändert und im `finally`-Block
 zurücksetzt, lässt bei hartem Abbruch kaputte Dateien liegen, und
 `css/style.css` ist ein Bauerzeugnis. Gemessen: 144 Ringbefunde und 8
 Gewichtsbefunde aus eingebauten Fehlern.
+
+## 24.11.2026 · Die Prüfung sucht ihre Seiten selbst
+
+**Anlass.** `scripts/pruefe-wirkung.mjs` deckte sechs von 53 Seiten
+ab. Sechs Seiten sind eine Stichprobe, keine Absicherung.
+
+**Warum keine längere Liste.** `scripts/pruefe-mitwachsend.mjs` hat
+eine feste Liste von sieben Seiten, die seit ihrer Anlage nie
+nachgezogen wurde. Deshalb standen `produkte/fassade.html` und
+`produkte/sonnenschutz.html` nicht darin, und genau dort lagen am
+23.11.2026 zwei abgeschnittene Textstellen, die nur auffielen, weil
+jemand **außerhalb** der Liste gemessen hat. In `CLAUDE.md` steht,
+solche Prüfungen sollen dafür sorgen, dass „weder der Betreiber noch
+der Assistent daran denken" muss. Eine feste Liste leistet das nicht,
+egal wie lang sie ist.
+
+**Was jetzt gilt.** Die Prüfung durchsucht das Repository selbst.
+Ausgenommen sind nur drei Dinge, jedes mit Begründung im Quelltext:
+die Vorlage `_template.html`, der gesperrte `konfigurator.html`
+(Besucher bekommen eine 503, und die bekannten Altbefunde dort würden
+jeden Lauf rot färben) und der Ordner `werkstatt/`, der nicht
+öffentlich ist. **Eine neue Seite ist ab sofort automatisch
+mitgeprüft.**
+
+### Was der erste vollständige Lauf gefunden hat
+
+Drei weitere dunkle Flächen ohne Eintrag in der Champagner-Liste, alle
+bei **1,20:1**:
+
+| Fläche | Stelle |
+|---|---|
+| `.gebiet-hero` | Einzugsgebiet, Brotkrume |
+| `.gebiet-cta` | Einzugsgebiet, „Anfrage starten" und Telefonnummer |
+| `.wz-search-box` | Windzonen, „Standort ermitteln" |
+
+Dazu der **fünfte** Gewichtsfall, `.vd-model-tile p`. Er stand im
+Bericht des `cto` vom 23.11.2026, fehlte aber in meiner Liste der
+bekannten Fälle. Aufgefallen ist er erst jetzt, weil es
+`.vd-model-tile` nur auf den beiden Sonnenschutz-Seiten gibt, und die
+waren vorher nicht dabei.
+
+**Nachher: alle 115 Prüfungen über 53 Seiten bestanden**, dazu fünf
+bekannte Gewichtsfälle, die gemeldet werden und auf eine Ansage des
+Betreibers warten.
+
+### Damit steht die Bilanz dieser Fehlerart bei dreizehn
+
+Zehn unsichtbare Fokusringe am 23.11.2026, drei weitere am
+24.11.2026. **Keinen einzigen davon hat eines der 82 vorhandenen
+Skripte gefunden.** Die Ursache war jedes Mal dieselbe: eine dunkle
+Fläche, die in der Liste fehlt, und ein Ring, der in seine eigene
+Hintergrundfarbe läuft.
