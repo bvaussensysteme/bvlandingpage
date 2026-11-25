@@ -24125,3 +24125,71 @@ Das ist die Art Fehler, die eine Gegenprobe wertlos macht, ohne
 aufzufallen: Sie entfernt nichts und bestätigt dann, dass alles in
 Ordnung ist. `index.html` wurde danach aus einer Sicherung
 wiederhergestellt, `git status` zeigt keine Abweichung.
+
+## 25.11.2026 · Volldurchgang mit zehn Prüfern, Umsetzung an das nächste Modell
+
+### Auftrag
+
+Ansage des Betreibers: „überprüfe die ganze seite mit fable 5.2 mit
+agenten und skills prüfe verbesserungen", und danach: „wenn du fertig
+bist erstelle eine md promt datei bzw. übergabe für nächstes opus 5.5
+modell zu den verbesserungen".
+
+### Was gelaufen ist
+
+Jeder Fachbereich aus `docs/PRUEFER_REIHENFOLGE.md` mit genau einem
+lesenden Prüfer, Nummer 1 bis 9 gleichzeitig (der Arbeitsbaum war
+sauber, niemand hat währenddessen Code geändert), danach Nummer 10
+und zuletzt Nummer 11 gegen das fertige Dokument. Jeder baute auf
+`docs/AUDIT-2026-11-22.md` auf und meldete für alte Punkte nur den
+Stand. Fünf Prüfer arbeiteten nach einem Skill aus `.claude/skills/`.
+
+### Was daraus wurde
+
+**Umgesetzt wurde nichts.** Der zweite Satz des Betreibers gibt die
+Verbesserungen an das nächste Modell. Wären die gemessenen Fehler
+hier noch behoben worden, hätten zwei Modelle an denselben Dateien
+gearbeitet. Das weicht von der Regel „Messbare Fehler sofort überall
+beheben" ab und ist dem Betreiber so gesagt worden.
+
+Alles steht in **`docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`**:
+Block A gemessene Fehler ohne Rückfrage, Block B Entscheidungen des
+Betreibers, Block C größere Umbauten.
+
+### Die drei schwersten Funde
+
+1. **Das Online-Widerrufsformular lässt sich nicht absenden, auch
+   live.** `form-action 'self'` in `_headers:14` gegen ein Formular,
+   das an `api.web3forms.com` sendet. Gefahrlos nachgestellt, live
+   lesend bestätigt, dem Betreiber sofort gemeldet. Belege in
+   `docs/rechtstexte-befunde.md`.
+2. **Der Kopf der 14 Ortsseiten ist im Neubau unlesbar** (1,07:1), und
+   am Handy haben sie kein Menü, auch live. Die Arbeit an der
+   stehenden Kopfleiste vom 24.11. hat diese Seiten nie erreicht,
+   weil sie ein eigenes Kopf-Markup ohne jede Stilregel tragen.
+3. **Falsche Garantie im Anfrage-Assistenten:** 5 statt 2 Jahre auf
+   Elektrik (`js/anfrage-wizard.js:1141`).
+
+### Was der Durchgang über die Prüfungen sagt
+
+81 von 83 Skripten waren grün, und trotzdem lagen diese drei Fehler
+offen. Die Skripte messen, was jemand schon einmal falsch gemacht
+hat. Ein Formular gegen die ausgelieferte CSP, ein Kopf ohne
+Stilregel und eine Zahl in einem Skripttext standen nie auf der
+Liste. Vier fehlende Prüfungen sind in der Übergabe als A10
+beschrieben.
+
+### Gegenprüfung des Dokuments
+
+Der Reality-Checker hat die erste Fassung der Übergabe gegen den Code
+gelesen: rund 150 Behauptungen, keine falsche Fundstelle. Drei
+Anweisungen hätten aber, wörtlich befolgt, zu einer falschen Änderung
+geführt und sind berichtigt: der Wortlaut der Garantiezeile, die
+Produktvorauswahl nach dem Baugenehmigungs-Check (nur zwei von fünf
+Ergebnissen haben einen gültigen Schlüssel) und die Überführung der
+Ortsseiten, die ohne Plan in Block A stand und nach Block C gehört.
+
+### Neu im Repository
+
+`scripts/alle-pruefungen.sh`: Der Starter für alle Prüfskripte lag
+bis dahin nur im Sitzungsordner.

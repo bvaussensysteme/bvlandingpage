@@ -273,7 +273,7 @@ noch nicht abgefragt.
 
 ### 3.19 Knopfsymbole: drei Entscheidungen des Betreibers
 
-Am 24.11.2026 tragen **437 von 439 Knöpfen** auf 60 Seiten ein
+Am 25.11.2026 tragen **436 von 439 Knöpfen** auf 60 Seiten ein
 Symbol (Ansage: „Stelle sicher das vor jedem button … ein icon is").
 Drei Punkte blieben bewusst offen.
 

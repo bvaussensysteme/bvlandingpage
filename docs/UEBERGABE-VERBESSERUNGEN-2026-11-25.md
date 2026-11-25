@@ -40,8 +40,10 @@ Schick mir nach jedem Paket den geprüften Vorschaulink.
 5. Die Seite hat **gebaute** Seiten (Quelle `src/**/*.njk`, Bau mit
    `npm run build`) und **handgepflegte** HTML-Dateien ohne Quelle:
    `index.html`, 14 Ortsseiten, `konfigurator.html`, `danke.html`,
-   `kontakt.html`, `termin.html`, `_template.html`, `werkstatt/*`.
-   Eine Änderung an Kopf oder Fuß muss in beide Welten.
+   `kontakt.html`, `termin.html`, `_template.html`, `werkstatt/*`,
+   dazu `produkte/_template.html`, `produkte/balkonueberdachung.html`
+   und `produkte/sonnenschutz-beschattung.html`. Eine Änderung an Kopf
+   oder Fuß muss in beide Welten.
 6. Rechtstexte (`src/agb.njk`, `src/datenschutz.njk`,
    `src/impressum.njk`, `src/widerruf.njk`) werden nicht angefasst,
    nur gemeldet, gesammelt in `docs/rechtstexte-befunde.md`.
@@ -104,7 +106,7 @@ gekostet. Lies sie, bevor du misst.
 
 **Betrieb**
 - Die Abrufversion `?v=JJJJMMTT<buchstabe>` steht in
-  `src/_includes/layout.njk` **und** in rund 55 HTML-Dateien. Nach
+  `src/_includes/layout.njk` **und** in 54 HTML-Dateien. Nach
   jeder Änderung an `style.css`, `start.css` oder einer JS-Datei
   hochzählen. `scripts/pruefe-cache-buster.sh` liest Zeitstempel aus
   der Git-Historie und ist deshalb erst **nach dem Commit** grün.
@@ -136,7 +138,9 @@ Das schwerste sichtbare Problem des Durchgangs.
 
 - **Dateien:** alle `carport-*.html`, `pergola-*.html`,
   `terrassenueberdachung-*.html` im Wurzelverzeichnis (14 Stück,
-  handgepflegt).
+  handgepflegt). **Dazu `danke.html`:** Sie trägt denselben regellosen
+  Kopf mit weißem Logo (`danke.html:49`), also 15 Dateien mit
+  `.site-header`.
 - **Befund, gemessen:** Der Kopf nutzt `.site-header`, `.header-inner`,
   `.main-nav`. Für diese Klassen gibt es in keinem Stilblatt eine
   Regel. Am Rechner: weiße Menüschrift auf `rgb(248,247,244)`,
@@ -153,24 +157,28 @@ Das schwerste sichtbare Problem des Durchgangs.
   - Der Schlussknopf enthält nur ein Symbol und keinen Text
     (`carport-koblenz.html`, etwa Zeile 267).
   - In der Fußzeile fehlen Markisenstoffe, Zertifikate, Pflege und
-    Widerruf (35 statt 43 Verweise bei zehn Seiten).
-- **Empfohlener Weg (Architekturprüfer):** die 14 Seiten in eine
-  Eleventy-Vorlage mit `src/_includes/layout.njk` überführen. Der Kopf
-  ist auf allen 14 gleich, der Fuß liegt in zwei Fassungen vor. Das
-  behebt alle Punkte auf einmal und entfernt 14 von 20 Handkopien.
-- **Woran es brechen kann:** relative Pfade (`images/…`,
-  `css/style.css`), `#kontakt` als eigener Abschnitt der Ortsseite
-  gegen `/#kontakt`, drei JSON-LD-Blöcke je Seite, die Adressen
-  (müssen exakt bleiben, Bestandsschutz). `index.html` und
-  `konfigurator.html` **nicht** überführen.
-- **Kleinster Weg, falls die Überführung zu groß ist:** das Kopf- und
-  Menü-Markup aus `layout.njk` in die 14 Dateien übernehmen. Das
-  vermehrt die Handkopien und ist nur die Notlösung.
-- **Fertig, wenn:** auf allen 14 Seiten bei 390 und 1280 px der
+    Widerruf. Gezählt im Fuß: 36 Verweise auf zehn Ortsseiten, 41 auf
+    vier, 45 in `index.html`.
+- **Weg in diesem Block:** das Kopf- und Menü-Markup aus
+  `src/_includes/layout.njk` (Kopfleiste `.navbar` samt Hamburger und
+  `.mobile-menu`) in die 15 Dateien übernehmen und `/#produkte` auf
+  `/#leistungen` richten. Das behebt die gemessenen Fehler mit dem
+  kleinsten Eingriff. Es vermehrt die Handkopien; das ist bekannt und
+  wird in Kauf genommen.
+- **Nicht in diesem Block:** die Überführung der 14 Seiten in eine
+  Eleventy-Vorlage. Sie ist der bessere Endzustand, aber ein Umbau an
+  bestandsgeschützten Seiten und steht deshalb als C1 in Block C, mit
+  Plan und Zustimmung. Wer hier ohne Rückfrage damit anfängt, beginnt
+  mit dem größten Umbau der ganzen Liste.
+- **Achtung beim Übernehmen:** Die Ortsseiten haben einen eigenen
+  Abschnitt `#kontakt` auf der Seite; die Vorlage verweist auf
+  `/#kontakt`. Die Pfade der Ortsseiten sind relativ (`images/…`,
+  `css/style.css`).
+- **Fertig, wenn:** auf allen 15 Seiten bei 390 und 1280 px der
   Menükontrast mindestens 4,5:1 beträgt, am Handy ein bedienbares Menü
   da ist, die Kopfleiste stehen bleibt, kein Verweis ins Leere führt
-  und der Vergleich des gebauten `<main>` mit der alten Datei keine
-  inhaltliche Abweichung zeigt.
+  und `git diff` außerhalb von Kopf, Menü und Fuß keine Änderung
+  zeigt.
 - **Prüflücke schließen:** `carport-koblenz.html` steht in
   `scripts/pruefe-mitwachsend.mjs:37`, gemeldet wurde nie etwas. Die
   Prüfung muss den Kopf dieser Seiten mitmessen.
@@ -183,9 +191,16 @@ Das schwerste sichtbare Problem des Durchgangs.
 - **Gilt ohne Rückfrage (`CLAUDE.md`, Abschnitt Garantie):** 10 Jahre
   Aluminium, 5 Jahre Markisen und Tuch, **2 Jahre Elektrik**
   (Antriebe, Motoren, LED, Lautsprecher, Steuerungen).
-- **Nur die Zahlen richtigstellen.** Der Rest des Satzes („Bei
+- **Wortlaut.** „Nur die Zahl ändern" geht nicht, weil sich
+  Markisen, Antriebe und Elektro im Satz eine Zahl teilen. Den Teil in
+  Zeile 1141 ersetzen durch, angelehnt an `index.html:1610`:
+  `<strong>10 Jahre auf Aluminium-Produkte</strong>, <strong>5 Jahre
+  auf Markisen</strong> und <strong>2 Jahre auf Antriebe &
+  Elektro</strong>`. Das ist die feststehende Garantietabelle und
+  braucht keine Rückfrage.
+- **Zeile 1142 und 1143 unverändert lassen.** Der Satz „Bei
   Selbstmontage können Garantie- und Gewährleistungsansprüche
-  eingeschränkt sein") ist ein Rechtshinweis und wird nicht
+  eingeschränkt sein" ist ein Rechtshinweis und wird nicht
   umformuliert, sondern in `docs/rechtstexte-befunde.md` gemeldet.
 - Danach Abrufversion der Datei hochzählen.
 
@@ -195,10 +210,27 @@ Das schwerste sichtbare Problem des Durchgangs.
 - **Befund:** Der Verweis wird als `'/#kontakt?produkt=…'` gebaut.
   Alles nach `#` ist Sprungmarke, eine solche ID gibt es nicht, und
   der Assistent liest keine Adresse.
-- **Weg:** Adresse `/#kontakt` lassen und die Produktwahl über
-  `bv-produktwahl` mitgeben, so wie es die Produktseiten tun.
+- **Weg:** Adresse `/#kontakt` lassen und im Klick
+  `sessionStorage.setItem('bv-produktwahl', …)` setzen, so wie es die
+  Produktseiten per `onclick` tun; `js/anfrage-wizard.js:2132` liest
+  den Wert.
+- **Falle:** Der Assistent nimmt nur Schlüssel aus `PRODUKTWEGE`
+  (`js/anfrage-wizard.js:2072`) an. Der Check liefert
+  `terrassenueberdachung`, `carport`, `kaltwintergarten`,
+  `glasschiebeanlage`, `aussenanlage`; gültig sind davon nur `carport`
+  und `kaltwintergarten`. Außerdem ist die Variable `first` in
+  `src/baugenehmigung.njk:1183` die **Beschriftung**, kein Schlüssel.
+  Es braucht also eine Zuordnung.
+- **Ohne Rückfrage:** den Verweis auf `/#kontakt` richtigstellen und
+  `carport` sowie `kaltwintergarten` durchreichen.
+- **Vorher den Betreiber fragen:** `aussenanlage` (naheliegend
+  `pergola`), `terrassenueberdachung` (zwei mögliche Ziele:
+  `terrassendach-tds` und `flachdach-skyview`) und
+  `glasschiebeanlage` (kein Eintrag vorhanden). Bis zur Antwort
+  landen diese drei ohne Vorauswahl im Formular; das ist richtiger
+  als eine geratene.
 - **Fertig, wenn:** der Klick im Browser beim Kontaktabschnitt landet
-  und das Produkt vorausgewählt ist.
+  und bei Carport und Kaltwintergarten das Produkt vorausgewählt ist.
 
 ### A4. Anfrage-Assistent: Tastatur und Vorlesesoftware
 
@@ -209,7 +241,7 @@ Browser gemessen. Beim Testen Versand abfangen (Abschnitt 2).
 |---|---|---|
 | Nach einer Auswahl per Tastatur fällt der Fokus auf `BODY` (Eindeckung, LED, Lautsprecher, Aufklappfeld, Höhenbezug) | 2.4.3, 3.2.2 | um 1561, 1623–1627, 1660–1710 |
 | Gewählt und aufgeklappt nur als CSS-Klasse, kein `aria-pressed`, kein `aria-expanded` | 4.1.2 | um 398, 1249, 1272, 1282 |
-| Lupe ist ein `span` mit `tabIndex -1` in einem Knopf; Großansicht per Tastatur nicht zu öffnen, ohne Rolle | 2.1.1, 4.1.2 | um 1256, 1564–1576 |
+| Lupe ist ein nacktes `<span class="aw-dd-zoom">` ohne `tabindex` und ohne Rolle in einem Knopf, also nicht fokussierbar; Großansicht per Tastatur nicht zu öffnen | 2.1.1, 4.1.2 | um 1255, 1564–1576 |
 | Platzhaltertext 3,70:1 (#757575 auf rgb(28,28,29)) | 1.4.3 | um 1304 |
 | Kontaktschritt: kein `required` oder `aria-required`, kein `aria-invalid`; nach einem Fehler bleibt der Fokus auf „Weiter", das bemängelte Feld liegt rund 700 px darüber | 3.3.1, 3.3.2 | um 1164–1188, 1730 |
 
@@ -271,18 +303,16 @@ Browser gemessen. Beim Testen Versand abfangen (Abschnitt 2).
 | `aria-label="Mehr entdecken"`, sichtbar steht „Alle Leistungen entdecken" (WCAG 2.5.3) | `index.html`, um 672 |
 | `aria-label` auf einem `div` ohne Rolle, wirkungslos | `index.html`, um 2101 |
 | Fußzeile der Vorlage: Hachenburg und Limburg zeigen auf `einzugsgebiet.html`, obwohl eigene Ortsseiten existieren; Ransbach-Baumbach fehlt. Richtig steht es in `index.html:2188-2191` | `src/_includes/layout.njk`, um 214–217 |
-| Handy-Menü der Vorlage ohne Galerie und FAQ, die Kopfnavigation hat beide | `layout.njk`, um 157–164 gegen 138, 146 |
-| `danke.html`: Telefonnummer anders geschrieben als sonst („015678 696609"), WhatsApp-Knopf trägt ein Hörersymbol | `danke.html`, um 91, 97 |
-| `galerie-1.webp` lädt sofort (`loading="eager"`), liegt aber weit unter dem ersten Bildschirm: 197 KB | `index.html`, um 1408 |
-| Karten laden JPG statt WebP, weil das Skript das `<source>` entfernt: 877 KB, also 61 % des Erstaufrufs | `js/bilder-blaettern.js`, um 93 |
-| 173 von 593 Bildern ohne `width` und `height`, davon 108 in `stoffe.html` | `src/stoffe.njk` |
-| `lastmod` in der Sitemap höchstens 06.11.2026, obwohl am 22.11. 45 Seiten geändert wurden; `dateModified` der Ratgeber 15.07.2026 | `sitemap.xml`, Ratgeber-Quellen |
+| WhatsApp-Knopf trägt ein Hörersymbol statt des WhatsApp-Zeichens | `danke.html`, um 91 |
 | Kommentare behaupten, `start.css` gelte „nur Startseite"; sie lädt auf 51 Seiten | `index.html`, um 476, 498; `start.css:4-14` |
-| `_headers:29` sagt, es gebe keinen Cache-Buster; alle 52 Seiten tragen einen | `_headers` |
-| Die CSP verbietet `data:`-Bilder, das eigene Stilblatt benutzt welche | `style.css`, um 2279, 3900; `src/baugenehmigung.njk:218-219`; `js/accessibility.js:408` |
+| Kommentar sagt, es gebe keinen Cache-Buster; 54 Seiten tragen einen | `_headers:29` |
 
-Beim letzten Punkt erst auf der **Vorschau** messen, ob etwas sichtbar
-fehlt.
+Nicht mehr in dieser Tabelle, weil der Reality-Checker sie zu Recht
+umgehängt hat: das Handy-Menü ohne Galerie und FAQ (Navigation, jetzt
+B10), die Schreibweise der Telefonnummer auf `danke.html` (Text,
+jetzt B6), `data:`-Bilder gegen die CSP (Änderung an `_headers`,
+jetzt B12), Ladegewicht und Datumsangaben (kein Punkt der Regel
+„Messbare Fehler", jetzt C5 und C8).
 
 ### A10. Prüfungen, die fehlen
 
@@ -416,6 +446,8 @@ strukturierten Datenblock mit.
 - Fachwörter ohne Erklärung: VSG, opal, 36 dB, Trapezblech,
   „prüffähige Einzelstatik", „Windwiderstandsklasse 3", ZIP (benutzt
   in Zeile 238, erklärt erst in 331), „Shutters".
+- `danke.html`, um Zeile 97: Telefonnummer als „015678 696609"
+  geschrieben, sonst überall anders gegliedert.
 - Alte Reste aus `docs/NEXT_TASK.md` 3.17.
 
 ### B7. Die Ortsseiten sind inhaltlich dünn
@@ -491,6 +523,10 @@ je Seite:
   beginnt bei rund 13.000 px. Vorschläge: Leistungen verdichten, FAQ
   sechs zeigen und den Rest aufklappen, „Ablauf" und „Warum wir" vor
   die Stoffe. Alles Hypothese ohne Daten.
+- **Handy-Menü der Vorlage ohne Galerie und FAQ**, die Kopfnavigation
+  hat beide (`src/_includes/layout.njk`, um 157–164 gegen 138, 146).
+  Das Handy-Menü von `index.html` hat zusätzlich „Konfigurator" und
+  keine „Startseite".
 - **Statusleistenfarbe** steht auf dem alten Gold `#C49A2A`
   (`layout.njk:49`, `index.html:56`), die Kopfleiste ist dunkel.
 - **Hover am Handy:** 74 von 92 `:hover`-Regeln ohne
@@ -537,6 +573,12 @@ je Seite:
   (`index.html:492`, `layout.njk:91`), alter Punkt B2.
 - Der Cookie-Hinweis nennt Trustindex (`js/cookie.js:180`), geladen
   wird keins.
+- Die CSP verbietet `data:`-Bilder, das eigene Stilblatt benutzt
+  welche (`style.css`, um 2279 und 3900;
+  `src/baugenehmigung.njk:218-219`; `js/accessibility.js:408`). Erst
+  auf der **Vorschau** messen, ob sichtbar etwas fehlt. Die Behebung
+  wäre entweder eine Änderung an `_headers` (dieselbe Datei wie in B1,
+  also Ansage) oder der Ersatz der `data:`-Bilder im Stilblatt.
 
 ### B13. Schon länger offen
 
@@ -551,9 +593,21 @@ Keiner davon nebenbei. Jeder braucht einen Plan, den der
 Architekturprüfer (`cto`) gegenliest, und die Zustimmung des
 Betreibers.
 
-1. **Eine Quelle für Kopf und Fuß.** Es gibt fünf Fußzeilen-Fassungen.
-   Nach A1 bleiben `index.html`, `konfigurator.html`, `danke.html` als
-   Handkopien.
+1. **Die 14 Ortsseiten in eine Eleventy-Vorlage überführen**, mit
+   `src/_includes/layout.njk`. Empfehlung des Architekturprüfers und
+   die eine Verbesserung mit dem besten Verhältnis von Nutzen zu
+   Aufwand: Der Kopf ist auf allen 14 gleich, der Fuß liegt in zwei
+   Fassungen vor; es entfielen 14 von 20 Handkopien, und es gäbe
+   statt fünf Fußzeilen-Fassungen nur noch die der Vorlage und die
+   von `index.html`. Woran es brechen kann: relative Pfade
+   (`images/…`, `css/style.css`), `#kontakt` als eigener Abschnitt
+   der Ortsseite gegen `/#kontakt`, drei JSON-LD-Blöcke je Seite, und
+   die Adressen, die exakt bleiben müssen (Bestandsschutz). Rückweg:
+   die alte Datei bleibt in Git, ein Commit je Gruppe, Vergleich des
+   gebauten `<main>` mit der alten Datei. `index.html` und
+   `konfigurator.html` **nicht** überführen. A1 behebt vorher nur die
+   gemessenen Fehler; diese Überführung macht die Handkopien danach
+   überflüssig.
 2. **Seitenkopf und Produktkarte einmal anlegen.** Die 16
    Produktseiten definieren `.produkt-hero` und `.produkt-card` je
    selbst, zusammen 496 Zeilen; es gibt 9 Seitenköpfe, 28 Karten- und
@@ -563,19 +617,35 @@ Betreibers.
    als feste Zahl und an 17 als Marke; Abstände 1191 gegen 51; Radien
    211 gegen 45; 581 Inline-Stile. Meiste Altlasten: `style.css` 772,
    `windzonen.njk` 179, `baugenehmigung.njk` 149.
-4. **Zwei CSS-Schichten zusammenlegen.** Alle 51 Seiten tragen
-   `.start-premium`; der Geltungsbereich ist nur noch Fiktion. Erst
+4. **Zwei CSS-Schichten zusammenlegen.** `start.css` lädt auf 51
+   Seiten, und alle 51 tragen `.start-premium` (dazu vier
+   Weiterleitungsstümpfe ohne `start.css`); `premium: false` nutzt
+   keine einzige. Der Geltungsbereich ist nur noch Fiktion. Erst
    **nach** dem Einarbeiten von `main`, weil `src/css/style.css`
    Konfliktdatei ist.
 5. **Bilder.** `images/` hat 45,9 MB in 840 Dateien, kein AVIF, kein
    `srcset`; 19 von 27 geladenen Bildern sind mehr als doppelt so
    breit wie angezeigt (Carport 2200 px bei 344 px). `stoffe.html`: 53
-   PNG mit 5,9 MB und 97 JPG mit 11,9 MB ohne WebP.
+   PNG mit 5,9 MB und 97 JPG mit 11,9 MB ohne WebP. Dazu drei
+   einzelne Punkte: Die Karten der Startseite laden JPG statt WebP
+   (`index.html:720`, `:730`), zusammen 877 KB, also 61 % des
+   Erstaufrufs; `js/bilder-blaettern.js:89-93` entfernt das
+   `<source>` **mit Absicht**, ein Kommentar begründet es, also erst
+   lesen und dann entscheiden. `galerie-1.webp` lädt sofort
+   (`loading="eager"`, `index.html` um 1408), liegt aber weit unter
+   dem ersten Bildschirm: 197 KB. Und rund 175 Bilder haben keine
+   `width` und `height` (je nach Zählweise 173 von 593 oder 176 von
+   626), davon 108 in `stoffe.html`.
 6. **Zwischenspeicher.** CSS und JS gelten eine Stunde; mit dem
    vorhandenen Cache-Buster könnten sie ein Jahr mit `immutable`
    gelten (`_headers:31-35`).
-7. **`js/anfrage-wizard.js`** (119 KB, 37 KB gzip) lädt auf 51 von 57
-   Seiten sofort; ließe sich bis zum ersten Öffnen aufschieben.
+7. **`js/anfrage-wizard.js`** (119 KB, 37 KB gzip) lädt auf 53 von 60
+   HTML-Dateien sofort; ließe sich bis zum ersten Öffnen aufschieben.
+8. **Datumsangaben.** `lastmod` in `sitemap.xml` reicht höchstens bis
+   zum 06.11.2026, obwohl am 22.11. 45 Seiten geändert wurden.
+   `dateModified` der Ratgeber steht viermal auf dem 15.07.2026 und
+   einmal auf dem 28.07.2026. Am besten beim Bau aus dem
+   Änderungsdatum der Quelle erzeugen statt von Hand pflegen.
 
 ## 6. Entschieden, nicht wieder aufrollen
 
@@ -590,8 +660,12 @@ Vom Betreiber in dieser Woche festgelegt. Begründungen in
 - Am Handy (bis 699 px) drei Knöpfe im Heldenbereich: Kostenlos
   anfragen, Anrufen, WhatsApp. Ab 700 px alle sechs. Alle Knöpfe
   gleich groß.
-- Vor jedem Knopf ein Symbol (436 von 439). Ausnahmen: zwei in
-  Rechtstexten, `#k3dWeiter` im Konfigurator.
+- Vor jedem Knopf ein Symbol: **436 von 439**, im Browser über alle
+  60 Seiten gezählt. Ausnahmen: zwei in Rechtstexten, `#k3dWeiter` im
+  Konfigurator. Ältere Stellen nennen 437 (`docs/entscheidungen.md`,
+  Eintrag „Ein Symbol vor jedem Knopf"); das war der Stand, bevor das
+  Symbol an `#k3dWeiter` wieder entfernt wurde. Im statischen HTML
+  stehen weniger Knöpfe, der Rest entsteht per Skript.
 - Stoffnamen am Handy dauerhaft sichtbar, Band im Anthrazit der
   Kopfzeile.
 - Garantie: 10 Jahre Aluminium, 5 Jahre Tuch, 2 Jahre Elektrik.
@@ -657,11 +731,21 @@ nullen.
 | 8 | Vertrauen und Hürden | – | nur gelesen, keine Datenbank |
 | 9 | Wege durch die Seite | – (Skill-Datei fehlte) | nur gelesen |
 | 10 | Freigabereife | – | gelesen, Vorschau und Live per Prüfsumme verglichen |
+| 11 | Stimmt der Bericht | – | diese Datei gegen den Code gehalten, rund 150 Behauptungen |
 
 Vom Hauptagenten nachgemessen: A1 (Kontrast, Menü), A5 (Größe), A6
 (Kontrast), B1 (Blockade nachgestellt, live lesend bestätigt), A2 und
 B3 (im Code nachgelesen). **Alles andere ist der Bericht eines
 Prüfers und vor dem Beheben selbst zu messen.**
+
+**Gegenprüfung dieser Datei.** Der Reality-Checker hat die erste
+Fassung gegen den Code gelesen: rund 150 Einzelbehauptungen, rund 140
+ohne Einschränkung bestätigt, keine falsche Fundstelle, keine
+Zeilennummer mehr als 15 Zeilen daneben. Berichtigt wurden daraufhin
+der Wortlaut von A2 und A3, die Seitenzahlen, und vier Punkte, die
+ohne Rückfrage in Block A standen, obwohl sie eine Ansage brauchen.
+Nicht prüfen konnte er: Messwerte aus dem Browser, „81 grün, 2 rot",
+die 65 Konflikte und die 29 fehlenden Bilder.
 
 Bekannte Schwächen dieses Durchgangs: Der Ladezeit-Lauf blieb auf der
 Produktseite hängen. Der Handy- und der Gestaltungsprüfer hatten
