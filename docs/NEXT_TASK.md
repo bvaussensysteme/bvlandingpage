@@ -324,32 +324,25 @@ die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
 werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
 `docs/entscheidungen.md`.
 
-## Prüfstand vom 24.11.2026, Abschluss
+## Prüfstand vom 25.11.2026
 
-**83 Skripte, 82 grün, 1 rot, 0 übersprungen.** Das beste Ergebnis
-des Tages.
+**83 Skripte, 81 grün, 2 rot, 0 übersprungen.** Rot sind allein die
+zwei bekannten Dauerbefunde: `pruefe-konfigurator-oberflaeche.mjs`
+(1 von 182, „Der Zeiger auf dem Schild ändert das Bild") und
+`pruefe-schrittwechsel.mjs` (Altbefund B3).
 
-Rot ist allein `pruefe-konfigurator-oberflaeche.mjs` mit der
-bekannten einen Abweichung von 182 („Der Zeiger auf dem Schild ändert
-das Bild"). `pruefe-schrittwechsel.mjs` war diesmal grün; der
-Altbefund B3 tritt also nicht in jedem Lauf auf.
+Auf der Vorschau gegengeprüft, nicht nur lokal:
 
-Auf der Vorschau gegengeprüft: 58 von 59 Knöpfen auf acht Seiten mit
-Symbol (der eine Rest ist der Rechtstext-Knopf), kein waagerechtes
-Scrollen bei 320, 390 und 1280 px.
+| | Handy 390 | 700 px | Rechner 1280 |
+|---|---|---|---|
+| Knöpfe im Heldenbereich | **3** | 6 | 6 |
+| Knopfhöhe, alle einzeilig | 52 px | 52 px | 56 px |
+| Vertrauenszeile | sichtbar | sichtbar | sichtbar |
+| Kopfleiste | 66 px, bleibt stehen | 66 px, bleibt stehen | 72 px, bleibt stehen |
+| waagerechtes Scrollen | nein | nein | nein |
 
-### Zwei eigene Fehler in dieser Runde, beide behoben
-
-1. **Symbol am Knopf `#k3dWeiter`** im Konfigurator. Dessen Inhalt
-   gehört dem Skript, nicht dem Markup. Entfernt, Kommentar gesetzt.
-2. **Leerzeichen hinter jedem Symbol.** Dadurch hieß ein Knopf im
-   Text „ Abbrechen" statt „Abbrechen", und eine Prüfung, die
-   Beschriftungen vergleicht, fiel darüber. An 233 Stellen entfernt;
-   der Abstand kommt ohnehin aus `.btn { gap }`.
-
-Beide wurden **nur gefunden, weil die Skripte liefen**, nicht beim
-Durchsehen. Das ist das Argument dafür, nach jeder breiten Änderung
-alle laufen zu lassen und nicht die vermuteten.
+Die drei Knöpfe am Handy sind „Kostenlos anfragen", „Anrufen",
+„WhatsApp", in dieser Reihenfolge.
 
 ## 4. Was gerade läuft: die Lieferanten-Runde
 
