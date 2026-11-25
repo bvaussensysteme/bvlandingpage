@@ -24276,3 +24276,31 @@ Seite behoben: „Auswahl aufheben" ließ Knopftext und Vorauswahl stehen
 (WCAG 4.1.2); „Auswahl aufheben" war ein `<p>` mit `onclick` und mit der
 Tastatur nicht erreichbar (WCAG 2.1.1), jetzt ein Knopf im gleichen
 Aussehen.
+
+## 25.11.2026 · A4: Anfrage-Assistent mit Tastatur und Vorlesesoftware
+
+**Was war falsch.** Gemessen auf dem Weg Terrassendach TDS: 15-mal fiel
+der Fokus nach einer Auswahl auf BODY, Zustände nur als CSS-Klasse, die
+Lupe war ein `<span>` im Auswahlknopf, Platzhalter 3,69:1, im
+Kontaktschritt kein `aria-required` und nach einem Fehler blieb der
+Fokus auf „Weiter".
+
+**Was jetzt gilt.** `render()` merkt sich das bediente Element und setzt
+den Fokus nach dem Neuzeichnen darauf zurück (beim Schrittwechsel
+weiter auf die Überschrift). `ariaZustand()` schreibt `aria-pressed`
+und `aria-expanded` aus den Klassen. Die Lupe ist ein eigener Knopf über
+dem Bild, die Großansicht ein Dialog mit Fokus und Rückkehr. Platzhalter
+0,6 Weiß (6,85:1). Pflichtfelder mit `aria-required`; `valid()` nennt
+über `fehlerAn()` das Feld, das dann `aria-invalid` und den Fokus
+bekommt.
+
+**Warum so.** Ein zentraler Eingriff in `render()` statt an jeder der
+rund zwanzig Stellen, die neu zeichnen. `aria-required` statt
+`required`, damit keine Browsermeldung mit der eigenen konkurrieren kann.
+
+**Nicht geändert.** Welche Felder Pflicht sind und der Wortlaut der
+Meldungen und Sternchen-Erklärung.
+
+**Gegenlesen.** Mit der Maus: Bildklick öffnet weiter die Großansicht,
+Beschriftungsklick wählt aus, Lupenknopf deckungsgleich mit dem Bild
+(gemessen bei 390 und 1280 px, Abweichung 0 px).

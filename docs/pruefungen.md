@@ -1013,3 +1013,26 @@ ohne Vorauswahl zurück (vier Fälle).
 steht, prüft sie nicht, nur dass der Weg „Direkt anfragen" erreicht ist.
 Den Knopf „Auswahl aufheben" klickt sie nicht, er erscheint erst nach
 einer Adressabfrage; er ruft dieselbe Funktion `bgCtaAktualisieren` auf.
+
+## `pruefe-assistent-tastatur.mjs` (25.11.2026)
+
+**Frage:** Lässt sich der Anfrage-Assistent nur mit der Tastatur
+bedienen, und meldet er seine Zustände an Vorlesesoftware?
+
+**Wie:** Startseite, Weg „Terrassendach TDS", jedes Element per `focus()`
+und Enter, Leertaste oder Pfeiltaste, nie per Maus. Fünf Bereiche:
+Fokus nie auf BODY · `aria-pressed`/`aria-expanded` · Lupe als Knopf mit
+Großansicht als Dialog und Fokus zurück · Platzhalter ≥ 4,5:1 ·
+Kontaktschritt mit `aria-required`, nach einem Fehler Fokus und
+`aria-invalid` am bemängelten Feld. Versand an `/api/kontakt`, Web3Forms
+und Formspree wird abgefangen; Schluss vor dem Absenden.
+
+**Gegenprobe:** `--gegenprobe` liefert `js/anfrage-wizard.js` und
+`css/style.css` im Stand 777eaef; mindestens vier der fünf Bereiche
+müssen auffallen. Belegt: alle fünf.
+
+**Belegt am 25.11.2026:** vorher 5 von 5 rot (15-mal Fokus auf BODY,
+Platzhalter 3,69:1), nachher alle grün (Platzhalter 6,85:1).
+
+**Grenze:** nur der Weg Terrassendach TDS bei 1280 px; andere Produkte
+benutzen dieselben Bausteine. Bezugsauswahl der Höhe per Pfeiltaste.

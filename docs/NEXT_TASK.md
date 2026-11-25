@@ -446,3 +446,4 @@ Anfrage-Assistenten.
   Gestaltung, also mit dem Betreiber.
 - **A3 erledigt** bis auf drei Fragen an den Betreiber (Zuordnung der
   Chips Terrassenüberdachung, Glasschiebewand, Pergola / Markise).
+- **A4 erledigt** (25.11.2026 abends), Prüfung `scripts/pruefe-assistent-tastatur.mjs`.

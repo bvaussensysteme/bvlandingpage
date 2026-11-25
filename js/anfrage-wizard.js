@@ -1184,7 +1184,7 @@
           '</div>' +
           '<p class="aw-gebiet" id="aw-gebiet" hidden></p>' +
           selectField('k_quelle', 'Wie sind Sie auf uns aufmerksam geworden? (optional)', answers.k_quelle, QUELLE_OPTS) +
-          '<label class="aw-consent"><input type="checkbox" id="k_consent"' + (answers.k_consent ? ' checked' : '') + '> ' +
+          '<label class="aw-consent"><input type="checkbox" id="k_consent" aria-required="true"' + (answers.k_consent ? ' checked' : '') + '> ' +
           '<span>Ich habe die <a href="datenschutz.html" target="_blank" rel="noopener">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span></label>' +
           '</div>';
       },
@@ -1204,27 +1204,27 @@
         this.collect();
         var vorname = answers.k_vorname.trim(), nachname = answers.k_nachname.trim();
         var email = answers.k_email.trim();
-        if (!answers.k_anrede) return 'Bitte wählen Sie eine Anrede.';
-        if (!nachname) return 'Bitte geben Sie Ihren Nachnamen an.';
-        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return 'Bitte geben Sie eine gültige E-Mail-Adresse an.';
+        if (!answers.k_anrede) return fehlerAn('k_anrede', 'Bitte wählen Sie eine Anrede.');
+        if (!nachname) return fehlerAn('k_nachname', 'Bitte geben Sie Ihren Nachnamen an.');
+        if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return fehlerAn('k_email', 'Bitte geben Sie eine gültige E-Mail-Adresse an.');
         // Milde Fake-/Spam-Prüfung – fängt nur offensichtliche Test-/Platzhaltereingaben ab
-        if (looksFakeName(vorname, nachname)) return 'Bitte geben Sie Ihren echten Namen ein, so können wir Sie persönlich ansprechen.';
-        if (looksFakeEmail(email)) return 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.';
+        if (looksFakeName(vorname, nachname)) return fehlerAn('k_nachname', 'Bitte geben Sie Ihren echten Namen ein, so können wir Sie persönlich ansprechen.');
+        if (looksFakeEmail(email)) return fehlerAn('k_email', 'Diese E-Mail-Adresse sieht nicht gültig aus. Bitte geben Sie eine Adresse an, unter der wir Sie erreichen können.');
         // Telefon ist Pflicht: Rueckfragen zu Massen und Untergrund lassen sich
         // am Telefon in Minuten klaeren statt in mehreren E-Mails.
         var telefon = answers.k_telefon.trim();
-        if (!telefon) return 'Bitte geben Sie eine Telefonnummer an, für Rückfragen geht das am schnellsten.';
+        if (!telefon) return fehlerAn('k_telefon', 'Bitte geben Sie eine Telefonnummer an, für Rückfragen geht das am schnellsten.');
         // Bewusst tolerant: Schreibweisen wie +49, 0049, Klammern, Schraegstriche
         // und Leerzeichen sind alle in Ordnung, nur die Ziffernzahl zaehlt.
-        if (telefon.replace(/[^0-9]/g, '').length < 6) return 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.';
+        if (telefon.replace(/[^0-9]/g, '').length < 6) return fehlerAn('k_telefon', 'Diese Telefonnummer sieht zu kurz aus. Bitte prüfen Sie Ihre Eingabe.');
 
         // Standort ist Pflicht: ohne ihn koennen wir weder Aufmass-Termin noch
         // Anfahrt einschaetzen und auch die Lastzonen nicht bestimmen.
         var plz = answers.k_plz.trim();
-        if (!plz) return 'Bitte geben Sie Ihre PLZ an, wir brauchen sie für Aufmaß und Anfahrt.';
-        if (!/^[0-9]{5}$/.test(plz)) return 'Bitte geben Sie eine gültige PLZ mit fünf Ziffern an.';
-        if (!answers.k_ort.trim()) return 'Bitte geben Sie Ihren Ort an.';
-        if (!answers.k_consent) return 'Bitte stimmen Sie der Datenschutzerklärung zu.';
+        if (!plz) return fehlerAn('k_plz', 'Bitte geben Sie Ihre PLZ an, wir brauchen sie für Aufmaß und Anfahrt.');
+        if (!/^[0-9]{5}$/.test(plz)) return fehlerAn('k_plz', 'Bitte geben Sie eine gültige PLZ mit fünf Ziffern an.');
+        if (!answers.k_ort.trim()) return fehlerAn('k_ort', 'Bitte geben Sie Ihren Ort an.');
+        if (!answers.k_consent) return fehlerAn('k_consent', 'Bitte stimmen Sie der Datenschutzerklärung zu.');
         return null;
       }
     },
@@ -1251,9 +1251,10 @@
   function ddThumb(value, zoomable) {
     var o = erwOpt(value);
     if (o && o.img) {
-      var zoom = zoomable ? ' data-zoom="' + o.img + '" data-zoom-label="' + esc(value) + '"' : '';
-      var lupe = zoomable ? '<span class="aw-dd-zoom">' + svg(I.lupe) + '</span>' : '';
-      return '<span class="aw-dd-thumb"' + zoom + '><img src="/images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + lupe + '</span>';
+      /* Nur noch Bild und Lupen-Abzeichen. Bedient wird die Lupe ueber
+         den eigenen Knopf .aw-dd-zoombtn in ddField (Paket A4). */
+      var lupe = zoomable ? '<span class="aw-dd-zoom" aria-hidden="true">' + svg(I.lupe) + '</span>' : '';
+      return '<span class="aw-dd-thumb' + (zoomable ? ' aw-dd-thumb--zoom' : '') + '"><img src="/images/wizard/erw_' + o.img + '.webp?v=' + ASSET_VER + '" alt="" loading="lazy">' + lupe + '</span>';
     }
     return '<span class="aw-dd-thumb aw-dd-thumb--none">' + svg(I.aus) + '</span>';
   }
@@ -1269,9 +1270,19 @@
       var pick = disabled ? '' : ' data-dd-pick="' + id + '" data-value="' + esc(o.value) + '"';
       var note = disabled ? '<span class="aw-dd-note">nicht mit ' + esc(blocker) + '</span>'
                : (locked ? '<span class="aw-dd-note">erforderlich</span>' : '');
-      return '<button type="button" class="' + cls + '"' + pick + '>' +
+      /* LUPE (25.11.2026, Paket A4): Sie war ein <span> IM Auswahlknopf,
+         also weder fokussierbar noch per Tastatur zu oeffnen (WCAG
+         2.1.1, 4.1.2). Ein Knopf darf keinen Knopf enthalten. Deshalb
+         steht der Lupenknopf jetzt NEBEN dem Auswahlknopf und liegt per
+         CSS (.aw-dd-zoombtn) genau ueber dem Bild. Mit der Maus sieht
+         und tut es dasselbe wie vorher. */
+      var eo = erwOpt(o.value);
+      var lupenKnopf = (eo && eo.img)
+        ? '<button type="button" class="aw-dd-zoombtn" data-zoom="' + eo.img + '" data-zoom-label="' + esc(o.value) +
+          '" aria-label="Foto vergrößern: ' + esc(o.value) + '"></button>' : '';
+      return '<div class="aw-dd-item"><button type="button" class="' + cls + '"' + pick + '>' +
         ddThumb(o.value, true) + '<span class="aw-dd-lbl">' + esc(o.value) + '</span>' + note +
-        '<span class="aw-dd-check">' + (selected ? '✓' : '') + '</span></button>';
+        '<span class="aw-dd-check" aria-hidden="true">' + (selected ? '✓' : '') + '</span></button>' + lupenKnopf + '</div>';
     }).join('');
     var hint = (sel.indexOf('Rahmenwand') > -1 && sel.indexOf('Schiebetür') > -1)
       ? '<p class="aw-dd-hint">Rahmenwand unten, Schiebetür darüber montiert.</p>' : '';
@@ -1300,8 +1311,13 @@
       '<div class="aw-dim-in"><input type="number" inputmode="numeric" min="0" id="aw_' + id + '" value="' + esc(answers[id] || '') + '" placeholder="' + ph + '"><span>' + (unit || 'mm') + '</span></div></div>';
   }
   function txtField(id, label, v, ph, type, ac, extra) {
+    /* Das Sternchen in der Beschriftung ist die Pflichtangabe; Vorlese-
+       software erfuhr sie nur, wenn sie das Zeichen vorlas (WCAG 3.3.2,
+       Paket A4). aria-required statt required: required wuerde die
+       Browser-Meldung ausloesen und mit der eigenen konkurrieren. */
+    var pflicht = /\*\s*$/.test(label) ? ' aria-required="true"' : '';
     return '<div class="aw-field"><label for="' + id + '">' + label + '</label>' +
-      '<input type="' + (type || 'text') + '" id="' + id + '" value="' + esc(v || '') + '" placeholder="' + ph + '"' + (ac ? ' autocomplete="' + ac + '"' : '') + (extra ? ' ' + extra : '') + '></div>';
+      '<input type="' + (type || 'text') + '" id="' + id + '" value="' + esc(v || '') + '" placeholder="' + ph + '"' + (ac ? ' autocomplete="' + ac + '"' : '') + pflicht + (extra ? ' ' + extra : '') + '></div>';
   }
   function selectField(id, label, v, opts) {
     var o = '<option value=""' + (v ? '' : ' selected') + '>Bitte wählen …</option>';
@@ -1452,7 +1468,62 @@
   /* ---------- Rendering & Navigation ---------- */
   function currentId() { return flow[idx]; }
 
+  /* FOKUS BEIM NEUZEICHNEN (25.11.2026, Paket A4)
+     Jeder Schritt wird mit innerHTML neu gezeichnet, auch fuer eine
+     einzelne Auswahl. Das bediente Element verschwand dabei samt Fokus,
+     und der Fokus fiel auf BODY: gemessen 15-mal auf dem Weg
+     "Terrassendach TDS" (WCAG 2.4.3, 3.2.2). Deshalb merkt sich render()
+     vor dem Zeichnen, WELCHES Element den Fokus hatte, als Merkmal aus
+     id oder data-Attributen, und setzt ihn danach auf das neue
+     Gegenstueck. Nicht beim Schrittwechsel: dort geht der Fokus wie
+     bisher auf die Ueberschrift. Geprueft von
+     scripts/pruefe-assistent-tastatur.mjs. */
+  var FOKUS_MERKMALE = ['data-field', 'data-value', 'data-pill', 'data-dd-toggle', 'data-dd-pick',
+                        'data-ral-open', 'data-ral-pick', 'data-zoom', 'data-extra'];
+  var fokusVorgabe = null;   // gesetzt, wenn der Fokus gerade wandert (blur)
+  function fokusMerkmal(el) {
+    if (!el || el === document.body || !bodyEl.contains(el)) return null;
+    var q = function (s) { return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); };
+    if (el.id) return '[id="' + q(el.id) + '"]';
+    var sel = el.tagName.toLowerCase() + (el.classList.length ? '.' + el.classList[0] : '');
+    var hat = false;
+    FOKUS_MERKMALE.forEach(function (a) {
+      if (el.hasAttribute(a)) { sel += '[' + a + '="' + q(el.getAttribute(a)) + '"]'; hat = true; }
+    });
+    return hat ? sel : null;
+  }
+  function fokusZurueck(merkmal) {
+    if (!merkmal) return;
+    var z = bodyEl.querySelector(merkmal);
+    if (!z) {
+      /* Die gewaehlte Option ist weg (Feld zugeklappt): dann auf den
+         Knopf, der das Feld oeffnet. */
+      var dd = merkmal.match(/data-dd-pick="([^"]+)"/);
+      if (dd) z = bodyEl.querySelector('[data-dd-toggle="' + dd[1] + '"]');
+    }
+    if (z) { try { z.focus({ preventScroll: true }); } catch (e) { z.focus(); } }
+  }
+
+  /* ZUSTAENDE FUER VORLESESOFTWARE (25.11.2026, Paket A4)
+     Gewaehlt und aufgeklappt stand nur als CSS-Klasse da (WCAG 4.1.2).
+     Diese Funktion liest die Klassen und schreibt die ARIA-Zustaende.
+     Sie laeuft nach jedem Zeichnen und nach jedem Klick im Schritt
+     (ein Zuhoerer auf bodyEl, siehe unten), damit auch Klicks, die nur
+     Klassen umschalten, ihren Zustand melden. */
+  function ariaZustand() {
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-option, .aw-pill, .aw-check, .aw-dd-opt'), function (b) {
+      if (b.hasAttribute('data-ral-open')) { b.setAttribute('aria-expanded', ralOffen ? 'true' : 'false'); return; }
+      b.setAttribute('aria-pressed', b.classList.contains('is-active') ? 'true' : 'false');
+      if (b.classList.contains('is-disabled')) b.setAttribute('aria-disabled', 'true');
+    });
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-toggle'), function (b) {
+      b.setAttribute('aria-expanded', b.classList.contains('is-open') ? 'true' : 'false');
+    });
+  }
+
   function render() {
+    var fokusVorher = fokusMerkmal(fokusVorgabe || document.activeElement);
+    fokusVorgabe = null;
     var step = STEPS[currentId()];
     document.getElementById('awTitle').textContent = typeof step.title === 'function' ? step.title() : step.title;
     subEl.textContent = step.sub || 'Anfrage-Nr. ' + ref;
@@ -1545,6 +1616,7 @@
        zweite Aufbau sah aus wie ein Schrittwechsel. Ein Fokus beim
        Laden zieht Tastatur und Vorleseprogramm mitten in die Seite,
        ohne dass jemand etwas angeklickt hat. */
+    var gleicherSchritt = letzterSchritt === jetzt;
     if (!imAufbau && letzterSchritt !== null && letzterSchritt !== jetzt) {
       var titelEl = document.getElementById('awTitle');
       if (titelEl) {
@@ -1555,24 +1627,42 @@
     letzterSchritt = jetzt;
 
     bindStep();
+    ariaZustand();
+    if (gleicherSchritt) fokusZurueck(fokusVorher);
   }
 
   // Neu rendern ohne Scroll-Sprung (für Multi-Select in den Erweiterungen)
   function rerenderKeepScroll() { var st = bodyEl.scrollTop; render(); bodyEl.scrollTop = st; }
 
   // Bild-Großansicht (Lightbox) für die Erweiterungs-Fotos
-  function openLightbox(imgSlug, label) {
+  /* Grossansicht als Dialog (25.11.2026, Paket A4): Fokus hinein,
+     Escape schliesst, Fokus zurueck auf die Lupe. Vorher blieb der
+     Fokus hinter der Grossansicht stehen. */
+  function openLightbox(imgSlug, label, ausloeser) {
     var lb = document.createElement('div');
     lb.className = 'aw-lightbox';
+    lb.setAttribute('role', 'dialog');
+    lb.setAttribute('aria-modal', 'true');
+    lb.setAttribute('aria-label', 'Großansicht: ' + label);
     lb.innerHTML = '<div class="aw-lightbox-inner">' +
       '<img src="/images/wizard/erw_' + imgSlug + '.webp?v=' + ASSET_VER + '" alt="' + esc(label) + '">' +
       '<p>' + esc(label) + '</p>' +
       '<button type="button" class="aw-lightbox-close" aria-label="Schließen">✕</button></div>';
-    function close() { if (lb.parentNode) lb.parentNode.removeChild(lb); document.removeEventListener('keydown', onKey); }
-    function onKey(e) { if (e.key === 'Escape') close(); }
+    function close() {
+      if (lb.parentNode) lb.parentNode.removeChild(lb);
+      document.removeEventListener('keydown', onKey);
+      if (ausloeser && document.body.contains(ausloeser)) ausloeser.focus();
+    }
+    function onKey(e) {
+      if (e.key === 'Escape') close();
+      /* Nur ein bedienbares Element: Tab bleibt beim Schliessen-Knopf. */
+      else if (e.key === 'Tab') { e.preventDefault(); zu.focus(); }
+    }
     lb.addEventListener('click', close);
     document.addEventListener('keydown', onKey);
     document.body.appendChild(lb);
+    var zu = lb.querySelector('.aw-lightbox-close');
+    zu.focus();
   }
 
   /* Die Trefferknoepfe werden nach jedem Tastendruck neu erzeugt und
@@ -1649,10 +1739,12 @@
        koennte die Zahl nicht zu Ende tippen. */
     var hFeld = bodyEl.querySelector('#aw_hoehe');
     if (hFeld) {
-      hFeld.addEventListener('blur', function () {
+      hFeld.addEventListener('blur', function (ev) {
         var vorher = !!answers.hoehe;
         collectMasse();
-        if (!!answers.hoehe !== vorher) rerenderKeepScroll();
+        /* Waehrend blur steht der Fokus auf BODY; wohin er wandern
+           wollte, steht in relatedTarget. */
+        if (!!answers.hoehe !== vorher) { fokusVorgabe = ev.relatedTarget; rerenderKeepScroll(); }
       });
     }
     var hBezug = bodyEl.querySelector('#awHoeheBezug');
@@ -1709,10 +1801,10 @@
       });
     });
     // Klick auf ein Erweiterungs-Foto → Großansicht (statt Auswahl umzuschalten)
-    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-thumb[data-zoom]'), function (t) {
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('.aw-dd-zoombtn[data-zoom]'), function (t) {
       t.addEventListener('click', function (e) {
         e.stopPropagation();
-        openLightbox(t.getAttribute('data-zoom'), t.getAttribute('data-zoom-label'));
+        openLightbox(t.getAttribute('data-zoom'), t.getAttribute('data-zoom-label'), t);
       });
     });
     // Checkboxen (Mehrfach)
@@ -1727,7 +1819,18 @@
     });
   }
 
+  /* FEHLER AM FELD (25.11.2026, Paket A4)
+     Nach einem Fehler im Kontaktschritt blieb der Fokus auf "Weiter",
+     das bemaengelte Feld lag rund 700 px darueber, und nichts am Feld
+     sagte, dass es gemeint war (WCAG 3.3.1). valid() nennt jetzt ueber
+     fehlerAn() das Feld; showError() markiert es mit aria-invalid,
+     verbindet es mit der Meldung und setzt den Fokus hinein. Andere
+     Schritte nennen kein Feld und verhalten sich wie bisher. */
+  var fehlerFeld = null;
+  function fehlerAn(feld, text) { fehlerFeld = feld; return text; }
   function showError(msg) {
+    var feld = fehlerFeld;
+    fehlerFeld = null;
     clearError();
     var e = document.createElement('div');
     e.className = 'aw-error';
@@ -1743,10 +1846,21 @@
     e.setAttribute('role', 'alert');
     e.textContent = msg;
     bodyEl.appendChild(e);
+    var ziel = feld ? (document.getElementById(feld) ||
+      bodyEl.querySelector('.aw-pill[data-pill="' + feld + '"]')) : null;
+    if (ziel) {
+      ziel.setAttribute('aria-invalid', 'true');
+      ziel.setAttribute('aria-describedby', 'awError');
+      ziel.focus();
+    }
   }
   function clearError() {
     var e = document.getElementById('awError');
     if (e) e.parentNode.removeChild(e);
+    Array.prototype.forEach.call(bodyEl.querySelectorAll('[aria-invalid="true"]'), function (f) {
+      f.removeAttribute('aria-invalid');
+      if (f.getAttribute('aria-describedby') === 'awError') f.removeAttribute('aria-describedby');
+    });
   }
 
   function goNext() {
@@ -1755,6 +1869,7 @@
     if (id === 'erweiterungen') STEPS.erweiterungen.collect();
     if (id === 'fassade') STEPS.fassade.collect();
     var step = STEPS[id];
+    fehlerFeld = null;
     var err = step.valid ? step.valid() : null;
     if (err) { showError(err); return; }
 
@@ -2166,6 +2281,7 @@
 
   /* ---------- Start ---------- */
   nextBtn.addEventListener('click', goNext);
+  bodyEl.addEventListener('click', ariaZustand);   // nach den Zuhoerern der Knoepfe, siehe ariaZustand
   backBtn.addEventListener('click', goBack);
   render();
   // Falls die Vorgabe schon vor dem Laden dieses Skripts gesetzt wurde

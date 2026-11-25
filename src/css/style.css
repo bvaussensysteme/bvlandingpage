@@ -3749,7 +3749,7 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-pill-input input::-webkit-outer-spin-button,
 .aw-pill-input input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
 .aw-pill-input input:focus { outline: none; }
-.aw-pill-input input::placeholder { color: rgba(255,255,255,0.4); font-size: 0.85rem; }
+.aw-pill-input input::placeholder { color: rgba(255,255,255,0.6); font-size: 0.85rem; }
 .aw-pill-input > span { font-family: var(--schrift); font-weight: 700; font-size: 0.9rem; color: rgba(255,255,255,0.7); }
 
 /* Tipp-/Nutzen-Banner (sanfter Upsell-Nudge) */
@@ -3804,10 +3804,21 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-dd-opt.is-disabled { opacity: 0.4; cursor: default; }
 .aw-dd-opt.is-disabled:hover { border-color: rgba(255,255,255,0.14); }
 .aw-dd-opt .aw-dd-thumb { width: 72px; height: 72px; border-radius: 8px; }
-/* Zoombares Thumbnail: Lupen-Badge + dezenter Hover-Zoom */
-.aw-dd-thumb[data-zoom] { position: relative; cursor: zoom-in; }
-.aw-dd-thumb[data-zoom] img { transition: transform 0.2s ease; }
-.aw-dd-thumb[data-zoom]:hover img { transform: scale(1.12); }
+/* Zoombares Thumbnail: Lupen-Badge + dezenter Hover-Zoom.
+   Bedient wird es seit 25.11.2026 (Paket A4) ueber .aw-dd-zoombtn, einen
+   eigenen Knopf NEBEN dem Auswahlknopf, der genau ueber dem Bild liegt:
+   gemessen 8,5 px vom linken Rand des Eintrags, Bild 72 x 72 px.
+   Aendert sich .aw-dd-opt oder die Bildgroesse, hier mitziehen. */
+.aw-dd-item { position: relative; }
+.aw-dd-thumb--zoom { position: relative; }
+.aw-dd-thumb--zoom img { transition: transform 0.2s ease; }
+.aw-dd-item:has(.aw-dd-zoombtn:hover) .aw-dd-thumb--zoom img { transform: scale(1.12); }
+.aw-dd-zoombtn {
+  position: absolute; left: 8.5px; top: 50%; transform: translateY(-50%);
+  width: 72px; height: 72px; padding: 0; border: 0; border-radius: 8px;
+  background: transparent; cursor: zoom-in;
+}
+.aw-dd-zoombtn:focus-visible { outline: 3px solid var(--gold); outline-offset: 2px; }
 .aw-dd-zoom {
   position: absolute; right: 3px; bottom: 3px; width: 20px; height: 20px; border-radius: 50%;
   background: rgba(0,0,0,0.6); color: #fff; display: flex; align-items: center; justify-content: center;
@@ -3897,6 +3908,10 @@ body.bv-konfig-open #bvKonfigBubble {
 .aw-field label { display: block; font-size: 0.82rem; color: rgba(255,255,255,0.8); font-weight: 600; margin-bottom: 5px; }
 .aw-field input { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.95rem; font-family: inherit; }
 .aw-field input:focus { outline: none; border-color: var(--gold); }
+/* Ohne eigene Regel galt Chromes Standardgrau #757575: 3,69:1 auf dem
+   dunklen Feld (WCAG 1.4.3, gemessen 25.11.2026, Paket A4). 0,6 Weiss
+   ergibt rund 6,6:1. */
+.aw-field input::placeholder { color: rgba(255,255,255,0.6); }
 .aw-select { width: 100%; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,0.15); border-radius: var(--radius); background: rgba(255,255,255,0.07); color: #fff; font-size: 0.95rem; font-family: inherit; -webkit-appearance: none; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23ffffff' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px; }
 .aw-select:focus { outline: none; border-color: var(--gold); }
 .aw-select option { color: #1a1a1a; }
