@@ -10,11 +10,13 @@
  * WAS SIE PRUEFT: Chip antippen, Knopf klicken. Der Knopf behaelt sein
  * Symbol, das Ziel #kontakt existiert, Carport und Kaltwintergarten
  * kommen vorausgewaehlt an (Assistent einen Schritt weiter), die
- * Glasschiebewand ohne Vorauswahl.
+ * Glasschiebewand ohne Vorauswahl. Chips melden aria-pressed. Carport
+ * an und wieder aus: Knopf heisst wieder "Kostenlos anfragen" und waehlt
+ * nichts vor.
  *
  * GEGENPROBE: --gegenprobe liefert baugenehmigung.html im Stand vor A3
  * (Commit f174971, aus git, ueber eine Playwright-Route). Dann MUSS
- * jeder der drei Faelle auffallen. Keine Datei wird geaendert.
+ * jeder der vier Faelle auffallen. Keine Datei wird geaendert.
  */
 import { spawn, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -22,12 +24,12 @@ const require = createRequire(new URL('../package.json', import.meta.url).pathna
 const { chromium } = require('playwright');
 const W = new URL('..', import.meta.url).pathname, PORT = 8700 + Math.floor(Math.random() * 90);
 const GEGENPROBE = process.argv.includes('--gegenprobe');
-const ERWARTET = { carport: 'Welchen Carport', kaltwintergarten: 'Was können wir', glasschiebeanlage: 'Was möchten Sie konfigurieren' };
+const ERWARTET = { carport: 'Welchen Carport', kaltwintergarten: 'Was können wir', glasschiebeanlage: 'Was möchten Sie konfigurieren', 'carport-aus': 'Was möchten Sie konfigurieren' };
 let faelle = 0, rot = 0;
 const srv = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'], { cwd: W, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 1100));
 const br = await chromium.launch();
-for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['carport', 'kaltwintergarten', 'glasschiebeanlage']) {
+for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['carport', 'kaltwintergarten', 'glasschiebeanlage', 'carport-aus']) {
   const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } });
   await ctx.route(/web3forms|formspree/i, r => r.abort());
   if (stand === 'VORHER') {
@@ -39,8 +41,17 @@ for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['ca
   await pg.goto(`http://127.0.0.1:${PORT}/baugenehmigung.html`, { waitUntil: 'load' });
   await pg.waitForTimeout(600);
   await pg.evaluate(() => document.querySelector('#cookieBanner')?.remove());
-  await pg.evaluate((c) => bgToggleChip(document.querySelector(`.bg-chip[data-product="${c}"]`)), chip);
+  /* carport-aus: an und wieder aus. Dann muss der Knopf wieder
+   * "Kostenlos anfragen" heissen und darf nichts vorauswaehlen (frueher
+   * blieb "Jetzt Carport anfragen" stehen). */
+  const name = chip.replace('-aus', '');
+  const chipEl = `.bg-chip[data-product="${name}"]`;
+  await pg.evaluate((s) => bgToggleChip(document.querySelector(s)), chipEl);
+  const gedrueckt = await pg.evaluate((s) => document.querySelector(s).getAttribute('aria-pressed'), chipEl);
+  if (chip.endsWith('-aus')) await pg.evaluate((s) => bgToggleChip(document.querySelector(s)), chipEl);
   const k = await pg.evaluate(() => { const a = document.getElementById('bg-cta-main'); return { href: a.getAttribute('href'), text: a.textContent.trim(), symbol: !!a.querySelector('svg') }; });
+  const textOk = chip.endsWith('-aus') ? k.text === 'Kostenlos anfragen' : k.text.startsWith('Jetzt ');
+  const ariaOk = gedrueckt === 'true';
   await pg.evaluate(() => document.getElementById('bg-cta-main').click());
   await pg.waitForURL(/index|\/#|\/$/, { timeout: 8000 }).catch(() => {});
   await pg.waitForTimeout(1500);
@@ -51,9 +62,9 @@ for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['ca
     const schritt = document.querySelector('#kontakt .aw-step-title, #kontakt h3, #kontakt legend')?.textContent.trim().slice(0, 50);
     return { url: location.pathname + location.hash, zielGefunden: !!ziel, zielOben: sicht, gewaehlt, schritt };
   });
-  const ok = k.symbol && k.href === '/#kontakt' && z.zielGefunden && (z.schritt || '').startsWith(ERWARTET[chip]) && !fehler.length;
+  const ok = textOk && ariaOk && k.symbol && k.href === '/#kontakt' && z.zielGefunden && (z.schritt || '').startsWith(ERWARTET[chip]) && !fehler.length;
   faelle++; if (!ok) rot++;
-  console.log((ok ? '  ok      ' : '  FEHLER  ') + `${stand.padEnd(8)} ${chip.padEnd(18)} href=${k.href.padEnd(32)} Symbol=${k.symbol ? 'ja  ' : 'NEIN'} -> ${z.url}  Ziel ${z.zielGefunden ? 'gefunden bei ' + z.zielOben + 'px' : 'NICHT GEFUNDEN'}  Schritt "${z.schritt}"${fehler.length ? '  JS-FEHLER ' + fehler[0] : ''}`);
+  console.log((ok ? '  ok      ' : '  FEHLER  ') + `${stand.padEnd(8)} ${chip.padEnd(18)} href=${k.href.padEnd(32)} Symbol=${k.symbol ? 'ja  ' : 'NEIN'} aria-pressed=${gedrueckt} Text="${k.text.slice(0, 26)}" -> ${z.url}  Ziel ${z.zielGefunden ? 'gefunden bei ' + z.zielOben + 'px' : 'NICHT GEFUNDEN'}  Schritt "${z.schritt}"${fehler.length ? '  JS-FEHLER ' + fehler[0] : ''}`);
   await ctx.close();
 }
 await br.close(); srv.kill();

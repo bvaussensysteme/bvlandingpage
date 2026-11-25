@@ -1005,5 +1005,11 @@ die Glasschiebewand ohne Vorauswahl; Symbol bleibt, `#kontakt` existiert.
 **Gegenprobe:** `--gegenprobe` liefert `baugenehmigung.html` im Stand
 vor A3 (f174971) aus git; alle drei Fälle müssen auffallen.
 
+Seit dem Nachtrag vom selben Abend auch: Chips melden `aria-pressed`, und
+Carport an und wieder aus setzt den Knopf auf „Kostenlos anfragen"
+ohne Vorauswahl zurück (vier Fälle).
+
 **Grenze:** Ob der Wunschtext „Kaltwintergarten" im Nachrichtenfeld
 steht, prüft sie nicht, nur dass der Weg „Direkt anfragen" erreicht ist.
+Den Knopf „Auswahl aufheben" klickt sie nicht, er erscheint erst nach
+einer Adressabfrage; er ruft dieselbe Funktion `bgCtaAktualisieren` auf.

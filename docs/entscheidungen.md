@@ -24269,3 +24269,10 @@ gewählten Chip steht wieder „Kostenlos anfragen".
 Glasschiebewand (kein Eintrag im Assistenten) und „Pergola / Markise"
 (naheliegend Pergola; der Chip nennt aber auch Markise) kommen ohne
 Vorauswahl an. Lieber keine als eine geratene.
+
+**Nachtrag A3, nach Prüfer Nr. 3.** Drei weitere Fehler auf derselben
+Seite behoben: „Auswahl aufheben" ließ Knopftext und Vorauswahl stehen
+(Logikfehler aus A3 selbst); die Chips hatten kein `aria-pressed`
+(WCAG 4.1.2); „Auswahl aufheben" war ein `<p>` mit `onclick` und mit der
+Tastatur nicht erreichbar (WCAG 2.1.1), jetzt ein Knopf im gleichen
+Aussehen.
