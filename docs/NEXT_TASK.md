@@ -450,3 +450,5 @@ Anfrage-Assistenten.
 - **A6 bis A9 erledigt**, **A5 erledigt** (Kreuz auf der Kante, Entscheidung des Betreibers).
 - **A10 erledigt**: alle vier fehlenden Prüfungen gibt es jetzt (formular-csp, ortsseiten-kopf, anfrageleiste, sprungmarken). **Block A ist damit abgeschlossen.** Weiter mit Block B, nur nach Ansage des Betreibers.
 - **Block B angefangen:** B2 und B4 so lassen (Entscheidung), A3-Vorauswahl vollständig, Widerruf-Labels verknüpft und eigene Bestätigungsseite gebaut (E-Mail-Bestätigung muss dann wirklich rausgehen).
+- **Volle Suite nach Block-B-Anfang (25.11.2026, nachts): 92 Skripte, 87 grün.** Rot die zwei Altbefunde (konfigurator-oberflaeche, schrittwechsel) und drei Wackelkandidaten (keil-editor, planken-editor, prozess-ringe), die einzeln alle grün laufen (43/43, 23/23, 4/4).
+- **Später prüfen (Betreiber fragt nach CRM-Plankenrechnung, 25.11.2026):** Antwort im Chat gegeben (Planken je Seite wie `plankenTeilung()`/`plankenFelder()` in `js/konfigurator-3d.js`, Preis je Stange aus der Preisliste, alle Seiten je Farbe zusammen packen). Fuge laut Betreiber frei nach Kundenwunsch, auch 0. Nichts gebaut; CRM-Repository nicht eingebunden.
