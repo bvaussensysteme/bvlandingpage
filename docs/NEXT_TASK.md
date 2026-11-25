@@ -424,7 +424,7 @@ Anfrage-Assistenten.
   auf der Vorschau gemessen, Prüfer 2 und 3 gelaufen. Folgebefunde in
   `docs/rechtstexte-befunde.md` (Danke-Seite sagt „Anfrage", Labels ohne
   `for`), beide brauchen eine Ansage, weil Rechtstext.
-- **Volle Suite nach B1 bis A3 (25.11.2026 abends): 87 Skripte, 86 grün,** rot nur der Altbefund `pruefe-konfigurator-oberflaeche.mjs` (1 von 182, Zeiger auf dem Schild).
+- **Volle Suite nach A1 bis A9 (25.11.2026 spät): 90 Skripte, 87 grün.** Rot: Altbefund `pruefe-konfigurator-oberflaeche.mjs` (1 von 182), Altbefund `pruefe-schrittwechsel.mjs` (B3, auch mit dem Stand vor A4 rot, pageYOffset 365) und `pruefe-keil-editor.mjs` (einzeln 43 von 43 grün, Wackelkandidat).
   bei Skript 19 von 84 angehalten, bis dahin 0 rot. Nachholen.
 - **A1 angewendet (25.11.2026 abends), siehe entscheidungen.md.** War: `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
   ersetzt in den 14 Ortsseiten und `danke.html` den Kopf durch die
