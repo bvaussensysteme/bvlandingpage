@@ -703,3 +703,22 @@ Der Betreiber hat die Änderung an `src/widerruf.njk` freigegeben
 `id`; sonst ist die Datei zeichengleich. Gemessen mit
 `scripts/pruefe-feldnamen.mjs`. Die eigene Bestätigungsseite folgt, sobald
 der Betreiber den Wortlaut bestätigt hat.
+
+### Nachtrag 25.11.2026, spät: eigene Bestätigungsseite (mit Freigabe)
+
+`src/widerruf.njk` leitet jetzt auf `/widerruf-danke.html` statt auf
+`danke.html` (einzige Änderung neben den Labels). Neue Seite
+`src/widerruf-danke.njk`, Wortlaut vom Betreiber gewählt („Mit
+E-Mail-Zusage"), `noindex, nofollow`.
+
+**Was daraus folgt, bitte beachten:** Die Seite sagt zu, dass der Eingang
+per E-Mail bestätigt wird. Diese Bestätigung muss dann auch wirklich
+rausgehen, und zwar unverzüglich (§ 356 Abs. 1 Satz 2 BGB verlangt sie
+bei einem Online-Formular auf einem dauerhaften Datenträger). Ob
+Web3Forms das automatisch tut, ist nicht geprüft; sonst von Hand.
+Keine Rechtsberatung, verbindlich klärt das der Anwalt.
+
+**Vorschau:** Das Ziel der Weiterleitung ist fest die Live-Domain. Bis zur
+Veröffentlichung gibt es `widerruf-danke.html` dort noch nicht; das
+betrifft nur Testabsendungen von der Vorschau, und die finden ohnehin
+nicht statt.

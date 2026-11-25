@@ -24359,3 +24359,7 @@ auf 576 px².
   `for`/`id` verknüpft, Wortlaut nachweislich unverändert (Datei ohne die
   neuen Attribute zeichengleich). Eigene Bestätigungsseite: Wortlaut wird
   vorher vorgelegt.
+- **Widerruf-Bestätigungsseite** gebaut (`src/widerruf-danke.njk`),
+  Wortlaut „Mit E-Mail-Zusage". Kleinster Kontrast 6,61:1, kein
+  waagerechtes Scrollen bei 320 px. Folgepflicht E-Mail-Bestätigung steht
+  in `docs/rechtstexte-befunde.md`.
