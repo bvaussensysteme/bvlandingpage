@@ -565,3 +565,77 @@ alte Entscheidungen gelten also weiter.
 
 **Das ist keine Rechtsberatung.** Die verbindliche Bewertung holt der
 Betreiber beim Anwalt.
+
+## 25.11.2026 · DRINGEND: Das Online-Widerrufsformular lässt sich nicht absenden
+
+**Betrifft die Live-Seite, nicht nur die Vorschau.** Gefunden vom
+Sicherheitsprüfer im Volldurchgang, danach gefahrlos nachgestellt.
+
+### Was passiert
+
+`src/widerruf.njk:38` enthält
+`<form action="https://api.web3forms.com/submit" method="POST">`, ein
+klassisches Formular ohne Skript, das den Versand übernimmt. Die
+eigene Sicherheitsrichtlinie in `_headers:14` erlaubt Formulare aber
+nur an die eigene Adresse: `form-action 'self'`.
+
+Der Browser verweigert deshalb das Absenden. Wer auf „Widerruf
+absenden" drückt, sieht **nichts**: keine Bestätigung, keine
+Fehlermeldung, die Seite bleibt stehen.
+
+### Beleg
+
+Nachgestellt am 25.11.2026 auf der Vorschau, mit abgefangenen und
+verworfenen Anfragen an den Formulardienst, sodass nichts gesendet
+werden konnte. Meldung des Browsers, wörtlich:
+
+> Sending form data to 'https://api.web3forms.com/submit' violates
+> the following Content Security Policy directive: "form-action
+> 'self'". The request has been blocked.
+
+Ereignis `securitypolicyviolation` mit `form-action` ausgelöst, die
+Seite wechselte nicht, null Sendeversuche.
+
+Live lesend geprüft (`curl`, nur Kopfzeilen und Quelltext von
+`https://bv-aussensysteme.de/widerruf.html`): dieselbe Richtlinie,
+dasselbe Formular, kein Skript, das abfängt. `origin/main` trägt
+ebenfalls `form-action 'self'`.
+
+### Seit wann
+
+In der Historie dieses Repositorys stehen beide Zeilen seit dem
+Commit `4e3bcd6` vom 01.11.2026. Das ist ein Sammel-Commit; ob der
+Zustand davor schon bestand, lässt sich hier nicht feststellen.
+**Mindestens seit dem 01.11.2026** konnte also niemand über dieses
+Formular widerrufen.
+
+### Warum das Gewicht hat
+
+Ein Verbraucher, der das Formular ausfüllt und absendet, kann
+annehmen, er habe widerrufen. Es kommt aber nichts an, und er
+bekommt keinen Hinweis darauf. Ob und wie sich das auf Fristen
+auswirkt und ob ein Online-Widerrufsweg hier überhaupt vorgeschrieben
+ist, ist eine Rechtsfrage und gehört zum Anwalt; das hier ist keine
+Rechtsberatung. Der andere Widerrufsweg (Brief oder E-Mail laut
+Widerrufsbelehrung) ist davon nicht berührt.
+
+Dieselbe Schaltfläche steht auch auf `agb.html`
+(„Online-Widerrufsformular ausfüllen") und führt zu diesem Formular.
+
+### Zwei Wege, beide klein
+
+1. **Richtlinie öffnen.** In `_headers` aus `form-action 'self'`
+   `form-action 'self' https://api.web3forms.com` machen. Eine Stelle,
+   kein Rechtstext berührt. Derselbe Dienst ist in `connect-src`
+   bereits erlaubt.
+2. **Formular per Skript senden.** Dann bleibt die Richtlinie streng.
+   Das ändert aber `src/widerruf.njk`, und diese Datei fasst der
+   Assistent nach der Hausregel vom 14.11.2026 nicht ohne Ansage an.
+
+Für die Live-Seite reicht keiner der beiden Wege auf dem
+Arbeitsbranch: Dort wirkt erst eine Veröffentlichung, und die
+entscheidet allein der Betreiber.
+
+Zusätzlich offen aus demselben Bericht: Das Widerrufsformular kommt
+in `src/datenschutz.njk` nicht vor, obwohl es Daten an Web3Forms
+gibt.
