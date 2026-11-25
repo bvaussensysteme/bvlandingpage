@@ -1,7 +1,17 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach `CLAUDE.md`.
-> **Stand: 23.11.2026.**
+> **Stand: 25.11.2026.**
+>
+> **WAS ALS NÄCHSTES ANSTEHT, steht nicht hier, sondern in
+> `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`.** Das ist der
+> Arbeitsauftrag aus dem Volldurchgang vom 25.11.2026 mit zehn
+> Prüfern: Block A gemessene Fehler zum Beheben, Block B
+> Entscheidungen des Betreibers, Block C größere Umbauten. Dort
+> anfangen. **Dringend und beim Betreiber offen: B1, das
+> Online-Widerrufsformular lässt sich nicht absenden, auch live.**
+> Dieser Einstieg hier bleibt für Startschritte, Fallen und die
+> älteren offenen Punkte.
 >
 > **Am 23.11.2026 auf ein Drittel gekürzt.** Dieser Einstieg war auf
 > 662 Zeilen gewachsen. Ein Einstieg, den niemand mehr liest, ist

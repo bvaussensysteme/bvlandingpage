@@ -912,3 +912,22 @@ entfernt, Skript grün.
 Die ursprüngliche Einordnung gilt also weiter: Das Skript wird unter
 Last rot und ist allein grün. Die falsche Korrektur entstand, weil
 die Gegenprobe `konfigurator.html` nicht zurückgenommen hatte.
+
+
+## Alle Skripte auf einmal: `scripts/alle-pruefungen.sh` (25.11.2026)
+
+```bash
+bash scripts/alle-pruefungen.sh            # etwa 40 Minuten
+tail -3 /tmp/bv-pruefergebnis.txt          # GESAMT / GRUEN / ROT / UEBERSPRUNGEN
+grep '^ROT' /tmp/bv-pruefergebnis.txt
+```
+
+Der Starter lag bis zum 25.11.2026 nur im Sitzungsordner und war mit
+jeder neuen Sitzung weg. Er deckt alle vier Endungen ab (`.mjs`,
+`.js`, `.sh`, `.py`) und nennt am Ende die Zahl der übersprungenen
+Skripte; sie muss 0 sein. Sein Name beginnt absichtlich nicht mit
+`pruefe-`, damit er sich nicht selbst startet.
+
+Erwarteter Stand am 25.11.2026: 83 Skripte, 81 grün, 2 rot
+(`pruefe-konfigurator-oberflaeche.mjs` mit 1 von 182 und
+`pruefe-schrittwechsel.mjs`, beide bekannt).
