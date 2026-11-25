@@ -968,3 +968,24 @@ Gegenprobe schlägt an, mit der alten Richtlinie aus der Historie rot
 gemacht: wortgleich). Nicht gesehen werden Formulare, die erst ein
 Skript in `js/*.js` baut, und die Werkstatt-Formulare aus
 `worker/index.js`.
+
+## `pruefe-garantie.mjs` (25.11.2026)
+
+**Frage:** Bekommt die Elektrik irgendwo eine andere Garantie als 2 Jahre?
+
+**Anlass:** Der Anfrage-Assistent sagte „5 Jahre auf Markisen, Antriebe
+& Elektro". Feststehend sind 10 / 5 / 2 (CLAUDE.md, Abschnitt Garantie).
+
+**Wie:** statisch. Jede ausgelieferte `.html`/`.js` und `src/**.njk`
+ohne Rechtstexte und ohne Kommentare; sucht „N Jahre …" bis zu 40
+Zeichen vor Antrieb, Elektr…, Motor, LED, Lautsprecher, Steuerung, ohne
+ein „und" dazwischen. Jede Zahl außer 2 ist ein Fehler.
+
+**Gegenprobe:** `--gegenprobe` prüft den alten Wortlaut im Speicher, er
+muss auffallen. Zusätzlich belegt: mit dem alten `js/anfrage-wizard.js`
+genau ein Fehler an der richtigen Stelle, mit dem neuen keiner.
+
+**Grenze:** Erkennt nur die Form „Zahl vor Begriff". „Elektrik: 5
+Jahre" sähe sie nicht. Die ersten Fassung meldete zwei falsche Alarme
+(ein Kommentar in `src/produkte/pergola.njk`, der richtige Satz in
+`index.html:1612`); deshalb die Regeln zu Kommentaren und „und".

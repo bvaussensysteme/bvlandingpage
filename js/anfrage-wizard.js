@@ -1138,7 +1138,7 @@
         ], 'aw-options--equal') +
           '<div class="aw-tip aw-tip--sep"><span class="aw-tip-ic">' + svg(I.schild) + '</span>' +
           '<span><strong>Warum wir die Montage empfehlen:</strong> Die volle Herstellergarantie, ' +
-          '<strong>10 Jahre auf Aluminium-Produkte</strong> und <strong>5 Jahre auf Markisen, Antriebe & Elektro</strong>, ' +
+          '<strong>10 Jahre auf Aluminium-Produkte</strong>, <strong>5 Jahre auf Markisen</strong> und <strong>2 Jahre auf Antriebe & Elektro</strong>, ' +
           'setzt eine fachgerechte Montage voraus. Bei Selbstmontage können Garantie- und Gewährleistungsansprüche ' +
           'eingeschränkt sein. Unser Team baut millimetergenau und wetterfest auf.</span></div>';
       },

@@ -440,3 +440,7 @@ Anfrage-Assistenten.
   `src/baugenehmigung.njk:1182` löscht das Symbol des Knopfs. Symbol
   erhalten, `href` auf `/#kontakt`, `bv-produktwahl` nur für `carport`
   und `kaltwintergarten`. Die anderen drei beim Betreiber erfragen.
+- **A2 erledigt** (25.11.2026 abends).
+- **Später prüfen:** Hamburger 38 × 28 px, Schließen-Kreuz 27 × 39 px auf
+  allen Seiten. Pflichtgrenze 24 × 24 erfüllt, Empfehlung 44 × 44 nicht.
+  Gestaltung, also mit dem Betreiber.

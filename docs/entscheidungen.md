@@ -24238,3 +24238,19 @@ zweiter Kopf mit eigener Gestaltung, und das Handy-Menü fehlte weiter.
 **Gegenlesen.** Fußzeile der Ortsseiten: Dort fehlen weiterhin
 Markisenstoffe, Zertifikate, Pflege und Widerruf. Das ist kein
 Messfehler, sondern Inhalt, und nicht Teil von A1.
+
+## 25.11.2026 · A2: Garantie im Anfrage-Assistenten auf 10 / 5 / 2
+
+**Was war falsch.** `js/anfrage-wizard.js:1141`: „5 Jahre auf Markisen,
+Antriebe & Elektro". Elektrik hat 2 Jahre.
+
+**Was jetzt gilt.** „10 Jahre auf Aluminium-Produkte, 5 Jahre auf
+Markisen und 2 Jahre auf Antriebe & Elektro", angelehnt an
+`index.html:1610`. Der Satz danach zur Selbstmontage ist unverändert,
+er ist ein Rechtshinweis. Version `20261125a` in 54 Dateien. Neue
+Prüfung `scripts/pruefe-garantie.mjs`.
+
+**Nebenbefund, nicht behoben.** Hamburger 38 × 28 px und Schließen-Kreuz
+27 × 39 px (gemessen vom Handy-Prüfer an `carport-koblenz.html`, gleich
+auf allen Seiten): über 24 × 24, unter der Empfehlung 44 × 44. Steht in
+`docs/NEXT_TASK.md`.
