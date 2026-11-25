@@ -448,3 +448,4 @@ Anfrage-Assistenten.
   Chips Terrassenüberdachung, Glasschiebewand, Pergola / Markise).
 - **A4 erledigt** (25.11.2026 abends), Prüfung `scripts/pruefe-assistent-tastatur.mjs`.
 - **A6 bis A9 erledigt**, **A5 erledigt** (Kreuz auf der Kante, Entscheidung des Betreibers).
+- **A10 erledigt**: alle vier fehlenden Prüfungen gibt es jetzt (formular-csp, ortsseiten-kopf, anfrageleiste, sprungmarken). **Block A ist damit abgeschlossen.** Weiter mit Block B, nur nach Ansage des Betreibers.

@@ -1054,3 +1054,14 @@ dem Bildschirm. Schließt die Lücke, dass `pruefe-mitwachsend.mjs` nicht
 scrollt. **Gegenprobe:** `css/style.css` aus 5cfc4f8; alle schmalen
 Breiten müssen auffallen (belegt: 310 / 310 / 271 px² Überdeckung,
 bei 320 px ragen beide Knöpfe heraus).
+
+## `pruefe-sprungmarken.mjs` (25.11.2026)
+
+**Frage:** Führt jede Sprungmarke (`#…`) zu einer ID, die es auf der
+Zielseite gibt? **Anlass:** `/#produkte` auf 14 Ortsseiten (A1).
+**Wie:** statisch, alle ausgelieferten Seiten, `href` aus dem Markup ohne
+Kommentare und Skripte; Zielseite auflösen, `id`/`name` suchen. Am
+25.11.2026: 880 Sprungmarken auf 58 Seiten, keine ins Leere.
+**Gegenprobe:** `carport-koblenz.html` aus 56e5937; `/#produkte` muss
+auffallen (belegt). **Grenze:** von Skripten gebaute Verweise und Ziele
+sieht sie nicht (dafür `pruefe-baugenehmigung-weiter.mjs`).
