@@ -946,10 +946,16 @@ Prüfungen konnte es sehen, weil sie alle ohne `_headers` laufen.
 **Wie:** statisch, ohne Netz. Liest `form-action` aus `_headers`,
 sucht jedes `<form>` in jeder ausgelieferten HTML-Datei (ohne das, was
 `.assetsignore` zurückhält) und hält das Ziel gegen die erlaubten
-Quellen. Formulare mit `onsubmit` oder `data-per-skript` laufen über
-`connect-src` und werden nur gezählt.
+Quellen. Auch `formaction` an Knöpfen. `action` wird mit einfachen,
+doppelten und ohne Anführungszeichen gelesen, `data-action` zählt nicht
+als `action`. Formulare mit `onsubmit` oder `data-per-skript` laufen
+über `connect-src` und werden nur gezählt.
 
-**Gegenprobe:** `--gegenprobe` nimmt web3forms aus den erlaubten
+**Gegenprobe:** `--gegenprobe` prüft erst vier erfundene Formulare, die
+eine frühere Fassung still durchgelassen hätte (Hinweis des
+Sicherheitsprüfers vom 25.11.2026): `data-action` vor `action`,
+`action='…'`, `action=…` ohne Anführungszeichen, `formaction`. Alle
+vier müssen auffallen. Danach nimmt sie web3forms aus den erlaubten
 Quellen; dann muss das Widerrufsformular auffallen. Ändert keine
 Datei.
 
@@ -958,4 +964,7 @@ Gegenprobe schlägt an, mit der alten Richtlinie aus der Historie rot
 (Exit 1).
 
 **Grenze:** Ob Cloudflare die Kopfzeile so ausliefert, wie sie in
-`_headers` steht, sieht nur ein Abruf der Vorschau.
+`_headers` steht, sieht nur ein Abruf der Vorschau (am 25.11.2026
+gemacht: wortgleich). Nicht gesehen werden Formulare, die erst ein
+Skript in `js/*.js` baut, und die Werkstatt-Formulare aus
+`worker/index.js`.

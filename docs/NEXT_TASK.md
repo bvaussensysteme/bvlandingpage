@@ -417,3 +417,26 @@ Anfrage-Assistenten.
 | `docs/offene-nebenbefunde.md` | Offen, aber nicht dringend |
 | `docs/vd-quellen.md` | Wo beim Hersteller was steht, Katalogseiten |
 | `docs/PRUEFER_REIHENFOLGE.md` | Welcher Prüfer wann, in welcher Folge |
+
+## Pausiert am 25.11.2026 abends (Paket B1 fertig, A1 bis A3 vorbereitet)
+
+- **B1 erledigt** auf dem Arbeitsbranch: `_headers` form-action erweitert,
+  auf der Vorschau gemessen, Prüfer 2 und 3 gelaufen. Folgebefunde in
+  `docs/rechtstexte-befunde.md` (Danke-Seite sagt „Anfrage", Labels ohne
+  `for`), beide brauchen eine Ansage, weil Rechtstext.
+- **Volle Suite nach B1 nicht zu Ende gelaufen**: auf Ansage „pausiere"
+  bei Skript 19 von 84 angehalten, bis dahin 0 rot. Nachholen.
+- **A1 vorbereitet, nicht angewendet:** `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
+  ersetzt in den 14 Ortsseiten und `danke.html` den Kopf durch die
+  Leiste der Vorlage, gibt dem Schlussknopf seinen Text zurück und lädt
+  in `danke.html` `main.js` nach. An einer Kopie gemessen: Kontrast
+  1,07:1 auf mindestens 6,61:1, Handy-Menü da, Leiste bleibt stehen.
+  `scripts/pruefe-ortsseiten-kopf.mjs` ist **absichtlich rot**, bis A1
+  angewendet ist (vorher 15 von 15 Seiten rot). Danach Cache-Buster,
+  Prüfer, Suite, Vorschau.
+- **A2** nur eine Zeile: `js/anfrage-wizard.js:1141`, Wortlaut in der
+  Übergabe; Version `20261122o` in 54 Dateien hochzählen.
+- **A3** zusätzlich gefunden: `ctaMain.textContent` in
+  `src/baugenehmigung.njk:1182` löscht das Symbol des Knopfs. Symbol
+  erhalten, `href` auf `/#kontakt`, `bv-produktwahl` nur für `carport`
+  und `kaltwintergarten`. Die anderen drei beim Betreiber erfragen.

@@ -639,3 +639,59 @@ entscheidet allein der Betreiber.
 Zusätzlich offen aus demselben Bericht: Das Widerrufsformular kommt
 in `src/datenschutz.njk` nicht vor, obwohl es Daten an Web3Forms
 gibt.
+
+### Stand 25.11.2026, abends: auf dem Arbeitsbranch behoben, live noch nicht
+
+Entscheidung des Betreibers: Weg 1, „Richtlinie öffnen", und **nicht**
+vorab live nachziehen, nur vorbereiten.
+
+- `_headers` erlaubt jetzt `form-action 'self' https://api.web3forms.com`,
+  sonst nichts Neues (Commit 56e5937). `src/widerruf.njk` ist
+  unverändert.
+- **Auf der Vorschau gemessen**, nicht nur in der Datei: Die Vorschau
+  liefert die neue Kopfzeile aus. Ein Browsertest füllt das Formular
+  mit erfundenen Daten und schickt es ab, fängt die Anfrage an
+  Web3Forms aber ab und verwirft sie. Ergebnis: keine Meldung
+  `securitypolicyviolation` mehr (vorher: blockiert), der Browser hat
+  genau eine Anfrage an den Dienst losgeschickt. Es ist dabei nichts
+  versendet worden.
+- Dauerhaft abgesichert durch `scripts/pruefe-formular-csp.mjs`: schlägt
+  an, sobald ein klassisches Formular ein Ziel hat, das `form-action`
+  nicht erlaubt. Gegen den alten Stand von `_headers` schlägt es an.
+
+**Live gilt weiter der Fehler**, bis der Betreiber die neue Webseite
+mit dem vereinbarten Satz freigibt. Bis dahin erreicht ein Widerruf
+über das Online-Formular den Betrieb nicht; Brief und E-Mail laut
+Widerrufsbelehrung funktionieren.
+
+Weiter offen: der fehlende Hinweis auf das Widerrufsformular in der
+Datenschutzerklärung (siehe oben). Nicht angefasst, Rechtstext.
+
+### Zwei Folgebefunde, seit das Formular wirklich absendet (25.11.2026)
+
+Gefunden vom Prüfer für Barrierefreiheit, im Quelltext gelesen. Nicht
+geändert, weil `src/widerruf.njk` ein Rechtstext ist.
+
+1. **Nach dem Absenden steht „Vielen Dank für Ihre Anfrage!" da.**
+   `src/widerruf.njk:42` leitet auf `danke.html` weiter. Dort stehen
+   „Vielen Dank für Ihre Anfrage!" (`danke.html:63`), „melden uns
+   innerhalb von 24 Stunden" (`:31`) und die Schritte Einschätzung,
+   Aufmaß, Angebot (`:76-84`). Ein Widerruf wird also wie eine
+   Verkaufsanfrage bestätigt, ein Wort zum Eingang des Widerrufs fehlt.
+   Risiko: Der Kunde kann nicht erkennen, ob sein Widerruf angekommen
+   ist; § 356 Abs. 1 Satz 2 BGB verlangt bei einem Online-Formular eine
+   unverzügliche Eingangsbestätigung auf einem dauerhaften Datenträger
+   (das wäre eine E-Mail, keine Webseite; ob Web3Forms eine schickt,
+   ist nicht geprüft). Vorschlag: eine eigene Bestätigungsseite für
+   den Widerruf, Text vom Betreiber oder Anwalt. Zusätzlich zeigt das
+   Ziel fest auf die Live-Domain, aus der Vorschau landet man nach dem
+   Absenden auf der Live-Seite.
+2. **Beschriftungen und Felder sind nicht verbunden.** Die `<label>` in
+   `src/widerruf.njk:46, 51, 55, 60, 63, 66, 69` haben kein `for`, die
+   Felder keine `id`. Vorlesesoftware nennt die Felder ohne Namen, ein
+   Klick auf die Beschriftung setzt den Cursor nicht ins Feld. Das ist
+   ein Verstoß gegen WCAG 2.2 (1.3.1, 3.3.2, 4.1.2), den die Hausregel
+   sonst ohne Rückfrage beheben ließe. Hier nicht, weil Rechtstext.
+   Die Behebung berührt keinen Wortlaut: je Feld eine `id` und am
+   Label ein `for`. Freigabe dafür durch den Betreiber nötig.
+   Dazu klein: kein `autocomplete` an Name, Anschrift, E-Mail (1.3.5).

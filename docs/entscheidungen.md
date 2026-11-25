@@ -24193,3 +24193,26 @@ Ortsseiten, die ohne Plan in Block A stand und nach Block C gehört.
 
 `scripts/alle-pruefungen.sh`: Der Starter für alle Prüfskripte lag
 bis dahin nur im Sitzungsordner.
+
+## 25.11.2026 · Widerrufsformular: Richtlinie geöffnet statt Rechtstext geändert (B1)
+
+**Was war falsch.** Das Online-Widerrufsformular sendet klassisch an
+`https://api.web3forms.com/submit`, `_headers` erlaubte nur
+`form-action 'self'`. Der Browser blockierte das Absenden still. Live
+seit mindestens 01.11.2026. Belege in `docs/rechtstexte-befunde.md`.
+
+**Was jetzt gilt.** `form-action 'self' https://api.web3forms.com`, nur
+auf dem Arbeitsbranch. Auf der Vorschau gemessen: keine
+Richtlinienverletzung mehr, Versand im Test abgefangen.
+
+**Warum so.** Entscheidung des Betreibers (Auswahl „Richtlinie öffnen",
+„Nein, nur vorbereiten"). Der andere Weg, Versand per Skript, hätte
+`src/widerruf.njk` geändert, und Rechtstexte fasst der Assistent nicht
+an. Die eine zusätzliche Adresse ist dieselbe, die `connect-src` schon
+erlaubt.
+
+**Verworfen.** Sofort live nachziehen: vom Betreiber abgelehnt, es gilt
+die Freigaberegel vom 08.11.2026.
+
+**Gegenlesen.** Nach der Freigabe einmal auf der Live-Seite den Kopf von
+`/widerruf` abrufen und `form-action` darin suchen.

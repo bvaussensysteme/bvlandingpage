@@ -26,9 +26,17 @@
  * die Kopfzeile so ausliefert, wie sie in _headers steht, sieht nur ein
  * Abruf. Am 25.11.2026 war beides wortgleich.
  *
- * GEGENPROBE: --gegenprobe nimmt https://api.web3forms.com aus den
- * erlaubten Quellen. Dann MUSS das Widerrufsformular auffallen. Es wird
- * keine Datei geaendert.
+ * GRENZEN: Formulare, die erst ein Skript baut (js/*.js), und die
+ * Werkstatt-Formulare aus worker/index.js sieht diese Pruefung nicht.
+ * Formulare mit onsubmit gelten als per Skript gesendet; faellt das
+ * Skript aus, wuerde der Browser klassisch senden.
+ *
+ * GEGENPROBE: --gegenprobe prueft zuerst vier erfundene Formulare, die
+ * eine fruehere Fassung still durchgelassen haette (data-action,
+ * einfache Anfuehrungszeichen, keine Anfuehrungszeichen, formaction),
+ * und nimmt dann https://api.web3forms.com aus den erlaubten Quellen.
+ * Dann MUSS das Widerrufsformular auffallen. Es wird keine Datei
+ * geaendert.
  */
 import { readFileSync, readdirSync, statSync } from 'node:fs';
 import { join, relative } from 'node:path';
@@ -92,19 +100,62 @@ function seiten(dir) {
 /* ---- 3. Formulare pruefen ---- */
 let geprueft = 0, fehler = 0, perSkript = 0;
 const funde = [];
-for (const datei of seiten(WURZEL)) {
-  const rel = relative(WURZEL, datei);
-  if (!wirdAusgeliefert(rel)) continue;
-  const html = readFileSync(datei, 'utf8').replace(/<!--[\s\S]*?-->/g, '');
+
+/* Ziel aus einem Tag lesen. `(?:^|\s)` statt `\b`, sonst wird aus
+ * data-action="x" ein action="x" (Hinweis des Sicherheitspruefers vom
+ * 25.11.2026). Einfache, doppelte und fehlende Anfuehrungszeichen
+ * zaehlen alle, sonst faellt ein Formular mit action='...' still auf
+ * "Seite selbst" zurueck und gilt als erlaubt. */
+function attr(tag, name) {
+  const m = tag.match(new RegExp('\\s' + name + '\\s*=\\s*(?:"([^"]*)"|\'([^\']*)\'|([^\\s>]+))', 'i'));
+  return m ? (m[1] ?? m[2] ?? m[3]) : null;
+}
+function pruefeHtml(rel, html) {
   for (const m of html.matchAll(/<form\b[^>]*>/gi)) {
     const tag = m[0];
-    if (/\bonsubmit=|data-per-skript/i.test(tag)) { perSkript++; continue; }
-    const action = (tag.match(/\baction="([^"]*)"/i) || [])[1] || '/' + rel;
+    if (/\sonsubmit\s*=|\sdata-per-skript/i.test(tag)) { perSkript++; continue; }
+    const action = attr(tag, 'action') || '/' + rel;
     geprueft++;
     const ok = zulaessig(action);
     if (!ok) fehler++;
     funde.push({ rel, action, ok });
   }
+  /* formaction an Knoepfen ueberschreibt das Ziel des Formulars und
+   * unterliegt derselben Richtlinie. */
+  for (const m of html.matchAll(/<(?:button|input)\b[^>]*\sformaction\s*=[^>]*>/gi)) {
+    const action = attr(m[0], 'formaction');
+    geprueft++;
+    const ok = zulaessig(action);
+    if (!ok) fehler++;
+    funde.push({ rel: rel + ' (formaction)', action, ok });
+  }
+}
+
+if (GEGENPROBE) {
+  /* Erfundene Faelle, die frueher still gruen gewesen waeren. Jeder MUSS
+   * auffallen; sie werden nur hier im Speicher geprueft. */
+  const proben = [
+    '<form data-action="/" action="https://fremd.example/x">',
+    "<form action='https://fremd.example/x'>",
+    '<form action=https://fremd.example/x>',
+    '<form><button formaction="https://fremd.example/x">',
+  ];
+  let verpasst = 0;
+  for (const p of proben) {
+    const vorher = fehler;
+    pruefeHtml('probe.html', p);
+    const erkannt = fehler > vorher;
+    if (!erkannt) verpasst++;
+    console.log('  Probe ' + (erkannt ? 'erkannt ' : 'VERPASST') + '  ' + p);
+  }
+  funde.length = 0; fehler = 0; geprueft = 0;
+  if (verpasst) { console.log('\nGEGENPROBE VERSAGT: ' + verpasst + ' Probe(n) nicht erkannt'); process.exit(1); }
+}
+
+for (const datei of seiten(WURZEL)) {
+  const rel = relative(WURZEL, datei);
+  if (!wirdAusgeliefert(rel)) continue;
+  pruefeHtml(rel, readFileSync(datei, 'utf8').replace(/<!--[\s\S]*?-->/g, ''));
 }
 
 console.log(GEGENPROBE
