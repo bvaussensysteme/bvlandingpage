@@ -424,7 +424,7 @@ Anfrage-Assistenten.
   auf der Vorschau gemessen, Prüfer 2 und 3 gelaufen. Folgebefunde in
   `docs/rechtstexte-befunde.md` (Danke-Seite sagt „Anfrage", Labels ohne
   `for`), beide brauchen eine Ansage, weil Rechtstext.
-- **Volle Suite nach B1 nicht zu Ende gelaufen**: auf Ansage „pausiere"
+- **Volle Suite nach B1 bis A3 (25.11.2026 abends): 87 Skripte, 86 grün,** rot nur der Altbefund `pruefe-konfigurator-oberflaeche.mjs` (1 von 182, Zeiger auf dem Schild).
   bei Skript 19 von 84 angehalten, bis dahin 0 rot. Nachholen.
 - **A1 angewendet (25.11.2026 abends), siehe entscheidungen.md.** War: `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
   ersetzt in den 14 Ortsseiten und `danke.html` den Kopf durch die
