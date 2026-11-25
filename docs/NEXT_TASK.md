@@ -444,3 +444,5 @@ Anfrage-Assistenten.
 - **Später prüfen:** Hamburger 38 × 28 px, Schließen-Kreuz 27 × 39 px auf
   allen Seiten. Pflichtgrenze 24 × 24 erfüllt, Empfehlung 44 × 44 nicht.
   Gestaltung, also mit dem Betreiber.
+- **A3 erledigt** bis auf drei Fragen an den Betreiber (Zuordnung der
+  Chips Terrassenüberdachung, Glasschiebewand, Pergola / Markise).

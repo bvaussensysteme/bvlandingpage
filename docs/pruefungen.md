@@ -989,3 +989,21 @@ genau ein Fehler an der richtigen Stelle, mit dem neuen keiner.
 Jahre" sähe sie nicht. Die ersten Fassung meldete zwei falsche Alarme
 (ein Kommentar in `src/produkte/pergola.njk`, der richtige Satz in
 `index.html:1612`); deshalb die Regeln zu Kommentaren und „und".
+
+## `pruefe-baugenehmigung-weiter.mjs` (25.11.2026)
+
+**Frage:** Führt der Hauptknopf nach dem Baugenehmigungs-Check ins
+Formular, mit Vorauswahl wo eindeutig?
+
+**Anlass:** Der Knopf zeigte auf `/#kontakt?produkt=…`, eine Sprungmarke,
+die es nicht gab; `textContent` löschte das Symbol.
+
+**Wie:** Browser, Chip antippen, Knopf klicken. Carport und
+Kaltwintergarten müssen einen Schritt weiter im Assistenten ankommen,
+die Glasschiebewand ohne Vorauswahl; Symbol bleibt, `#kontakt` existiert.
+
+**Gegenprobe:** `--gegenprobe` liefert `baugenehmigung.html` im Stand
+vor A3 (f174971) aus git; alle drei Fälle müssen auffallen.
+
+**Grenze:** Ob der Wunschtext „Kaltwintergarten" im Nachrichtenfeld
+steht, prüft sie nicht, nur dass der Weg „Direkt anfragen" erreicht ist.

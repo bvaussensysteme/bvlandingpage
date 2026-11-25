@@ -1174,15 +1174,43 @@ extraScripts: |
     else bgSelectedProducts.push(product);
     // CTA-Text dynamisch anpassen
     var ctaMain = document.getElementById('bg-cta-main');
-    if (ctaMain && bgSelectedProducts.length > 0) {
+    if (!ctaMain) return;
+    /* Nur den Text tauschen, nicht textContent des ganzen Knopfs: das
+       loeschte das Symbol davor (gefunden 25.11.2026, Paket A3). */
+    var ctaText = ctaMain.lastChild && ctaMain.lastChild.nodeType === 3
+      ? ctaMain.lastChild : ctaMain.appendChild(document.createTextNode(''));
+    if (bgSelectedProducts.length > 0) {
       var labels = {'terrassenueberdachung':'Terrassenüberdachung','carport':'Carport',
                     'kaltwintergarten':'Kaltwintergarten','glasschiebeanlage':'Glasschiebewand',
                     'aussenanlage':'Pergola'};
       var first = labels[bgSelectedProducts[0]] || bgSelectedProducts[0];
-      ctaMain.textContent = 'Jetzt ' + first + ' anfragen →';
-      ctaMain.href = '/#kontakt?produkt=' + encodeURIComponent(first);
+      ctaText.nodeValue = 'Jetzt ' + first + ' anfragen →';
+    } else {
+      ctaText.nodeValue = 'Kostenlos anfragen';
     }
+    /* Frueher: '/#kontakt?produkt=…'. Alles nach # ist Sprungmarke, die
+       gab es nicht, und der Assistent liest keine Adresse. Er liest
+       sessionStorage 'bv-produktwahl' (js/anfrage-wizard.js, PRODUKTWEGE)
+       und nimmt nur Schluessel an, die dort stehen. Von den fuenf Chips
+       passen nur zwei eindeutig. Terrassenueberdachung (TDS oder
+       SkyView?), Glasschiebewand (kein Eintrag) und Pergola / Markise
+       gehen ohne Vorauswahl ins Formular, bis der Betreiber entscheidet;
+       eine geratene Vorauswahl waere schlechter als keine. */
+    var WEGE = { 'carport': 'carport', 'kaltwintergarten': 'kaltwintergarten' };
+    ctaMain.href = '/#kontakt';
+    ctaMain.setAttribute('data-produktweg', WEGE[bgSelectedProducts[0]] || '');
   }
+  document.addEventListener('DOMContentLoaded', function () {
+    var cta = document.getElementById('bg-cta-main');
+    if (!cta) return;
+    cta.addEventListener('click', function () {
+      var weg = cta.getAttribute('data-produktweg');
+      try {
+        if (weg) sessionStorage.setItem('bv-produktwahl', weg);
+        else sessionStorage.removeItem('bv-produktwahl');
+      } catch (e) {}   // privates Fenster: dann eben ohne Vorauswahl
+    });
+  });
 
   // ── FAQ ACCORDION ─────────────────────────────────────────
   function bgFaqToggle(btn) {

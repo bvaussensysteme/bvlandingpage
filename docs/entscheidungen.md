@@ -24254,3 +24254,18 @@ Prüfung `scripts/pruefe-garantie.mjs`.
 27 × 39 px (gemessen vom Handy-Prüfer an `carport-koblenz.html`, gleich
 auf allen Seiten): über 24 × 24, unter der Empfehlung 44 × 44. Steht in
 `docs/NEXT_TASK.md`.
+
+## 25.11.2026 · A3: Hauptknopf nach dem Baugenehmigungs-Check
+
+**Was war falsch.** `src/baugenehmigung.njk`: `href = '/#kontakt?produkt=…'`
+(gemessen: Sprungziel nicht gefunden, Besucher landet oben auf der
+Startseite) und `textContent` löschte das Symbol des Knopfs.
+
+**Was jetzt gilt.** `href="/#kontakt"`, beim Klick `bv-produktwahl` für
+`carport` und `kaltwintergarten`. Nur der Text wird getauscht. Ohne
+gewählten Chip steht wieder „Kostenlos anfragen".
+
+**Offen beim Betreiber.** Terrassenüberdachung (TDS oder SkyView?),
+Glasschiebewand (kein Eintrag im Assistenten) und „Pergola / Markise"
+(naheliegend Pergola; der Chip nennt aber auch Markise) kommen ohne
+Vorauswahl an. Lieber keine als eine geratene.
