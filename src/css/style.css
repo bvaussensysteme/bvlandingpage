@@ -1689,9 +1689,28 @@ footer h4 {
 .sticky-cta p { font-size: 0.9rem; color: rgba(255,255,255,0.85); }
 .sticky-cta strong { color: var(--gold); }
 .sticky-close {
-  position: absolute; right: 14px; top: 50%; transform: translateY(-50%);
-  background: none; border: none; color: rgba(255,255,255,0.5);
-  font-size: 1.1rem; cursor: pointer;
+  /* KREUZ AUF DER KANTE (25.11.2026, Paket A5, Entscheidung des
+     Betreibers "Kreuz auf die Kante"). Gemessen vorher: 14,8 x 21 px
+     (WCAG 2.5.8 verlangt 24 x 24), und am Handy lag es AUF dem
+     WhatsApp-Knopf (271 bis 310 px² Ueberdeckung bei 320 bis 390 px):
+     wer rechts auf WhatsApp tippte, schloss womoeglich die Leiste.
+     Jetzt ein runder Knopf, 32 x 32 px, der links ueber der Goldkante
+     sitzt. LINKS, weil rechts darueber die schwebende Konfigurator-Blase
+     (#bvKonfigBubble) steht; dort stiess er an. Geprueft von
+     scripts/pruefe-anfrageleiste.mjs. */
+  position: absolute; top: 0; left: 12px; transform: translateY(calc(-100% + 8px));
+  width: 32px; height: 32px; padding: 0; border-radius: 50%;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: var(--dark); border: 2px solid var(--gold);
+  color: #fff; font-size: 0.85rem; line-height: 1; cursor: pointer;
+}
+/* Bei 320 px ragte "Kostenlos anfragen" 19 px links aus dem Bildschirm:
+   beide Knoepfe zusammen waren breiter als die Leiste. Bis 420 px etwas
+   schmaler, damit beide nebeneinander passen. Wortlaut unveraendert. */
+@media (max-width: 420px) {
+  .sticky-cta { padding-left: 10px; padding-right: 10px; }
+  .sticky-btns { gap: 8px; }
+  .sticky-cta .sticky-btns .btn { padding: 10px 12px; font-size: 0.84rem; gap: 6px; }
 }
 
 /* ============================================

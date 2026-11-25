@@ -1043,3 +1043,14 @@ benutzen dieselben Bausteine. Bezugsauswahl der Höhe per Pfeiltaste.
 Vorlesesoftware? **Wie:** statisch; jedes `.ic` braucht `.sr-only` gleich
 seinem `title`, Grafik und Kürzel `aria-hidden`. **Gegenprobe:** Stand
 a26cd34 aus git, alle 159 müssen auffallen (belegt).
+
+## `pruefe-anfrageleiste.mjs` (25.11.2026)
+
+**Frage:** Ist die Anfrageleiste unten bedienbar, ohne dass Knöpfe sich
+verdecken? **Wie:** scrollen, bis die Leiste erscheint; bei 320, 360,
+390, 430, 1280 px: Kreuz ≥ 24 × 24, keine Überdeckung mit den Knöpfen,
+kein fest positioniertes Element berührt das Kreuz, kein Knopf ragt aus
+dem Bildschirm. Schließt die Lücke, dass `pruefe-mitwachsend.mjs` nicht
+scrollt. **Gegenprobe:** `css/style.css` aus 5cfc4f8; alle schmalen
+Breiten müssen auffallen (belegt: 310 / 310 / 271 px² Überdeckung,
+bei 320 px ragen beide Knöpfe heraus).

@@ -24330,3 +24330,18 @@ schon vor jeder Änderung), und bei 320 px ragt „Kostenlos anfragen"
 19 px links aus dem Bildschirm. Ein größeres Kreuz macht die
 Überdeckung schlimmer (576 px²). Die Lösung braucht eine
 Gestaltungsentscheidung, die Frage liegt beim Betreiber.
+
+## 25.11.2026 · A5: Schließen-Kreuz der Anfrageleiste auf der Kante
+
+**Was war falsch.** Kreuz 14,8 × 21 px; am Handy lag es auf dem
+WhatsApp-Knopf (271 bis 310 px²); bei 320 px ragten beide Knöpfe aus
+dem Bildschirm.
+
+**Was jetzt gilt.** Entscheidung des Betreibers: „Kreuz auf die Kante".
+Runder Knopf 32 × 32 px links über der Goldkante; bis 420 px etwas
+schmalere Knöpfe, Wortlaut gleich. Gemessen bei 320 bis 1280 px: keine
+Überdeckung, nichts ragt heraus.
+
+**Verworfen.** Kreuz rechts auf der Kante: stieß an die schwebende
+Konfigurator-Blase (gemessen). Kreuz nur vergrößern: Überdeckung stieg
+auf 576 px².

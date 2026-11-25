@@ -91,7 +91,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   } catch(e){ loadFonts(); } // Fallback: laden falls localStorage nicht verfuegbar
 })();
 </script>
-  <link rel="stylesheet" href="/css/style.css?v=20261125b" />
+  <link rel="stylesheet" href="/css/style.css?v=20261125c" />
   {# start.css MUSS nach style.css kommen: Beide setzen Regeln mit
      gleicher Spezifitaet, die spaetere gewinnt. Genau darauf baut die
      Designschicht auf. #}
@@ -266,7 +266,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>
 <script src="/js/markisenstoffe.js?v=20261123d" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261125c" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261125d" defer></script>
 {% if extraScripts %}
 {{ extraScripts | safe }}
 {% endif %}

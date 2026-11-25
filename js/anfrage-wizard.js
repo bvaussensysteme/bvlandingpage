@@ -1656,9 +1656,12 @@
       if (ausloeser && document.body.contains(ausloeser)) ausloeser.focus();
     }
     function onKey(e) {
-      /* stopPropagation: Escape soll nur die Grossansicht schliessen,
-         nichts, was darunter auch auf Escape hoert (Pruefer, A4). */
-      if (e.key === 'Escape') { e.stopPropagation(); close(); }
+      /* Escape soll nur die Grossansicht schliessen. Der Zuhoerer haengt
+         am document; stopImmediatePropagation haelt nur Zuhoerer am
+         document auf, die NACH ihm angemeldet wurden. Gegen fruehere
+         schuetzt es nicht. Heute hoert im Assistenten sonst niemand auf
+         Escape (Pruefer, A4). */
+      if (e.key === 'Escape') { e.stopImmediatePropagation(); close(); }
       /* Nur ein bedienbares Element: Tab bleibt beim Schliessen-Knopf. */
       else if (e.key === 'Tab') { e.preventDefault(); zu.focus(); }
     }

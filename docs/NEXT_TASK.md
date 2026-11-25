@@ -447,4 +447,4 @@ Anfrage-Assistenten.
 - **A3 erledigt** bis auf drei Fragen an den Betreiber (Zuordnung der
   Chips Terrassenüberdachung, Glasschiebewand, Pergola / Markise).
 - **A4 erledigt** (25.11.2026 abends), Prüfung `scripts/pruefe-assistent-tastatur.mjs`.
-- **A6 bis A9 erledigt**, **A5 wartet** auf eine Gestaltungsentscheidung (Kreuz überdeckt WhatsApp-Knopf am Handy, 320 px ragt links heraus).
+- **A6 bis A9 erledigt**, **A5 erledigt** (Kreuz auf der Kante, Entscheidung des Betreibers).
