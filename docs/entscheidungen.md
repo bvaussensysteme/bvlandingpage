@@ -24345,3 +24345,17 @@ schmalere Knöpfe, Wortlaut gleich. Gemessen bei 320 bis 1280 px: keine
 **Verworfen.** Kreuz rechts auf der Kante: stieß an die schwebende
 Konfigurator-Blase (gemessen). Kreuz nur vergrößern: Überdeckung stieg
 auf 576 px².
+
+## 25.11.2026 · Block B, erste Antworten des Betreibers
+
+- **B2 „Konfigurator"-Wort:** so lassen. Schwebeknopf „Konfigurator
+  öffnen", Menüpunkt und „Was möchten Sie konfigurieren?" bleiben.
+- **B4 Telefon in der Anfrageleiste:** so lassen, zwei Knöpfe.
+- **A3 Vorauswahl:** Terrassenüberdachung → Terrassendach TDS, Pergola /
+  Markise → Pergola / Lamellendach, Glasschiebewand → „Direkt anfragen"
+  mit Namen im Nachrichtenfeld (neuer Eintrag `glasschiebewand` in
+  `PRODUKTWEGE`). Gemessen mit `pruefe-baugenehmigung-weiter.mjs`.
+- **Widerrufsformular:** Freigabe für beides. Beschriftungen per
+  `for`/`id` verknüpft, Wortlaut nachweislich unverändert (Datei ohne die
+  neuen Attribute zeichengleich). Eigene Bestätigungsseite: Wortlaut wird
+  vorher vorgelegt.

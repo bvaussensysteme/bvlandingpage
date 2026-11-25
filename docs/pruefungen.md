@@ -1065,3 +1065,12 @@ Kommentare und Skripte; Zielseite auflösen, `id`/`name` suchen. Am
 **Gegenprobe:** `carport-koblenz.html` aus 56e5937; `/#produkte` muss
 auffallen (belegt). **Grenze:** von Skripten gebaute Verweise und Ziele
 sieht sie nicht (dafür `pruefe-baugenehmigung-weiter.mjs`).
+
+## `pruefe-feldnamen.mjs` (25.11.2026)
+
+**Frage:** Hat jedes sichtbare Eingabefeld einen Namen für
+Vorlesesoftware? **Wie:** jede ausgelieferte Seite im Browser; jedes
+sichtbare `input`/`select`/`textarea` braucht `el.labels`, `aria-label`
+oder `aria-labelledby`. Am 25.11.2026: 178 Felder auf 58 Seiten, alle
+benannt. **Gegenprobe:** `widerruf.html` aus aa947ee muss auffallen
+(belegt). **Grenze:** Felder, die erst nach einer Bedienung entstehen.

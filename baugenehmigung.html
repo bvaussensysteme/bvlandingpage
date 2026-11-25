@@ -1031,7 +1031,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="/js/konfigurator-widget.js?v=20260916f" defer></script>
 <script src="/js/markisenstoffe.js?v=20261123d" defer></script>
 <script src="/js/ral.js?v=20261029c" defer></script>
-<script src="/js/anfrage-wizard.js?v=20261125d" defer></script>
+<script src="/js/anfrage-wizard.js?v=20261125e" defer></script>
 
 <!-- LBO-Datenbasis -->
 <script src="/js/baugenehmigung-data.js?v=20261122a"></script>
@@ -1791,12 +1791,13 @@ function bgCtaAktualisieren() {
   /* Frueher: '/#kontakt?produkt=…'. Alles nach # ist Sprungmarke, die
      gab es nicht, und der Assistent liest keine Adresse. Er liest
      sessionStorage 'bv-produktwahl' (js/anfrage-wizard.js, PRODUKTWEGE)
-     und nimmt nur Schluessel an, die dort stehen. Von den fuenf Chips
-     passen nur zwei eindeutig. Terrassenueberdachung (TDS oder
-     SkyView?), Glasschiebewand (kein Eintrag) und Pergola / Markise
-     gehen ohne Vorauswahl ins Formular, bis der Betreiber entscheidet;
-     eine geratene Vorauswahl waere schlechter als keine. */
-  var WEGE = { 'carport': 'carport', 'kaltwintergarten': 'kaltwintergarten' };
+     und nimmt nur Schluessel an, die dort stehen. Zuordnung der fuenf
+     Chips: Entscheidung des Betreibers vom 25.11.2026 (Terrassen-
+     ueberdachung -> Terrassendach TDS, Pergola / Markise -> Pergola /
+     Lamellendach, Glasschiebewand -> Direkt anfragen mit Namen). */
+  var WEGE = { 'carport': 'carport', 'kaltwintergarten': 'kaltwintergarten',
+               'terrassenueberdachung': 'terrassendach-tds', 'aussenanlage': 'pergola',
+               'glasschiebeanlage': 'glasschiebewand' };
   ctaMain.href = '/#kontakt';
   ctaMain.setAttribute('data-produktweg', WEGE[bgSelectedProducts[0]] || '');
 }

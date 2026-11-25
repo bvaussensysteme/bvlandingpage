@@ -695,3 +695,11 @@ geändert, weil `src/widerruf.njk` ein Rechtstext ist.
    Die Behebung berührt keinen Wortlaut: je Feld eine `id` und am
    Label ein `for`. Freigabe dafür durch den Betreiber nötig.
    Dazu klein: kein `autocomplete` an Name, Anschrift, E-Mail (1.3.5).
+
+### Nachtrag 25.11.2026, spät: Labels verknüpft (mit Freigabe)
+
+Der Betreiber hat die Änderung an `src/widerruf.njk` freigegeben
+(„Beides"). Die sieben Beschriftungen tragen jetzt `for`, die Felder eine
+`id`; sonst ist die Datei zeichengleich. Gemessen mit
+`scripts/pruefe-feldnamen.mjs`. Die eigene Bestätigungsseite folgt, sobald
+der Betreiber den Wortlaut bestätigt hat.

@@ -2216,7 +2216,11 @@
     'vordach-fly':        { produkt: 'Direkt anfragen', wunsch: 'Vordach FLY' },
     'vordach-front-line': { produkt: 'Direkt anfragen', wunsch: 'Vordach Front Line' },
     'vordach-front-line-plus': { produkt: 'Direkt anfragen', wunsch: 'Vordach Front Line Plus' },
-    'eingangsueberdachung-tds':{ produkt: 'Direkt anfragen', wunsch: 'Eingangsüberdachung TDS' }
+    'eingangsueberdachung-tds':{ produkt: 'Direkt anfragen', wunsch: 'Eingangsüberdachung TDS' },
+    /* Vom Baugenehmigungs-Check (25.11.2026, Entscheidung des Betreibers):
+       keine eigene Kachel, also ueber "Direkt anfragen" mit dem Namen im
+       Nachrichtenfeld. */
+    'glasschiebewand':    { produkt: 'Direkt anfragen', wunsch: 'Glasschiebewand' }
   };
 
   /* Freundliche Bestaetigung im Kontaktschritt, sobald eine PLZ aus dem

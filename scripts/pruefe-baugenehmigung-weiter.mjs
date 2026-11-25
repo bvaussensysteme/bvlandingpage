@@ -10,13 +10,15 @@
  * WAS SIE PRUEFT: Chip antippen, Knopf klicken. Der Knopf behaelt sein
  * Symbol, das Ziel #kontakt existiert, Carport und Kaltwintergarten
  * kommen vorausgewaehlt an (Assistent einen Schritt weiter), die
- * Glasschiebewand ohne Vorauswahl. Chips melden aria-pressed. Carport
+ * seit 25.11.2026 auch Terrassenueberdachung (TDS), Pergola / Markise
+ * (Pergola) und Glasschiebewand (Direkt anfragen, Name im
+ * Nachrichtenfeld; ebenso Kaltwintergarten). Chips melden aria-pressed. Carport
  * an und wieder aus: Knopf heisst wieder "Kostenlos anfragen" und waehlt
  * nichts vor.
  *
  * GEGENPROBE: --gegenprobe liefert baugenehmigung.html im Stand vor A3
  * (Commit f174971, aus git, ueber eine Playwright-Route). Dann MUSS
- * jeder der vier Faelle auffallen. Keine Datei wird geaendert.
+ * jeder Fall auffallen. Keine Datei wird geaendert.
  */
 import { spawn, execFileSync } from 'node:child_process';
 import { createRequire } from 'node:module';
@@ -24,12 +26,12 @@ const require = createRequire(new URL('../package.json', import.meta.url).pathna
 const { chromium } = require('playwright');
 const W = new URL('..', import.meta.url).pathname, PORT = 8700 + Math.floor(Math.random() * 90);
 const GEGENPROBE = process.argv.includes('--gegenprobe');
-const ERWARTET = { carport: 'Welchen Carport', kaltwintergarten: 'Was können wir', glasschiebeanlage: 'Was möchten Sie konfigurieren', 'carport-aus': 'Was möchten Sie konfigurieren' };
+const ERWARTET = { carport: 'Welchen Carport', kaltwintergarten: 'Was können wir', glasschiebeanlage: 'Was können wir', terrassenueberdachung: 'Art des Aufbaus', aussenanlage: 'Welches Dach', 'carport-aus': 'Was möchten Sie konfigurieren' };
 let faelle = 0, rot = 0;
 const srv = spawn('python3', ['-m', 'http.server', String(PORT), '--bind', '127.0.0.1'], { cwd: W, stdio: 'ignore' });
 await new Promise(r => setTimeout(r, 1100));
 const br = await chromium.launch();
-for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['carport', 'kaltwintergarten', 'glasschiebeanlage', 'carport-aus']) {
+for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['carport', 'kaltwintergarten', 'glasschiebeanlage', 'terrassenueberdachung', 'aussenanlage', 'carport-aus']) {
   const ctx = await br.newContext({ viewport: { width: 1280, height: 900 } });
   await ctx.route(/web3forms|formspree/i, r => r.abort());
   if (stand === 'VORHER') {
@@ -62,9 +64,14 @@ for (const stand of [GEGENPROBE ? 'VORHER' : 'NACHHER']) for (const chip of ['ca
     const schritt = document.querySelector('#kontakt .aw-step-title, #kontakt h3, #kontakt legend')?.textContent.trim().slice(0, 50);
     return { url: location.pathname + location.hash, zielGefunden: !!ziel, zielOben: sicht, gewaehlt, schritt };
   });
-  const ok = textOk && ariaOk && k.symbol && k.href === '/#kontakt' && z.zielGefunden && (z.schritt || '').startsWith(ERWARTET[chip]) && !fehler.length;
+    /* Bei "Direkt anfragen" muss der Produktname im Nachrichtenfeld stehen,
+   * sonst kaeme die Anfrage ohne Produkt an. */
+  const WUNSCH = { kaltwintergarten: 'Kaltwintergarten', glasschiebeanlage: 'Glasschiebewand' };
+  const wunsch = WUNSCH[chip] ? await pg.evaluate(() => document.querySelector('#kontakt textarea')?.value || '') : '';
+  const wunschOk = !WUNSCH[chip] || wunsch.includes(WUNSCH[chip]);
+  const ok = wunschOk && textOk && ariaOk && k.symbol && k.href === '/#kontakt' && z.zielGefunden && (z.schritt || '').startsWith(ERWARTET[chip]) && !fehler.length;
   faelle++; if (!ok) rot++;
-  console.log((ok ? '  ok      ' : '  FEHLER  ') + `${stand.padEnd(8)} ${chip.padEnd(18)} href=${k.href.padEnd(32)} Symbol=${k.symbol ? 'ja  ' : 'NEIN'} aria-pressed=${gedrueckt} Text="${k.text.slice(0, 26)}" -> ${z.url}  Ziel ${z.zielGefunden ? 'gefunden bei ' + z.zielOben + 'px' : 'NICHT GEFUNDEN'}  Schritt "${z.schritt}"${fehler.length ? '  JS-FEHLER ' + fehler[0] : ''}`);
+  console.log((ok ? '  ok      ' : '  FEHLER  ') + `${stand.padEnd(8)} ${chip.padEnd(18)} href=${k.href.padEnd(32)} Symbol=${k.symbol ? 'ja  ' : 'NEIN'} aria-pressed=${gedrueckt} Text="${k.text.slice(0, 26)}" -> ${z.url}  Ziel ${z.zielGefunden ? 'gefunden bei ' + z.zielOben + 'px' : 'NICHT GEFUNDEN'}  Schritt "${z.schritt}"${wunsch ? '  Nachricht "' + wunsch.slice(0, 30) + '"' : ''}${fehler.length ? '  JS-FEHLER ' + fehler[0] : ''}`);
   await ctx.close();
 }
 await br.close(); srv.kill();
