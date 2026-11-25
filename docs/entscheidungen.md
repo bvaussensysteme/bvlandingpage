@@ -24304,3 +24304,29 @@ Meldungen und Sternchen-Erklärung.
 **Gegenlesen.** Mit der Maus: Bildklick öffnet weiter die Großansicht,
 Beschriftungsklick wählt aus, Lupenknopf deckungsgleich mit dem Bild
 (gemessen bei 390 und 1280 px, Abweichung 0 px).
+
+## 25.11.2026 · A6 bis A9 und Nachträge zu A4
+
+- **A6** Marke im Seitenkopf von Pflege, Einzugsgebiet, AGB: 3,52:1 →
+  9,33:1, über die Ausnahmeliste in `start.css` (AGB-Datei unberührt).
+  Datenschutz und Impressum lagen mit 5,21:1 schon darüber.
+- **A7** RAL-Suche im Assistenten, im Browser gemessen: 2,59 / 2,79 /
+  2,06:1 → 8,83 / 9,17 / 6,87:1.
+- **A8** 159 Stoffsymbole mit unsichtbarem Text, Grafik und Kürzel
+  `aria-hidden`. Sichtbar unverändert. Sichtbare Legende bleibt Frage B.
+- **A9** `aria-label` des Hero-Verweises entfernt (sichtbarer Text gilt,
+  2.5.3); Assistent-Bereich `role="region"`; Fußzeile der Vorlage und 7
+  handgepflegter Seiten: Hachenburg und Limburg auf die eigenen
+  Ortsseiten, Ransbach-Baumbach ergänzt, wie in `index.html`;
+  WhatsApp-Zeichen statt Hörer auf `danke.html`; drei veraltete
+  Kommentare (`index.html`, `start.css`, `_headers`).
+- **A4-Nachträge** nach Prüfer Nr. 3: Fokus-Ersatz nach RAL-Wahl,
+  `aria-describedby` anhängen statt überschreiben, Escape in der
+  Großansicht mit `stopPropagation`.
+
+**A5 zurückgestellt.** Gemessen: Das Schließen-Kreuz der Anfrageleiste
+überdeckt am Handy den WhatsApp-Knopf (320 bis 390 px, 271 bis 310 px²,
+schon vor jeder Änderung), und bei 320 px ragt „Kostenlos anfragen"
+19 px links aus dem Bildschirm. Ein größeres Kreuz macht die
+Überdeckung schlimmer (576 px²). Die Lösung braucht eine
+Gestaltungsentscheidung, die Frage liegt beim Betreiber.

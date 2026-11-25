@@ -1500,6 +1500,8 @@
          Knopf, der das Feld oeffnet. */
       var dd = merkmal.match(/data-dd-pick="([^"]+)"/);
       if (dd) z = bodyEl.querySelector('[data-dd-toggle="' + dd[1] + '"]');
+      /* Gewaehlte RAL-Farbe: Trefferliste weg, dann auf den Suchknopf. */
+      else if (/data-ral-pick=/.test(merkmal)) z = bodyEl.querySelector('[data-ral-open]');
     }
     if (z) { try { z.focus({ preventScroll: true }); } catch (e) { z.focus(); } }
   }
@@ -1654,7 +1656,9 @@
       if (ausloeser && document.body.contains(ausloeser)) ausloeser.focus();
     }
     function onKey(e) {
-      if (e.key === 'Escape') close();
+      /* stopPropagation: Escape soll nur die Grossansicht schliessen,
+         nichts, was darunter auch auf Escape hoert (Pruefer, A4). */
+      if (e.key === 'Escape') { e.stopPropagation(); close(); }
       /* Nur ein bedienbares Element: Tab bleibt beim Schliessen-Knopf. */
       else if (e.key === 'Tab') { e.preventDefault(); zu.focus(); }
     }
@@ -1850,7 +1854,9 @@
       bodyEl.querySelector('.aw-pill[data-pill="' + feld + '"]')) : null;
     if (ziel) {
       ziel.setAttribute('aria-invalid', 'true');
-      ziel.setAttribute('aria-describedby', 'awError');
+      /* Anhaengen statt ueberschreiben; clearError nimmt nur awError weg. */
+      var db = ziel.getAttribute('aria-describedby');
+      ziel.setAttribute('aria-describedby', db ? db + ' awError' : 'awError');
       ziel.focus();
     }
   }
@@ -1859,7 +1865,8 @@
     if (e) e.parentNode.removeChild(e);
     Array.prototype.forEach.call(bodyEl.querySelectorAll('[aria-invalid="true"]'), function (f) {
       f.removeAttribute('aria-invalid');
-      if (f.getAttribute('aria-describedby') === 'awError') f.removeAttribute('aria-describedby');
+      var rest = (f.getAttribute('aria-describedby') || '').split(/\s+/).filter(function (x) { return x && x !== 'awError'; });
+      if (rest.length) f.setAttribute('aria-describedby', rest.join(' ')); else f.removeAttribute('aria-describedby');
     });
   }
 

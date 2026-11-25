@@ -36,8 +36,9 @@
 /assets/*
   Cache-Control: public, max-age=86400, stale-while-revalidate=604800
 
-# CSS/JS ändern sich häufiger als Bilder und haben keine Cache-Busting-Query-
-# Parameter im HTML -> kürzeres Caching, damit Deploys zeitnah beim Nutzer ankommen
+# CSS/JS ändern sich häufiger als Bilder -> kürzeres Caching. Die Seiten
+# binden sie mit ?v=JJJJMMTT<buchstabe> ein (geprueft von
+# scripts/pruefe-cache-buster.sh); dieser Kopf ist die zweite Sicherung.
 /css/*
   Cache-Control: public, max-age=3600, stale-while-revalidate=86400
 

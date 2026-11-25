@@ -10,8 +10,11 @@
    WIE ES WIRKT. Alles hängt unter `.start-premium` am <body> von
    index.html. Darunter werden die vorhandenen Gestaltungs-Token neu
    belegt; die bestehenden Bauteile (.btn, .leistung-card, .galerie-item …)
-   übernehmen die neuen Werte, ohne dass ihr Code angefasst wird. Keine
-   andere Seite trägt diese Klasse.
+   übernehmen die neuen Werte, ohne dass ihr Code angefasst wird.
+   STAND 25.11.2026: Das galt nur bis 22.11.2026. Seitdem setzt die
+   Vorlage (src/_includes/layout.njk) die Klasse auf jeder Seite, und
+   diese Datei laedt auf rund 50 Seiten. Eine Aenderung hier wirkt also
+   ueberall, nicht nur auf der Startseite.
 
    KONTRASTE. Die Werte stehen in docs/WEBSITE_DESIGN_SYSTEM.md und sind
    dort gemessen, nicht geschätzt. Drei Regeln daraus sind hier verbaut:
@@ -778,7 +781,13 @@
 .start-premium .wz-hero .tag,
 .start-premium .bg-hero .tag,
 .start-premium .article-hero .tag,
-.start-premium .hero-section .tag { color: var(--gold-light); }
+.start-premium .hero-section .tag,
+/* Nachgetragen am 25.11.2026 (A6): Auf pflege, einzugsgebiet und agb
+   stand die Marke mit 3,52:1 auf dunklem Grund. Die Regel greift nur in
+   start.css; die Rechtstextdatei agb bleibt unberuehrt. */
+.start-premium .pflege-hero .tag,
+.start-premium .gebiet-hero .tag,
+.start-premium .legal-hero .tag { color: var(--gold-light); }
 
 /* 2. UEBERSCHRIFTEN IN KARTEN UND FLIESSTEXT. `.start-premium .section h2`
       setzt bis zu 2,5rem. Das ist fuer die Abschnittsueberschriften der

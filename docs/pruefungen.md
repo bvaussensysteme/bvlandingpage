@@ -1036,3 +1036,10 @@ Platzhalter 3,69:1), nachher alle grün (Platzhalter 6,85:1).
 
 **Grenze:** nur der Weg Terrassendach TDS bei 1280 px; andere Produkte
 benutzen dieselben Bausteine. Bezugsauswahl der Höhe per Pfeiltaste.
+
+## `pruefe-stoffsymbole.mjs` (25.11.2026)
+
+**Frage:** Haben die 159 Eigenschaftssymbole auf `stoffe.html` Text für
+Vorlesesoftware? **Wie:** statisch; jedes `.ic` braucht `.sr-only` gleich
+seinem `title`, Grafik und Kürzel `aria-hidden`. **Gegenprobe:** Stand
+a26cd34 aus git, alle 159 müssen auffallen (belegt).
