@@ -24216,3 +24216,25 @@ die Freigaberegel vom 08.11.2026.
 
 **Gegenlesen.** Nach der Freigabe einmal auf der Live-Seite den Kopf von
 `/widerruf` abrufen und `form-action` darin suchen.
+
+## 25.11.2026 · A1: Kopf der 14 Ortsseiten und von danke.html ersetzt
+
+**Was war falsch.** `.site-header` ohne jede Stilregel: Menüschrift
+1,07:1 auf hellem Grund, am Handy 0 Menüpunkte und kein Menü, Leiste
+scrollte weg, `/#produkte` zeigte ins Leere, der Schlussknopf trug nur
+ein Symbol. In `danke.html` fehlte zusätzlich `main.js`.
+
+**Was jetzt gilt.** Dieselbe Kopfleiste und dasselbe Handy-Menü wie in
+`src/_includes/layout.njk`, als Handkopie. Gemessen mit
+`scripts/pruefe-ortsseiten-kopf.mjs`: 15 von 15 Seiten grün (vorher 15
+von 15 rot), kleinster Kontrast im Kopf 6,61:1.
+
+**Warum so.** Kleinster Eingriff, der die gemessenen Fehler behebt. Die
+Überführung in die Vorlage ist C1 und braucht Zustimmung.
+
+**Verworfen.** Stilregeln für `.site-header` nachschreiben: wäre ein
+zweiter Kopf mit eigener Gestaltung, und das Handy-Menü fehlte weiter.
+
+**Gegenlesen.** Fußzeile der Ortsseiten: Dort fehlen weiterhin
+Markisenstoffe, Zertifikate, Pflege und Widerruf. Das ist kein
+Messfehler, sondern Inhalt, und nicht Teil von A1.

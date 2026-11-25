@@ -426,7 +426,7 @@ Anfrage-Assistenten.
   `for`), beide brauchen eine Ansage, weil Rechtstext.
 - **Volle Suite nach B1 nicht zu Ende gelaufen**: auf Ansage „pausiere"
   bei Skript 19 von 84 angehalten, bis dahin 0 rot. Nachholen.
-- **A1 vorbereitet, nicht angewendet:** `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
+- **A1 angewendet (25.11.2026 abends), siehe entscheidungen.md.** War: `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
   ersetzt in den 14 Ortsseiten und `danke.html` den Kopf durch die
   Leiste der Vorlage, gibt dem Schlussknopf seinen Text zurück und lädt
   in `danke.html` `main.js` nach. An einer Kopie gemessen: Kontrast
