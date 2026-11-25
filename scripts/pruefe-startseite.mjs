@@ -122,6 +122,12 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
     });
     const prim = document.querySelector('.hs-slide--active a.btn-gold[href="#kontakt"]');
     const sek = document.querySelector('.hs-slide--active a[href="#leistungen"]');
+    /* Zweiter Weg zu den Produkten, falls der Hero-Knopf am Handy
+       ausgeblendet ist (siehe Zuordnung unten). Das Handy-Menue ist
+       geschlossen, deshalb zaehlt hier das Vorhandensein, nicht die
+       Sichtbarkeit; dass es sich oeffnen laesst, prueft
+       pruefe-mitwachsend. */
+    const sekMenue = document.querySelector('.mobile-menu a[href*="leistungen"]');
     return {
       klasse: document.body.classList.contains('start-premium'),
       gold: hol('--gold'), goldText: hol('--gold-text'), schwarz: hol('--black'),
@@ -156,6 +162,7 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
       })(),
       h1: (document.querySelector('.hs-slide--active h1') || {}).textContent?.trim().slice(0, 48) || null,
       primaer: sicht(prim), sekundaer: sicht(sek),
+      sekMenue: !!sekMenue,
       goldTextAufHell: [...new Set(verstoesse)],
       scrollW: document.documentElement.scrollWidth, fenster: window.innerWidth,
       /* AUCH DEN KOERPER MESSEN. html und body tragen
@@ -241,8 +248,29 @@ for (const [name, breite, hoehe] of [['Handy', 390, 844], ['Tablet', 768, 1024],
   pruef(`${name}: Hauptueberschrift vorhanden`, !!m.h1, m.h1);
   pruef(`${name}: Anfrage-Knopf sichtbar und gross genug`,
     !!m.primaer && m.primaer.h >= 44, m.primaer ? `${m.primaer.b}x${m.primaer.h} px` : 'fehlt');
-  pruef(`${name}: Zweiter Einstieg zu den Produkten`,
-    !!m.sekundaer && m.sekundaer.h >= 44, m.sekundaer ? `${m.sekundaer.b}x${m.sekundaer.h} px` : 'fehlt');
+  /* ZWEITER EINSTIEG ZU DEN PRODUKTEN, GEAENDERT AM 25.11.2026.
+     Bis dahin verlangte diese Pruefung ueberall einen zweiten Knopf
+     im Heldenbereich. Am Handy gibt es ihn nicht mehr: Ansage des
+     Betreibers vom 24.11.2026, "Mach bei der mobilen version nur 3
+     buttons: Kostenlos Anfragen, Anrufen, Whatsapp. und mach sie wie
+     vorher. In der PC Variante kannste alle 6 lassen." Vorgelegt
+     wurde ihm dabei, dass diese Pruefung und die Katalog-Pruefung in
+     pruefe-broschuere.mjs dagegenstehen und auf eine aeltere Ansage
+     vom 06.11.2026 zurueckgehen; er hat sich fuer die drei Knoepfe
+     entschieden.
+     Die Pruefung wird deshalb nicht geloescht, sondern umgestellt:
+     Am Handy muss der Weg zu den Produkten im Handy-Menue stehen,
+     am Tablet und am Rechner weiter als Knopf im Heldenbereich.
+     Ein ersatzlos geloeschter Test waere ein verlorenes
+     Sicherheitsnetz. */
+  if (name === 'Handy') {
+    pruef(`${name}: Zweiter Einstieg zu den Produkten (Menue)`,
+      m.sekMenue === true,
+      m.sekMenue ? 'Eintrag im Handy-Menue vorhanden' : 'kein Produkte-Eintrag im Handy-Menue');
+  } else {
+    pruef(`${name}: Zweiter Einstieg zu den Produkten`,
+      !!m.sekundaer && m.sekundaer.h >= 44, m.sekundaer ? `${m.sekundaer.b}x${m.sekundaer.h} px` : 'fehlt');
+  }
   pruef(`${name}: Kein waagerechtes Scrollen`,
     m.scrollW <= m.fenster + 1 && m.koerperW <= m.fenster + 1,
     `Dokument ${m.scrollW}, Koerper ${m.koerperW}, Fenster ${m.fenster} px`);

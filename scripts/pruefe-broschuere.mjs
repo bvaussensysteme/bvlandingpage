@@ -740,10 +740,14 @@ async function lauf(fehler) {
   await mstart.waitForTimeout(1400);
   const zugang = await mstart.evaluate(() => {
     const a = document.querySelector('#heroSlider a[href="/broschuere.html"]');
-    if (!a) return null;
-    const r = a.getBoundingClientRect();
-    return { oben: Math.round(r.top), unten: Math.round(r.bottom), hoehe: Math.round(r.height),
-             fenster: window.innerHeight, text: a.textContent.trim() };
+    const r = a ? a.getBoundingClientRect() : null;
+    const sichtbar = !!a && r.width > 0 && r.height > 0;
+    /* Weg ueber das Handy-Menue, seit der Hero-Knopf dort fehlt. */
+    const m = document.querySelector('.mobile-menu a[href*="broschuere"]');
+    return { imHero: sichtbar,
+             oben: r ? Math.round(r.top) : null, unten: r ? Math.round(r.bottom) : null,
+             hoehe: r ? Math.round(r.height) : 0, fenster: window.innerHeight,
+             text: a ? a.textContent.trim() : null, imMenue: !!m };
   });
   /* QUERFORMAT. Hier ist die Hoehe knapp; vorher rechnete der
      Stilblatt-Haltepunkt eine andere Breite aus als die Bibliothek
@@ -809,9 +813,25 @@ async function lauf(fehler) {
   p('Langes Antippen markiert keine Bedienflächen', markierbar.length === 0,
     markierbar.length ? markierbar.join(', ') : 'Knöpfe und Seiten gesperrt');
 
-  p('Der Katalog steht am Handy ohne Scrollen bereit',
-    !!zugang && zugang.oben >= 0 && zugang.unten <= zugang.fenster && zugang.hoehe >= 44,
-    zugang ? `"${zugang.text}" bei ${zugang.oben} von ${zugang.fenster} px` : 'kein Weg im Hero');
+  /* GEAENDERT AM 25.11.2026. Die Pruefung verlangte, dass der
+     Katalog-Knopf am Handy OHNE SCROLLEN im Heldenbereich steht. Das
+     ging auf die Ansage vom 06.11.2026 zurueck ("weit oben ... direkt
+     drauf"). Am 24.11.2026 hat der Betreiber den Heldenbereich am
+     Handy auf drei Knoepfe begrenzt (Anfrage, Anrufen, WhatsApp) und
+     nach Vorlage dieses Widerspruchs entschieden, dass es dabei
+     bleibt.
+     Geprueft wird deshalb jetzt der WEG, nicht die Stelle: Am Handy
+     muss der Katalog ueber das Handy-Menue erreichbar sein; steht der
+     Knopf im Heldenbereich (ab 700 px Breite), gilt dort weiter, dass
+     er ohne Scrollen sichtbar und mindestens 44 px hoch ist. */
+  const katalogOk = zugang && (zugang.imHero
+    ? (zugang.oben >= 0 && zugang.unten <= zugang.fenster && zugang.hoehe >= 44)
+    : zugang.imMenue);
+  p('Der Katalog ist am Handy ohne Suchen erreichbar', !!katalogOk,
+    !zugang ? 'weder im Hero noch im Menue'
+      : zugang.imHero ? `Knopf "${zugang.text}" bei ${zugang.oben} von ${zugang.fenster} px`
+      : zugang.imMenue ? 'nicht im Hero (so gewollt), Eintrag im Handy-Menue vorhanden'
+      : 'nicht im Hero UND nicht im Menue');
 
   await browser.close();
   return ergebnis;

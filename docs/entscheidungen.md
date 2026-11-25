@@ -24072,3 +24072,56 @@ Bei 320 × 568 liegt die Vertrauenszeile weiter unter dem Rand, bei
 375 × 667 ist sie angeschnitten. Allein der Beschreibungstext
 `.hs-desc` ist dort 154 px hoch. Das ginge nur über eine
 Textkürzung, und Texte werden nicht ohne Ansage geändert.
+
+## 25.11.2026 · Zwei Prüfungen umgestellt, weil zwei Ansagen sich widersprachen
+
+### Der Widerspruch
+
+Die Begrenzung auf drei Heldenknöpfe am Handy (24.11.2026) machte
+zwei Prüfungen rot:
+
+| Prüfung | verlangte bisher | geht zurück auf |
+|---|---|---|
+| `pruefe-startseite.mjs` | „Zweiter Einstieg zu den Produkten": ein zweiter Knopf im Heldenbereich, auch am Handy | Stufe-5-Umbau |
+| `pruefe-broschuere.mjs` | „Der Katalog steht am Handy ohne Scrollen bereit" | Ansage vom 06.11.2026: „weit oben … direkt drauf" |
+
+Beides waren **Wünsche des Betreibers**, in Prüfungen gegossen. Der
+Wunsch vom 24.11. hebt sie am Handy auf. Deshalb nicht selbst
+entschieden, sondern vorgelegt, mit den Zahlen für drei Möglichkeiten
+(drei Knöpfe behalten, Katalog zurückholen, Textzeile darunter).
+
+**Entscheidung des Betreibers: bei drei bleiben, Prüfungen
+anpassen.**
+
+### Was jetzt geprüft wird
+
+Keine der beiden Prüfungen wurde gelöscht. Eine ersatzlos gestrichene
+Prüfung ist ein verlorenes Sicherheitsnetz, und das Nächste, was
+jemand kaputtmacht, fällt dann niemandem auf. Beide bewachen jetzt
+den **Weg** statt der Stelle:
+
+- `pruefe-startseite.mjs`: Am Handy muss der Weg zu den Produkten im
+  Handy-Menü stehen. Am Tablet und am Rechner weiter als Knopf im
+  Heldenbereich, mindestens 44 px hoch.
+- `pruefe-broschuere.mjs`: Steht der Katalog-Knopf im Heldenbereich
+  (ab 700 px Breite), gilt unverändert, dass er ohne Scrollen
+  sichtbar und mindestens 44 px hoch ist. Steht er dort nicht, muss
+  er im Handy-Menü sein.
+
+### Gegenprobe, und ein Fehler darin
+
+Beide Prüfungen wurden gegengeprüft, indem der jeweilige Menüeintrag
+probeweise aus `index.html` entfernt wurde:
+
+- `pruefe-broschuere.mjs`: **rot**, „nicht im Hero UND nicht im
+  Menue". Richtig.
+- `pruefe-startseite.mjs`: beim ersten Versuch **grün**, also
+  scheinbar versagt. Ursache war die Gegenprobe selbst: Sie suchte
+  nach `href="/#leistungen"`, im Handy-Menü steht aber
+  `href="#leistungen"`. Mit dem richtigen Verweis: **rot**, „kein
+  Produkte-Eintrag im Handy-Menue".
+
+Das ist die Art Fehler, die eine Gegenprobe wertlos macht, ohne
+aufzufallen: Sie entfernt nichts und bestätigt dann, dass alles in
+Ordnung ist. `index.html` wurde danach aus einer Sicherung
+wiederhergestellt, `git status` zeigt keine Abweichung.
