@@ -4,6 +4,16 @@
 /entwurf/*
   X-Robots-Tag: noindex, nofollow
 
+# form-action: 'self' UND https://api.web3forms.com, seit 25.11.2026.
+# Das Online-Widerrufsformular (src/widerruf.njk:38) sendet klassisch,
+# ohne Skript, an https://api.web3forms.com/submit. Mit nur 'self'
+# blockierte der Browser das Absenden, und der Nutzer sah weder eine
+# Bestaetigung noch eine Fehlermeldung; live seit mindestens dem
+# 01.11.2026. Belege in docs/rechtstexte-befunde.md.
+# Entscheidung des Betreibers: die Richtlinie oeffnen statt den
+# Rechtstext anzufassen. Genau diese eine Adresse, nichts sonst; in
+# connect-src steht sie schon. Wer sie hier wieder entfernt, legt den
+# Widerruf still lahm. Geprueft von scripts/pruefe-formular-csp.mjs.
 /*
   X-Frame-Options: SAMEORIGIN
   X-Content-Type-Options: nosniff
@@ -11,7 +21,7 @@
   Referrer-Policy: strict-origin-when-cross-origin
   Permissions-Policy: camera=(), microphone=(), geolocation=()
   Strict-Transport-Security: max-age=31536000; includeSubDomains
-  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://tracker.metricool.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://*.metricool.com; connect-src 'self' https://api.web3forms.com https://formspree.io https://tracker.metricool.com https://*.metricool.com https://nominatim.openstreetmap.org https://photon.komoot.io; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; frame-ancestors 'self'; upgrade-insecure-requests
+  Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://tracker.metricool.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://cdnjs.cloudflare.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://*.tile.openstreetmap.org https://cdnjs.cloudflare.com https://*.metricool.com; connect-src 'self' https://api.web3forms.com https://formspree.io https://tracker.metricool.com https://*.metricool.com https://nominatim.openstreetmap.org https://photon.komoot.io; frame-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self' https://api.web3forms.com; frame-ancestors 'self'; upgrade-insecure-requests
   Cross-Origin-Opener-Policy: same-origin
 
 # Caching: Bilder ändern sich selten und werden bei Austausch meist unter neuem

@@ -931,3 +931,31 @@ Skripte; sie muss 0 sein. Sein Name beginnt absichtlich nicht mit
 Erwarteter Stand am 25.11.2026: 83 Skripte, 81 grün, 2 rot
 (`pruefe-konfigurator-oberflaeche.mjs` mit 1 von 182 und
 `pruefe-schrittwechsel.mjs`, beide bekannt).
+
+## `pruefe-formular-csp.mjs` (25.11.2026)
+
+**Frage:** Darf jedes klassische Formular unter der Richtlinie aus
+`_headers` überhaupt absenden?
+
+**Anlass:** Das Online-Widerrufsformular sendet an
+`https://api.web3forms.com/submit`, die Richtlinie erlaubte nur
+`form-action 'self'`. Der Browser blockierte das Absenden ohne jede
+Rückmeldung, live seit mindestens dem 01.11.2026. Keine der übrigen
+Prüfungen konnte es sehen, weil sie alle ohne `_headers` laufen.
+
+**Wie:** statisch, ohne Netz. Liest `form-action` aus `_headers`,
+sucht jedes `<form>` in jeder ausgelieferten HTML-Datei (ohne das, was
+`.assetsignore` zurückhält) und hält das Ziel gegen die erlaubten
+Quellen. Formulare mit `onsubmit` oder `data-per-skript` laufen über
+`connect-src` und werden nur gezählt.
+
+**Gegenprobe:** `--gegenprobe` nimmt web3forms aus den erlaubten
+Quellen; dann muss das Widerrufsformular auffallen. Ändert keine
+Datei.
+
+**Belegt am 25.11.2026:** mit der neuen Richtlinie grün (Exit 0),
+Gegenprobe schlägt an, mit der alten Richtlinie aus der Historie rot
+(Exit 1).
+
+**Grenze:** Ob Cloudflare die Kopfzeile so ausliefert, wie sie in
+`_headers` steht, sieht nur ein Abruf der Vorschau.
