@@ -108,7 +108,30 @@ Verbindlich: `docs/WEBSITE_DESIGN_SYSTEM.md` (Neubau-Palette).
    beantwortet fünf Verständnisfragen (Methode aus Anthropics
    doc-coauthoring).
 
-## 5. Ablage
+## 5. Ablauf mit dem Ratgeber-Team (feste Reihenfolge)
+
+| Schritt | Agent | Darf schreiben? | Liefert |
+|---|---|---|---|
+| 1 | Hauptagent | ja | Faktenbasis `fakten-ratgeber-N.md` (jede Zeile mit Quelle) |
+| 2 | `ratgeber-verkaufsstratege` | nein | Argumentation, v. a. „Preis gegen Wert" |
+| 3 | `ratgeber-redakteur` | nur Ratgeber-Ordner | Text nach Faktenbasis und Konzept |
+| 4 | `ratgeber-lektor`, `ratgeber-faktenpruefer`, `conversion-psychology-auditor` | nein | drei getrennte Berichte, parallel |
+| 5 | `ratgeber-redakteur` | nur Ratgeber-Ordner | Überarbeitung nach allen Berichten in einem Zug |
+| 6 | Hauptagent | ja | Satz mit `baue-ratgeber.mjs`, gemessene Prüfungen (Abschnitt 4) |
+| 7 | `ratgeber-gestaltungspruefer` | nein | Bericht zu den Seitenbildern |
+| 8 | `ratgeber-lesertest` | nein | Leserbericht, Verständnisfragen |
+| 9 | Hauptagent | ja | letzte Korrekturen, Bericht an den Betreiber |
+
+Nie zwei Agenten mit demselben Auftrag. Prüfer bekommen die Dateipfade,
+nicht das halbe Repository. Fragen, die nur der Betreiber beantworten kann,
+werden gesammelt gestellt und mit Antwort in die Faktenbasis eingetragen.
+
+**Preis gegen Wert (Ansage des Betreibers, 26.11.2026):** Der Leser soll von
+A bis Z verstehen, warum der Preis allein nichts sagt, was ein Angebot
+wirklich enthält und warum Angebote verschieden ausfallen. Nie schreiben,
+dass BV teurer oder günstiger ist, nie andere Anbieter abwerten.
+
+## 6. Ablage
 
 Quellen (HTML, Bilder, Bauskript) und fertige PDFs gehören NICHT ins
 öffentliche Website-Repository, sondern ins private Repository

@@ -52,9 +52,12 @@ Hinweis). Geländer, Fassade, Balkon, Garten: je eine Seite „Rund ums Haus".
 
 ## Werkzeuge
 
-Skills: `ratgeber-pdf`, `copywriting`, `copy-editing`, `lead-magnets`,
-`humanizer`, `document-design`, `fact-check-workflow`. Agenten:
+Skills: `ratgeber-pdf` (Hausregeln, Gestaltung, Ablauf des Teams),
+`copywriting`, `copy-editing`, `lead-magnets`, `humanizer`,
+`document-design`, `fact-check-workflow`. Agenten: `ratgeber-verkaufsstratege`,
 `ratgeber-redakteur`, `ratgeber-lektor`, `ratgeber-faktenpruefer`,
-`ratgeber-gestaltungspruefer`, dazu `conversion-psychology-auditor`.
-Neue Agenten erscheinen erst nach einem Neustart der Sitzung als eigener
-Typ; bis dahin als allgemeiner Agent mit Verweis auf die Agentendatei.
+`ratgeber-gestaltungspruefer`, `ratgeber-lesertest`, dazu
+`conversion-psychology-auditor`. Reihenfolge: Skill `ratgeber-pdf`,
+Abschnitt 5. Neue Agenten erscheinen erst nach einer Weile bzw. einem
+Neustart als eigener Typ; bis dahin als allgemeiner Agent mit Verweis auf
+die Agentendatei.
