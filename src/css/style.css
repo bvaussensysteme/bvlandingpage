@@ -1326,6 +1326,13 @@ body.bv-menu-open #bv-scroll-top {
 .vd-badge.vd-badge--open .vd-badge-tip {
   max-width: 200px; opacity: 1; padding-right: 9px;
 }
+/* Herstellerbilder: Hinweis DAUERHAFT sichtbar (26.11.2026, B5,
+   Entscheidung des Betreibers). Vorher stand nur ein kleines "i" da,
+   der Text erschien erst beim Antippen; der Abschnitt hiess "Unsere
+   Referenzen", obwohl 9 von 14 Bildern vom Hersteller sind. Dunkler,
+   fast deckender Grund, damit die Schrift auf jedem Foto lesbar ist. */
+.vd-badge.vd-badge--sichtbar { opacity: 1; background: rgba(17,17,17,0.82); color: #fff; }
+.vd-badge.vd-badge--sichtbar .vd-badge-tip { max-width: 200px; opacity: 1; padding-right: 9px; }
 
 /* Placeholder for missing images */
 .img-placeholder {

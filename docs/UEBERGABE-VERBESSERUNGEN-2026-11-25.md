@@ -390,7 +390,7 @@ der Leiste löst den alten Befund B4 („Telefonnummer weit unten") auf
 allen Seiten zugleich. Braucht kürzere Beschriftungen, weil zwei
 Knöpfe schon 345 von 358 px füllen.
 
-### B5. Vertrauensaussagen ohne Beleg im Repository
+### B5. Vertrauensaussagen ohne Beleg im Repository (ERLEDIGT 26.11.2026, siehe entscheidungen.md)
 
 Keine davon ändern, nur vorlegen. Unbelegte Tatsachenbehauptungen
 sind ein Vertrauens- und ein Rechtsrisiko; die Bewertung liegt beim

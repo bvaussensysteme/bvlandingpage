@@ -97,7 +97,12 @@ const daten = await seite.evaluate(() => {
              alt: img ? (img.getAttribute('alt') || '') : '',
              breite: img ? img.getAttribute('width') : null,
              hoehe: img ? img.getAttribute('height') : null,
-             quelle: b ? b.textContent.trim() : '' };
+             quelle: b ? b.textContent.trim() : '',
+             /* Seit 26.11.2026 (B5) muss der Hinweis auf Herstellerbildern
+                OHNE Antippen lesbar sein: sichtbare Breite und volle Deckkraft. */
+             sichtbar: b ? (b.getBoundingClientRect().width > 60 &&
+                            getComputedStyle(b).opacity === '1' &&
+                            getComputedStyle(b.closest('.vd-badge')).opacity === '1') : false };
   });
   return { karten, lightbox: (window.lightboxImages || []).map((x) => x.src) };
 });
@@ -115,7 +120,13 @@ pruef('Jede Karte hat einen Alternativtext',
   daten.karten.every((k) => k.alt.length > 10),
   daten.karten.filter((k) => k.alt.length <= 10).length + ' ohne');
 pruef('Jede Karte nennt ihre Herkunft',
-  daten.karten.every((k) => /Referenz/.test(k.quelle)), 'alle');
+  daten.karten.every((k) => /Referenz BV AussenSysteme|Beispielbild VD AluSysteme/.test(k.quelle)), 'alle');
+pruef('Herstellerbilder tragen sichtbar "Beispielbild VD AluSysteme"',
+  daten.karten.filter((k) => /VD/.test(k.quelle)).every((k) => k.sichtbar) &&
+  daten.karten.filter((k) => /VD/.test(k.quelle)).length > 0,
+  daten.karten.filter((k) => /VD/.test(k.quelle) && !k.sichtbar).length + ' unsichtbar');
+pruef('Kein Herstellerbild heisst mehr "Referenz"',
+  !daten.karten.some((k) => /Referenz VD/.test(k.quelle) || /Referenz VD/.test(k.alt)), 'keins');
 pruef('Jede Karte gibt Breite und Hoehe an',
   daten.karten.every((k) => k.breite && k.hoehe), 'alle');
 

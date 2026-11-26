@@ -174,15 +174,15 @@ var lightboxImages = [
      Geprueft von scripts/pruefe-referenz-galerie.mjs. */
   { src: 'images/galerie-4-full.webp', caption: 'Carport Aluminium anthrazit · Referenz BV AussenSysteme' },
   { src: 'images/galerie-5-full.webp', caption: 'Carport · Ansicht von der Seite · Referenz BV AussenSysteme' },
-  { src: 'images/vd_ref_1-full.webp', caption: 'Terrassenüberdachung mit Glasdach · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_2-full.webp', caption: 'Große Aluminium-Terrassenüberdachung · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_3-full.webp', caption: 'Terrassenüberdachung mit Lounge · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_4-full.webp', caption: 'Glas-Terrassendach über Holzterrasse · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_5-full.webp', caption: 'Freistehender Glasanbau / Kaltwintergarten · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_6-full.webp', caption: 'Freistehende Terrassenüberdachung · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_7-full.webp?v=b', caption: 'Aluminium-Carport · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_8-full.webp', caption: 'Carport mit Flachdach · Referenz VD AluSysteme' },
-  { src: 'images/vd_ref_9-full.webp', caption: 'Eingangsüberdachung / Vordach · Referenz VD AluSysteme' },
+  { src: 'images/vd_ref_1-full.webp', caption: 'Terrassenüberdachung mit Glasdach · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_2-full.webp', caption: 'Große Aluminium-Terrassenüberdachung · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_3-full.webp', caption: 'Terrassenüberdachung mit Lounge · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_4-full.webp', caption: 'Glas-Terrassendach über Holzterrasse · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_5-full.webp', caption: 'Freistehender Glasanbau / Kaltwintergarten · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_6-full.webp', caption: 'Freistehende Terrassenüberdachung · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_7-full.webp?v=b', caption: 'Aluminium-Carport · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_8-full.webp', caption: 'Carport mit Flachdach · Beispielbild VD AluSysteme' },
+  { src: 'images/vd_ref_9-full.webp', caption: 'Eingangsüberdachung / Vordach · Beispielbild VD AluSysteme' },
 ];
 var lightboxIndex = 0;
 

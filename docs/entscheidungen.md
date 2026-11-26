@@ -24369,3 +24369,30 @@ auf 576 px².
 Entscheidung des Betreibers: „ja soll ja auch so sein". Der Knopf in
 `index.html` (um 1729) behält die `/review`-Adresse, genau wie
 „Bewertung hinterlassen". Nicht wieder als Fehler aufnehmen.
+
+## 26.11.2026 · B5 Vertrauensaussagen: belegt bleiben, unbelegte vorsichtiger
+
+**Belegt laut Betreiber (bleiben):** „Alle Produkte CE-gekennzeichnet",
+„nach DIN EN 1090 statisch geprüft", „führender Aluminium-Hersteller",
+„erhöht nachweislich den Wiederverkaufswert", „unser Bestseller",
+„Festpreisangebot". Die Belege liegen beim Betreiber, nicht im
+Repository; bei einer Abmahnung müssen sie vorgelegt werden können.
+
+**Geändert, Wortlaut vom Betreiber freigegeben:**
+- „hagelfest" gestrichen (Eindeckungskarten, Fahrradüberdachung)
+- „windstabil bis 150 km/h" → „mit seitlich geführtem Tuch für mehr Windstabilität"
+- „Autorisierter Herstellerpartner" → „Vom Hersteller geschult" (Schulungszertifikate liegen vor)
+- „deutsches Qualitätsprodukt" → „in Deutschland gefertigt" (Angabe des Betreibers)
+- „Somfy-Antrieben aus eigener Herstellung" → „Antrieben von Somfy"
+- „kein Preisaufschlag" gestrichen
+- Startseite: „Unsere Referenzen" → „Projekte und Beispiele"; die 9
+  Herstellerbilder tragen dauerhaft sichtbar „Beispielbild VD
+  AluSysteme" (vorher nur ein „i" zum Antippen), auch in Bildtext und
+  Großansicht. Die 5 eigenen Projekte bleiben „Referenz BV AussenSysteme".
+
+**Nicht gefragt, offen:** „Antwort meist in 24 Std." (Wochenende?).
+
+**Geprüft:** `pruefe-referenz-galerie.mjs` um zwei Punkte erweitert
+(Hinweis sichtbar, kein Herstellerbild heißt „Referenz"); gegen den
+alten Stand fallen beide auf. Keine der alten Formulierungen steht noch
+in einer ausgelieferten Datei.
