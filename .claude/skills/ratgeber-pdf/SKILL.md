@@ -89,6 +89,24 @@ Verbindlich: `docs/WEBSITE_DESIGN_SYSTEM.md` (Neubau-Palette).
   `/baugenehmigung.html`, `/stoffe.html`, `tel:`, `https://wa.me/`, `mailto:`.
 - PDF-Metadaten: Titel, Autor „BV AussenSysteme", Sprache `de`.
 
+**Werkzeuge (Ordner `ratgeber/` in `bv-marketing`, Stand 26.11.2026):**
+- `baue-ratgeber.mjs <text.md> <ausgabe> [--entwurf]`: setzt Text mit
+  Satzkennzeichen ([BILD], [GRAFIK], [KNOPF], [ZAHL], [LINK],
+  [FOTO-PLATZHALTER], `{#anker}`) in die Vorlage, Seitentypen Titel,
+  Vorwort, Inhalt, Teilauftakt, Textseite, Vergleich, Merkseite, Rückseite.
+  **Seitenraster:** Lesespalte (ca. 115 mm) plus Randspalte (48 mm) für
+  Kästen und Kennzahlen; Tabellen, Grafiken, Bildreihen über volle Breite.
+  **Satzautomatik:** Läuft eine Seite über, wandert der Rest auf eine
+  Folgeseite; danach werden Seitenzahlen und Inhaltsverzeichnis neu
+  berechnet. Ziel bleibt trotzdem, dass jede Seite ohne Folgeseite passt
+  (`fuellstand.mjs` misst den Füllstand je Seite).
+- `lesezeichen.py`: korrigiert die Lesezeichentitel (Chromium verschluckt
+  Leerzeichen an Zeilenumbrüchen) und setzt Titel, Autor, Sprache.
+- `grafiken.mjs`: eigene Grafiken (Farbtafel, zwei Angebote, Schnitt,
+  Kosten je Nutzungsjahr, Garantie/Gewährleistung).
+- Schrift: feste Manrope-Schnitte 400 bis 800 (nicht die variable Datei,
+  die Chromium als Type-3-Schrift einbettet).
+
 ## 4. Prüfung vor jeder Abgabe (alle Punkte gemessen)
 
 1. Kein Inhalt läuft aus seiner Seite (Messung `scrollHeight` gegen
