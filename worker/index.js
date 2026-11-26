@@ -1042,6 +1042,11 @@ const MESSUNG_ARTEN = new Set([
   'anfrage-gesendet',    // Anfrage wirklich abgeschickt
   'konfig-start',        // 3D-Konfigurator aufgebaut
   'konfig-schritt',      // wert = Nummer des Bereichs, zusatz = sein Name
+  /* Seit 26.11.2026 (B8, Freigabe des Betreibers, Datenschutzerklaerung
+     Abschnitt 19 im selben Zug ergaenzt): erreichter Schritt im
+     Anfrage-Assistenten. wert = Nummer, zusatz = Name des Schritts
+     (z. B. 'masse'). Nie ein eingegebener Wert. */
+  'anfrage-schritt',
   'konfig-anfrage',      // aus dem Konfigurator in den Assistenten
   'konfig-pdf', 'konfig-teilen',
   /* Seit 03.11.2026 (zweiter Ausbau): Was auf der Seite angeklickt wird.
@@ -1393,7 +1398,7 @@ async function handleZahlen(url, env) {
            matrixRows, laenderRows, regionenRows, klickRows, liveRows,
            beginnRows, tageMitDatenRows, sitzungRows, vorherSitzungRows,
            kampagnenRows, browserRows, systemRows, besucherReiheRows,
-           einstiegRows] = await Promise.all([
+           einstiegRows, anfrageTrichterRows] = await Promise.all([
       frage("SELECT tag, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 GROUP BY tag ORDER BY tag"),
       /* Je Seite: Aufrufe, Verweildauer, Scrolltiefe und wie oft sie der
@@ -1410,7 +1415,7 @@ async function handleZahlen(url, env) {
       frage("SELECT geraet, COUNT(*) AS aufrufe FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 AND geraet IS NOT NULL GROUP BY geraet"),
       frage("SELECT art, COUNT(*) AS anzahl FROM ereignis "
-            + "WHERE tag >= ?1 AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'klick') "
+            + "WHERE tag >= ?1 AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'anfrage-schritt', 'klick') "
             + "GROUP BY art ORDER BY anzahl DESC"),
       frage("SELECT wert AS nr, zusatz AS name, COUNT(*) AS anzahl FROM ereignis "
             + "WHERE art = 'konfig-schritt' AND tag >= ?1 GROUP BY wert, zusatz "
@@ -1421,7 +1426,7 @@ async function handleZahlen(url, env) {
             + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
       frageVorher("SELECT art, COUNT(*) AS anzahl FROM ereignis "
             + "WHERE tag >= ?1 AND tag < ?2 "
-            + "AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'klick') GROUP BY art"),
+            + "AND art NOT IN ('seite', 'verweilen', 'konfig-schritt', 'anfrage-schritt', 'klick') GROUP BY art"),
       frageVorher("SELECT CAST(AVG(NULLIF(wert, 0)) AS INTEGER) AS dauer FROM ereignis "
             + "WHERE art = 'seite' AND tag >= ?1 AND tag < ?2"),
       /* Wochentag MAL Stunde. strftime zaehlt den Sonntag als 0 - das
@@ -1476,6 +1481,11 @@ async function handleZahlen(url, env) {
         + "SELECT seite, COUNT(*) AS einstiege FROM roh "
         + "WHERE vorher IS NULL OR zeit - vorher > 1800 "
         + "GROUP BY seite ORDER BY einstiege DESC LIMIT 20").bind(von).all(),
+      /* Weg durch den Anfrage-Assistenten, wie der Trichter des
+         Konfigurators (seit 26.11.2026). */
+      frage("SELECT wert AS nr, zusatz AS name, COUNT(*) AS anzahl FROM ereignis "
+            + "WHERE art = 'anfrage-schritt' AND tag >= ?1 GROUP BY wert, zusatz "
+            + "ORDER BY nr"),
     ]);
 
     const sitzung = ((sitzungRows.results || [])[0] || {});
@@ -1511,6 +1521,7 @@ async function handleZahlen(url, env) {
       geraete: geraeteRows.results || [],
       handlungen: handlungRows.results || [],
       trichter: trichterRows.results || [],
+      anfrageTrichter: anfrageTrichterRows.results || [],
       stunden: stundenRows.results || [],
       matrix: matrixRows.results || [],
       laender: laenderRows.results || [],

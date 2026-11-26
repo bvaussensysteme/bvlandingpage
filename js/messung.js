@@ -114,6 +114,18 @@
     if (wert != null) e.wert = Number(wert) || 0;
     if (zusatz) e.zusatz = String(zusatz).slice(0, 40);
     ereignisse.push(e);
+    /* FRUEH SENDEN (26.11.2026). Gesendet wurde nur beim Verlassen der
+       Seite, und mehr als 20 Ereignisse nimmt ein Paket nicht auf (der
+       Server ebenso nicht). Gemessen: Auf dem Weg durch den
+       Anfrage-Assistenten kamen von 11 erreichten Schritten nur 7 an, der
+       Rest und womoeglich "anfrage-gesendet" gingen verloren. Jetzt geht
+       bei 18 ein Paket raus, wie bei einem Wechsel des Tabs. Danach die
+       Zeitmessung wieder starten, sonst stuende sie bis zum naechsten
+       Sichtbarwerden still. Es wird nichts anderes erfasst als vorher. */
+    if (ereignisse.length >= 18) {
+      senden();
+      if (document.visibilityState !== 'hidden') sichtbarSeit = Date.now();
+    }
   };
 
   /* ---------- Klicks: nur was zählt ----------

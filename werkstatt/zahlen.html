@@ -1015,6 +1015,22 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
           + 'gezählt. Ab der Freischaltung füllt sich dieser Block von selbst.')
       + '</div>');
 
+    /* Weg durch den Anfrage-Assistenten (seit 26.11.2026). Gleiche Nummer
+       kann je nach Produkt ein anderer Schritt sein; deshalb steht der
+       Name dabei. Der Anteil bezieht sich auf die erste Zeile. */
+    var at = d.anfrageTrichter || [];
+    var aStart = at.length ? at[0].anzahl : 0;
+    var anfrageZeilen = at.map(function (t) {
+      var anteil = aStart ? Math.round(t.anzahl / aStart * 100) : 0;
+      return reihe('<b>' + (t.nr || '') + '.</b> ' + sicher(t.name || 'Schritt'),
+        Math.min(anteil, 100), zahl(t.anzahl), anteil + ' %');
+    });
+    teile.push('<div class="karte"><h2>Weg durch den Anfrage-Assistenten</h2>'
+      + '<p class="unter">Wie oft welcher Schritt erreicht wurde. Wo die Zahl abfällt, '
+      + 'hören die Leute auf. Gezählt erst seit dem 26.11.2026.</p>'
+      + liste(anfrageZeilen, 'Noch nichts gemessen.')
+      + '</div>');
+
     el('inhalt').innerHTML = teile.join('');
     diagrammBeleben(reihen);
   }
@@ -1040,6 +1056,9 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     (d.klicks || []).forEach(function (r) { zeilen.push(['Klick', r.was, r.anzahl, r.seite]); });
     (d.trichter || []).forEach(function (r) {
       zeilen.push(['Konfigurator-Schritt', (r.nr || '') + ' ' + (r.name || ''), r.anzahl, '']);
+    });
+    (d.anfrageTrichter || []).forEach(function (r) {
+      zeilen.push(['Anfrage-Schritt', (r.nr || '') + ' ' + (r.name || ''), r.anzahl, '']);
     });
     (d.stunden || []).forEach(function (r) { zeilen.push(['Stunde', r.stunde, r.aufrufe, '']); });
     return zeilen.map(function (z) {

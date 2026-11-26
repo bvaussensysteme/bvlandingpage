@@ -1084,3 +1084,15 @@ nicht bei der Produktfrage stehen. **Gegenprobe:** Seiten aus 9f97ebb,
 alle 24 Fälle müssen auffallen (belegt). **Grenze:** Die vier
 Sammelseiten (Terrassenüberdachung, Balkon/Fassade, Eingang, Garten)
 bleiben bewusst ohne Vorauswahl.
+
+## `pruefe-anfrage-schritte.mjs` (26.11.2026)
+
+**Frage:** Meldet der Anfrage-Assistent jeden erreichten Schritt, und nur
+Nummer und Namen? **Wie:** Messpakete abfangen, Weg Terrassendach TDS bis
+zum Kontaktschritt (mehr als 20 Ereignisse), im Maße-Schritt „4711"
+eintippen. Jeder Schrittwechsel muss ankommen, „4711" nirgends, keine
+Antwort in einer Schrittmeldung; dazu: Server kennt die Art, die
+Datenschutzerklärung nennt sie. **Gegenprobe:** Assistent aus 45871d9,
+dann fehlen die Schritte (belegt). **Belegt am 26.11.2026:** Vor dem
+frühen Senden kamen von 11 Schritten nur 7 an. **Grenze:** Ob der Server
+die Pakete wirklich speichert, sieht die Prüfung nicht.

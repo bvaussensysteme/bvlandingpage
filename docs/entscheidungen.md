@@ -24472,3 +24472,20 @@ Werkzeug: `scripts/umbau-fachwoerter-erklaeren.py` (Probelauf ohne
 „Shutters" ist laut Betreiber das Velaris-System: auf der Pergola-Seite
 dreimal ersetzt, dabei „mit Glasscheibensysteme" zu „mit
 Glasscheibensystemen" berichtigt.
+
+## 26.11.2026 · B8 Messung der Schritte im Anfrage-Assistenten
+
+Freigabe des Betreibers („bauen dateschutz anpassen gut is"). Gemessen
+wird der erreichte Schritt (Nummer, Name), nie Antworten oder
+Eingaben. Datenschutzerklärung Abschnitt 19 im selben Zug um vier
+Wörter ergänzt („im Anfrage-Assistenten oder"), sonst unverändert,
+der vorhandene Gedankenstrich bleibt (Rechtstext). Zahlenseite: eigener
+Block. Live erst mit der Veröffentlichung, und nur zusammen.
+
+**Dabei gefunden und behoben:** Ein Messpaket nimmt höchstens 20
+Ereignisse auf, gesendet wurde erst beim Verlassen der Seite. Gemessen:
+von 11 erreichten Schritten kamen 7 an. Davon betroffen war schon vorher
+die Klickmessung und womöglich `anfrage-gesendet` am Ende langer Wege.
+Jetzt geht bei 18 Ereignissen ein Paket raus. Erfasst wird dadurch
+nichts anderes als vorher, also keine Änderung der Datenschutzerklärung
+nötig.

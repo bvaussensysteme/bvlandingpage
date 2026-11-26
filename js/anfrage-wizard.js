@@ -1625,6 +1625,13 @@
         titelEl.setAttribute('tabindex', '-1');
         try { titelEl.focus({ preventScroll: true }); } catch (e) { titelEl.focus(); }
       }
+      /* MESSUNG (26.11.2026, B8, Freigabe des Betreibers; Abschnitt 19 der
+         Datenschutzerklaerung im selben Zug ergaenzt): welcher Schritt
+         erreicht wurde, als Nummer und Name. Nie eine Antwort, nie ein
+         eingegebener Wert. Nicht beim Aufbau der Seite, nur bei einem
+         echten Schrittwechsel. Wer diese Zeile erweitert, muss die
+         Datenschutzerklaerung mitaendern (CLAUDE.md, "Zahlen vor Meinung"). */
+      if (window.bvMessung) window.bvMessung('anfrage-schritt', idx + 1, jetzt);
     }
     letzterSchritt = jetzt;
 

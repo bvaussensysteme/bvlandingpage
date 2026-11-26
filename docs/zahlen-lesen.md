@@ -73,3 +73,17 @@ IP-Adresse ließe sich eine Prüfsumme nachrechnen.
 - **Geräteanteil** entscheidet, welche Ansicht zuerst stimmen muss.
 - **Bundesland** entscheidet über Ortsseiten – aber nur für Orte, in denen
   wirklich montiert wird.
+
+## Seit 26.11.2026: Weg durch den Anfrage-Assistenten
+
+Art `anfrage-schritt`, `wert` = Nummer, `zusatz` = Name des Schritts
+(z. B. `masse`, `kontakt`). Auf der Zahlenseite als eigener Block „Weg
+durch den Anfrage-Assistenten". Achtung: Dieselbe Nummer ist je nach
+Produkt ein anderer Schritt, deshalb immer den Namen mitlesen. Gemessen
+erst ab der Veröffentlichung dieses Stands; frühere Tage haben keine Zeilen.
+
+Ebenfalls seit 26.11.2026: `js/messung.js` sendet bei 18 Ereignissen ein
+Paket, nicht erst beim Verlassen der Seite. Vorher gingen bei langen
+Besuchen alle Ereignisse ab dem 21. verloren, möglicherweise auch
+`anfrage-gesendet`. Zahlen von vor diesem Stand unterschätzen lange
+Besuche.
