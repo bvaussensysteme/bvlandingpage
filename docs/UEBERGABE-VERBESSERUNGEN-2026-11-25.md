@@ -10,6 +10,13 @@
 > entschieden, dass die Verbesserungen an das nächste Modell gehen.
 > Alles unten ist also offen.
 
+
+> **STAND 26.11.2026:** Block A erledigt (A1 bis A10). Block B: B1 bis B8
+> erledigt oder vom Betreiber entschieden, Einzelheiten und Wortlaut der
+> Entscheidungen in `docs/entscheidungen.md`. **Weiter mit B9**, vorher
+> den Betreiber fragen (Gestaltung). Der aktuelle Einstieg mit Prüfstand
+> und offenen Punkten steht oben in `docs/NEXT_TASK.md`.
+
 ## Startprompt zum Einfügen
 
 ```

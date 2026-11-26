@@ -1711,3 +1711,127 @@ ersten 500 ms verworfen werden oder `js/prozess-animation.js` am
 Wurzelelement eine Marke setzt, auf die das Skript wartet. Ein Test,
 der jeden fünften Lauf grundlos rot wird, bringt niemandem bei,
 rote Tests ernst zu nehmen.
+
+---
+
+# Sitzungsnotizen 25./26.11.2026 (aus NEXT_TASK verschoben, abgelöst durch den Stand oben dort)
+
+## Pausiert am 25.11.2026 abends (Notiz) (Paket B1 fertig, A1 bis A3 vorbereitet)
+
+- **B1 erledigt** auf dem Arbeitsbranch: `_headers` form-action erweitert,
+  auf der Vorschau gemessen, Prüfer 2 und 3 gelaufen. Folgebefunde in
+  `docs/rechtstexte-befunde.md` (Danke-Seite sagt „Anfrage", Labels ohne
+  `for`), beide brauchen eine Ansage, weil Rechtstext.
+- **Volle Suite nach A1 bis A9 (25.11.2026 spät): 90 Skripte, 87 grün.** Rot: Altbefund `pruefe-konfigurator-oberflaeche.mjs` (1 von 182), Altbefund `pruefe-schrittwechsel.mjs` (B3, auch mit dem Stand vor A4 rot, pageYOffset 365) und `pruefe-keil-editor.mjs` (einzeln 43 von 43 grün, Wackelkandidat).
+  bei Skript 19 von 84 angehalten, bis dahin 0 rot. Nachholen.
+- **A1 angewendet (25.11.2026 abends), siehe entscheidungen.md.** War: `python3 scripts/umbau-a1-ortsseiten-kopf.py . --schreiben`
+  ersetzt in den 14 Ortsseiten und `danke.html` den Kopf durch die
+  Leiste der Vorlage, gibt dem Schlussknopf seinen Text zurück und lädt
+  in `danke.html` `main.js` nach. An einer Kopie gemessen: Kontrast
+  1,07:1 auf mindestens 6,61:1, Handy-Menü da, Leiste bleibt stehen.
+  `scripts/pruefe-ortsseiten-kopf.mjs` ist **absichtlich rot**, bis A1
+  angewendet ist (vorher 15 von 15 Seiten rot). Danach Cache-Buster,
+  Prüfer, Suite, Vorschau.
+- **A2** nur eine Zeile: `js/anfrage-wizard.js:1141`, Wortlaut in der
+  Übergabe; Version `20261122o` in 54 Dateien hochzählen.
+- **A3** zusätzlich gefunden: `ctaMain.textContent` in
+  `src/baugenehmigung.njk:1182` löscht das Symbol des Knopfs. Symbol
+  erhalten, `href` auf `/#kontakt`, `bv-produktwahl` nur für `carport`
+  und `kaltwintergarten`. Die anderen drei beim Betreiber erfragen.
+- **A2 erledigt** (25.11.2026 abends).
+- **Später prüfen:** Hamburger 38 × 28 px, Schließen-Kreuz 27 × 39 px auf
+  allen Seiten. Pflichtgrenze 24 × 24 erfüllt, Empfehlung 44 × 44 nicht.
+  Gestaltung, also mit dem Betreiber.
+- **A3 erledigt** bis auf drei Fragen an den Betreiber (Zuordnung der
+  Chips Terrassenüberdachung, Glasschiebewand, Pergola / Markise).
+- **A4 erledigt** (25.11.2026 abends), Prüfung `scripts/pruefe-assistent-tastatur.mjs`.
+- **A6 bis A9 erledigt**, **A5 erledigt** (Kreuz auf der Kante, Entscheidung des Betreibers).
+- **A10 erledigt**: alle vier fehlenden Prüfungen gibt es jetzt (formular-csp, ortsseiten-kopf, anfrageleiste, sprungmarken). **Block A ist damit abgeschlossen.** Weiter mit Block B, nur nach Ansage des Betreibers.
+- **Block B angefangen:** B2 und B4 so lassen (Entscheidung), A3-Vorauswahl vollständig, Widerruf-Labels verknüpft und eigene Bestätigungsseite gebaut (E-Mail-Bestätigung muss dann wirklich rausgehen).
+- **Volle Suite nach Block-B-Anfang (25.11.2026, nachts): 92 Skripte, 87 grün.** Rot die zwei Altbefunde (konfigurator-oberflaeche, schrittwechsel) und drei Wackelkandidaten (keil-editor, planken-editor, prozess-ringe), die einzeln alle grün laufen (43/43, 23/23, 4/4).
+- **Später prüfen (Betreiber fragt nach CRM-Plankenrechnung, 25.11.2026):** Antwort im Chat gegeben (Planken je Seite wie `plankenTeilung()`/`plankenFelder()` in `js/konfigurator-3d.js`, Preis je Stange aus der Preisliste, alle Seiten je Farbe zusammen packen). Fuge laut Betreiber frei nach Kundenwunsch, auch 0. Nichts gebaut; CRM-Repository nicht eingebunden.
+- **B5 erledigt** (26.11.2026): belegte Aussagen bleiben, sechs vorsichtiger formuliert, Herstellerbilder sichtbar gekennzeichnet. Offen: „Antwort meist in 24 Std.“
+- **B6 größtenteils erledigt** (26.11.2026). Offen: Eindeckungsverweis Carport/Kaltwintergarten, Fachwörter. Nebenbefund llms.txt: „Windstärke 8“ und „direkter Händlerpartner“ unbelegt.
+
+---
+
+# Ältere Prüfstände aus NEXT_TASK (verschoben am 26.11.2026)
+
+**Stand der Prüfungen am 23.11.2026, ehrlich.** Es sind **82 Skripte**
+(48 `.mjs`, 21 `.js`, 9 `.sh`, 4 `.py`). Zuletzt vollständig gelaufen
+am 23.11.2026 nach den Garantie- und Überlaufkorrekturen: **80 grün,
+2 rot.** Beide Roten sind Altbefunde:
+`pruefe-konfigurator-oberflaeche.mjs` (1 von 182 Teilprüfungen) und
+`pruefe-schrittwechsel.mjs` (Altbefund B3, flackert, siehe unten).
+
+**Ein Runner muss alle vier Endungen abdecken.** `.js` mit `node`,
+nicht nur `.mjs`. Zwei selbst geschriebene Läufe an diesem Tag haben
+die 21 `.js`-Skripte stillschweigend übersprungen und hätten
+„59 grün" gemeldet, obwohl ein Viertel nicht lief.
+
+Der Rest verhält sich so:
+
+- `pruefe-schrittwechsel.mjs` schlägt fehl. Bekannter Altbefund B3 aus
+  `docs/AUDIT-2026-11-22.md`: Am großen Bildschirm rollt beim Klick auf
+  „Weiter" die ganze Seite mit. Gemessen am 23.11.2026:
+  `pageYOffset 362`, nicht die früher notierten 64 px.
+  **Achtung, dieses Skript flackert in beide Richtungen.** Gemessen am
+  23.11.2026 über zwei unabhängige Läufe: im Reihenlauf einmal grün und
+  einmal rot, einzeln achtmal gefahren mit **sechs rot und zwei grün**.
+  Weder ein grüner noch ein roter Einzellauf beweist etwas. Der Befund
+  selbst ist offen, die Meldung lautet immer gleich
+  (`pageYOffset 362`). Einzelheiten in `docs/offene-nebenbefunde.md`.
+- `pruefe-konfigurator-oberflaeche.mjs` meldet 1 von 182 nicht
+  bestanden („Der Zeiger auf dem Schild ändert das Bild"). Altbefund.
+  **Am 23.11.2026 gegengeprüft** in einem eigenen Arbeitsbaum auf
+  Commit `4f3f135`: Dieselbe Prüfung schlägt dort genauso fehl. Der
+  Befund stammt also nicht aus der laufenden Arbeit. Einzelheiten in
+  `docs/offene-nebenbefunde.md`.
+- `pruefe-freie-planung.mjs`, `pruefe-keil-editor.mjs`,
+  `pruefe-prozess-ringe.mjs`, `pruefe-referenz-lauf.mjs` und
+  `pruefe-rahmen-editor.mjs` **flackern**: Nebeneinander gestartet
+  laufen sie in Zeitgrenzen oder Verbindungsfehler, einzeln gestartet
+  sind sie grün. Belegt an diesem Tag von zwei unabhängigen Läufen.
+  **Ein roter Konfigurator-Lauf ist deshalb erst dann ein Befund, wenn
+  er einzeln wiederholt wurde.**
+
+Wer „alle grün" behaupten will, muss die flackernden einzeln
+nachfahren. Das steht hier, weil genau diese Behauptung am 22.11.2026
+zweimal zu früh gemacht wurde.
+
+---
+
+
+## Der vollständige Prüfdurchgang vom 22.11.2026
+
+Elf Prüfer, zwei vollständige Skriptläufe. **Alles, was offen ist und
+beim Betreiber liegt, steht gesammelt in `docs/AUDIT-2026-11-22.md`.**
+Dieses Dokument wiederholt es nicht.
+
+Kurz: Sechs Punkte blockieren eine Veröffentlichung (Merge mit `main`,
+fehlende Ratenbegrenzung, geteilte Datenbanken, widersprüchliche
+Garantie- und Statikzusagen, gesperrter Konfigurator in der Sitemap,
+die vier Rechtsfragen). Sechs weitere sollten vorher entschieden
+werden. Behoben wurden zehn gemessene Fehler, Einzelheiten in
+`docs/entscheidungen.md`.
+
+## Prüfstand vom 25.11.2026
+
+**83 Skripte, 81 grün, 2 rot, 0 übersprungen.** Rot sind allein die
+zwei bekannten Dauerbefunde: `pruefe-konfigurator-oberflaeche.mjs`
+(1 von 182, „Der Zeiger auf dem Schild ändert das Bild") und
+`pruefe-schrittwechsel.mjs` (Altbefund B3).
+
+Auf der Vorschau gegengeprüft, nicht nur lokal:
+
+| | Handy 390 | 700 px | Rechner 1280 |
+|---|---|---|---|
+| Knöpfe im Heldenbereich | **3** | 6 | 6 |
+| Knopfhöhe, alle einzeilig | 52 px | 52 px | 56 px |
+| Vertrauenszeile | sichtbar | sichtbar | sichtbar |
+| Kopfleiste | 66 px, bleibt stehen | 66 px, bleibt stehen | 72 px, bleibt stehen |
+| waagerechtes Scrollen | nein | nein | nein |
+
+Die drei Knöpfe am Handy sind „Kostenlos anfragen", „Anrufen",
+„WhatsApp", in dieser Reihenfolge.
+
