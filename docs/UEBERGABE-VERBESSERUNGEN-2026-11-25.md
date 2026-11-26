@@ -375,7 +375,7 @@ Der 3D-Konfigurator ist seit dem 31.10.2026 gesperrt
 Frage an ihn: ausblenden, umbenennen (etwa „Anfrage starten") oder so
 lassen. Empfehlung: umbenennen, bis das Werkzeug wieder offen ist.
 
-### B3. „Bei Google lesen" öffnet den Schreibdialog
+### B3. „Bei Google lesen" öffnet den Schreibdialog (ENTSCHIEDEN 26.11.2026: so gewollt)
 
 `index.html:1729` trägt dieselbe `/review`-Adresse wie „Bewertung
 hinterlassen" in Zeile 1764. Gebraucht wird die Adresse des

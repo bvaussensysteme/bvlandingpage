@@ -24363,3 +24363,9 @@ auf 576 px².
   Wortlaut „Mit E-Mail-Zusage". Kleinster Kontrast 6,61:1, kein
   waagerechtes Scrollen bei 320 px. Folgepflicht E-Mail-Bestätigung steht
   in `docs/rechtstexte-befunde.md`.
+
+## 26.11.2026 · B3 „Bei Google lesen" öffnet den Schreibdialog: so gewollt
+
+Entscheidung des Betreibers: „ja soll ja auch so sein". Der Knopf in
+`index.html` (um 1729) behält die `/review`-Adresse, genau wie
+„Bewertung hinterlassen". Nicht wieder als Fehler aufnehmen.
