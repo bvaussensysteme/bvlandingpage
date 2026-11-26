@@ -24512,3 +24512,18 @@ Augenblick auf 0); weiches Scrollen (vom Browser abgebrochen, gemessen);
 
 Ebenfalls: Merkmallisten auf Carport und Kaltwintergarten: Text und
 Verweis in einem `<span>`, sonst ragte der Verweis bei 320 px 5 px heraus.
+
+## 26.11.2026 · Seitenübersicht /sitemap.html und Verweis in der Fußzeile
+
+Wunsch des Betreibers, angelehnt an eine fremde Sitemap als Idee
+(gegliederte Liste, Verweis in einer Fußzeilenspalte), Gestaltung und
+Wortlaut eigen. Neue Seite `src/sitemap.njk` mit sieben Gruppen
+(Produkte, Planungshilfen, Ratgeber, Orte, Unternehmen, Kontakt,
+Rechtliches), `index, follow`, Brotkrume in den Google-Daten; in
+`sitemap.xml` eingetragen. „Sitemap" steht in der Fußzeilenspalte
+„Unternehmen" auf allen 54 Seiten mit Fußzeile (Vorlage plus
+handgepflegte Seiten). Gemessen: 57 Verweise, kleinster Kontrast
+15,28:1, alle Tippflächen ≥ 24 px, kein waagerechtes Scrollen bei 390 px.
+Nicht aufgeführt: Danke-Seiten, Werkstatt, der gesperrte Konfigurator.
+Neue Seite anlegen heißt ab jetzt: auch in `sitemap.xml` und
+`src/sitemap.njk` eintragen; `pruefe-sitemap-seite.mjs` meldet es sonst.

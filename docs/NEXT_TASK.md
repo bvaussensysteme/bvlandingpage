@@ -22,7 +22,7 @@ Satz aus `CLAUDE.md`.
   B13, dann Block C (nur mit Plan und Zustimmung).
 
 **Prüfstand.** Letzter vollständiger Lauf vor dem Commit 7b49a80: 93
-Skripte, 90 grün. **Nach 7b49a80 (Fokus-Freirücken in `js/main.js`) ist
+Skripte, 90 grün. **Nach 7b49a80 (Fokus-Freirücken in `js/main.js`) und der Sitemap ist
 die volle Suite NICHT gelaufen**, nur die betroffenen Skripte (alle
 grün). Als Erstes `bash scripts/alle-pruefungen.sh` laufen lassen (rund
 40 Minuten; dabei nichts anderes im Browser fahren und keine Dateien
@@ -33,10 +33,12 @@ Gesamtlauf, einzeln grün: keil-editor, planken-editor, prozess-ringe,
 broschuere. Ein anderes Rot ist ernst zu nehmen und einzeln
 nachzulaufen.
 
+**Seitenübersicht** `/sitemap.html` mit Verweis in jeder Fußzeile (26.11.2026). Neue Seiten dort und in `sitemap.xml` eintragen.
+
 **Neu in dieser Sitzung (Prüfungen, alle mit `--gegenprobe`):**
 formular-csp, ortsseiten-kopf, garantie, baugenehmigung-weiter,
 assistent-tastatur, anfrageleiste, stoffsymbole, sprungmarken,
-feldnamen, produktwahl, anfrage-schritte. Siehe `docs/pruefungen.md`.
+feldnamen, produktwahl, anfrage-schritte, sitemap-seite. Siehe `docs/pruefungen.md`.
 
 **Beim Betreiber offen:**
 - Gedächtnis-Repository `bv-gedaechtnis` (privat) selbst auf GitHub

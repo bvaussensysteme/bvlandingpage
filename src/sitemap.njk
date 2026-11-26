@@ -1,0 +1,155 @@
+---
+layout: layout.njk
+permalink: /sitemap.html
+title: "Sitemap: alle Seiten im Überblick | BV AussenSysteme"
+description: "Alle Seiten von BV AussenSysteme auf einen Blick: Produkte, Planungshilfen, Ratgeber, Orte im Westerwald, Unternehmen und Kontakt."
+canonical: "https://bv-aussensysteme.de/sitemap.html"
+robots: "index, follow"
+---
+{#- SEITENUEBERSICHT (26.11.2026, Wunsch des Betreibers: eine strukturierte
+    Sitemap zum Aufrufen, verlinkt in der Fusszeile).
+
+    Fuer Menschen gedacht. Suchmaschinen lesen zusaetzlich /sitemap.xml;
+    beide muessen zusammenpassen. scripts/pruefe-sitemap-seite.mjs prueft,
+    dass jede Adresse aus sitemap.xml hier verlinkt ist und kein Verweis
+    ins Leere fuehrt. Neue Seite angelegt? Hier UND in sitemap.xml eintragen.
+
+    Bewusst NICHT aufgefuehrt: danke.html und widerruf-danke.html (nur
+    nach einem Absenden sinnvoll), die Werkstatt, der gesperrte
+    3D-Konfigurator. -#}
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [
+    { "@type": "ListItem", "position": 1, "name": "Startseite", "item": "https://bv-aussensysteme.de/" },
+    { "@type": "ListItem", "position": 2, "name": "Sitemap", "item": "https://bv-aussensysteme.de/sitemap.html" }
+  ]
+}
+</script>
+<style>
+  .sm-raster { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 36px 48px; margin-top: 32px; }
+  /* Mit .start-premium .section davor: Sonst zieht start.css die
+     Abschnittsueberschrift der Startseite (bis 2,5rem) auch hier hoch. */
+  .start-premium .section .sm-gruppe h2 { font-size: 1.15rem; margin: 0 0 10px; letter-spacing: 0; }
+  .sm-gruppe h3 { font-size: .9rem; margin: 16px 0 6px; color: var(--muted); font-weight: 600; }
+  .sm-gruppe ul { list-style: none; margin: 0; padding: 0; }
+  /* Mindestens 24 px hohe Zeile zum Antippen (WCAG 2.5.8). Textfarbe der
+     Seite statt Browser-Blau; Gold erst beim Darueberfahren und beim
+     Ansteuern mit der Tastatur. */
+  .sm-gruppe li a { display: inline-block; padding: 4px 0; min-height: 24px; line-height: 1.4;
+                    color: inherit; text-decoration: none; }
+  .sm-gruppe li a:hover, .sm-gruppe li a:focus-visible { color: var(--gold-text); text-decoration: underline; }
+</style>
+<main id="main-content" role="main">
+  <section class="section">
+    <div class="container">
+      <p style="font-size:.85rem;color:var(--muted);margin-bottom:8px;"><a href="/" style="color:var(--gold-text);">Startseite</a> › Sitemap</p>
+      <h1 style="margin-bottom:8px;">Sitemap</h1>
+      <p style="color:var(--muted);max-width:640px;">Alle Seiten unserer Website auf einen Blick.</p>
+
+      <div class="sm-raster">
+
+        <nav class="sm-gruppe" aria-labelledby="sm-produkte">
+          <h2 id="sm-produkte">Produkte</h2>
+          <ul>
+            <li><a href="/produkte/terrassenueberdachung.html">Terrassenüberdachung</a></li>
+            <li><a href="/produkte/carport.html">Carport</a></li>
+            <li><a href="/produkte/pergola.html">Pergola &amp; Lamellendach</a></li>
+            <li><a href="/produkte/faltdach.html">Faltdach OpenAir</a></li>
+            <li><a href="/produkte/velaris.html">Velaris</a></li>
+            <li><a href="/produkte/kaltwintergarten.html">Kaltwintergarten</a></li>
+            <li><a href="/produkte/sonnenschutz.html">Sonnenschutz &amp; Beschattung</a></li>
+            <li><a href="/produkte/gelaender.html">Geländer &amp; Zubehör</a></li>
+            <li><a href="/produkte/eingang.html">Eingang &amp; Vordächer</a></li>
+            <li><a href="/produkte/balkon-fassade.html">Balkon &amp; Fassade</a></li>
+            <li><a href="/produkte/fassade.html">Fassadenverkleidung Deco Wall</a></li>
+            <li><a href="/produkte/sichtschutz.html">Sichtschutz</a></li>
+            <li><a href="/produkte/garten-aussenbereich.html">Garten &amp; Außenbereich</a></li>
+            <li><a href="/produkte/gartenhaus.html">Gartenhaus TDS</a></li>
+            <li><a href="/produkte/fahrradueberdachung.html">Fahrradüberdachung</a></li>
+            <li><a href="/produkte/bushaltestelle.html">Bushaltestelle</a></li>
+            <li><a href="/stoffe.html">Markisenstoffe</a></li>
+            <li><a href="/broschuere.html">Produktkatalog</a></li>
+          </ul>
+        </nav>
+
+        <nav class="sm-gruppe" aria-labelledby="sm-planung">
+          <h2 id="sm-planung">Planungshilfen</h2>
+          <ul>
+            <li><a href="/baugenehmigung.html">Baugenehmigung prüfen</a></li>
+            <li><a href="/windzonen.html">Wind- und Schneelastzonen-Rechner</a></li>
+            <li><a href="/#kontakt">Kostenlos anfragen</a></li>
+          </ul>
+          <h2 id="sm-ratgeber" style="margin-top:28px;">Ratgeber</h2>
+          <ul aria-labelledby="sm-ratgeber">
+            <li><a href="/ratgeber/">Alle Ratgeber</a></li>
+            <li><a href="/ratgeber/terrassenueberdachung-kosten.html">Was kostet eine Terrassenüberdachung?</a></li>
+            <li><a href="/ratgeber/baugenehmigung-terrassenueberdachung.html">Baugenehmigung für die Terrassenüberdachung</a></li>
+            <li><a href="/ratgeber/carport-oder-garage.html">Carport oder Garage?</a></li>
+            <li><a href="/ratgeber/pergola-kaufen-ratgeber.html">Pergola kaufen</a></li>
+            <li><a href="/ratgeber/aluminium-terrasse-pflegen.html">Aluminium-Außensysteme pflegen</a></li>
+          </ul>
+        </nav>
+
+        <nav class="sm-gruppe" aria-labelledby="sm-orte">
+          <h2 id="sm-orte">Orte</h2>
+          <ul>
+            <li><a href="/einzugsgebiet.html">Einzugsgebiet im Überblick</a></li>
+          </ul>
+          <h3>Terrassenüberdachung</h3>
+          <ul>
+            <li><a href="/terrassenueberdachung-altenkirchen.html">Altenkirchen</a></li>
+            <li><a href="/terrassenueberdachung-hachenburg.html">Hachenburg</a></li>
+            <li><a href="/terrassenueberdachung-koblenz.html">Koblenz</a></li>
+            <li><a href="/terrassenueberdachung-limburg.html">Limburg an der Lahn</a></li>
+            <li><a href="/terrassenueberdachung-montabaur.html">Montabaur</a></li>
+            <li><a href="/terrassenueberdachung-neuwied.html">Neuwied</a></li>
+            <li><a href="/terrassenueberdachung-ransbach-baumbach.html">Ransbach-Baumbach</a></li>
+          </ul>
+          <h3>Carport</h3>
+          <ul>
+            <li><a href="/carport-koblenz.html">Koblenz</a></li>
+            <li><a href="/carport-limburg.html">Limburg an der Lahn</a></li>
+            <li><a href="/carport-montabaur.html">Montabaur</a></li>
+            <li><a href="/carport-neuwied.html">Neuwied</a></li>
+          </ul>
+          <h3>Pergola</h3>
+          <ul>
+            <li><a href="/pergola-koblenz.html">Koblenz</a></li>
+            <li><a href="/pergola-montabaur.html">Montabaur</a></li>
+            <li><a href="/pergola-neuwied.html">Neuwied</a></li>
+          </ul>
+        </nav>
+
+        <nav class="sm-gruppe" aria-labelledby="sm-unternehmen">
+          <h2 id="sm-unternehmen">Unternehmen</h2>
+          <ul>
+            <li><a href="/">Startseite</a></li>
+            <li><a href="/#warum-wir">Über uns</a></li>
+            <li><a href="/#prozess">Unser Ablauf</a></li>
+            <li><a href="/#galerie">Projekte und Beispiele</a></li>
+            <li><a href="/#faq">Häufige Fragen</a></li>
+            <li><a href="/zertifikate.html">Zertifikate</a></li>
+            <li><a href="/partner.html">Partner</a></li>
+            <li><a href="/pflege.html">Pflegehinweise</a></li>
+          </ul>
+          <h2 id="sm-kontakt" style="margin-top:28px;">Kontakt</h2>
+          <ul aria-labelledby="sm-kontakt">
+            <li><a href="tel:+4915678696609">Telefon 0156 78696609</a></li>
+            <li><a href="https://wa.me/4915678696609" target="_blank" rel="noopener">WhatsApp</a></li>
+            <li><a href="mailto:info@bv-aussensysteme.de">info@bv-aussensysteme.de</a></li>
+          </ul>
+          <h2 id="sm-recht" style="margin-top:28px;">Rechtliches</h2>
+          <ul aria-labelledby="sm-recht">
+            <li><a href="/impressum.html">Impressum</a></li>
+            <li><a href="/datenschutz.html">Datenschutz</a></li>
+            <li><a href="/agb.html">AGB</a></li>
+            <li><a href="/widerruf.html">Widerruf</a></li>
+          </ul>
+        </nav>
+
+      </div>
+    </div>
+  </section>
+</main>

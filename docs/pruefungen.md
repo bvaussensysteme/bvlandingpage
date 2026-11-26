@@ -1096,3 +1096,14 @@ Datenschutzerklärung nennt sie. **Gegenprobe:** Assistent aus 45871d9,
 dann fehlen die Schritte (belegt). **Belegt am 26.11.2026:** Vor dem
 frühen Senden kamen von 11 Schritten nur 7 an. **Grenze:** Ob der Server
 die Pakete wirklich speichert, sieht die Prüfung nicht.
+
+## `pruefe-sitemap-seite.mjs` (26.11.2026)
+
+**Frage:** Passt die Seitenübersicht `/sitemap.html` zur `sitemap.xml`,
+und verlinkt jede Fußzeile sie? **Wie:** statisch; jede `<loc>` außer
+der Übersicht selbst ist dort verlinkt, jeder interne Verweis zeigt auf
+eine vorhandene Datei, `sitemap.html` steht in `sitemap.xml`, jede
+ausgelieferte Seite mit `<footer>` verlinkt `/sitemap.html`.
+**Gegenprobe:** Carport im Speicher entfernt und `index.html` aus
+a2c6ea4; beides muss auffallen (belegt). **Grenze:** Seiten, die in
+keiner der beiden Listen stehen, sieht sie nicht.

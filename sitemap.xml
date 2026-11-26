@@ -177,6 +177,12 @@
   <url><loc>https://bv-aussensysteme.de/ratgeber/pergola-kaufen-ratgeber.html</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://bv-aussensysteme.de/ratgeber/aluminium-terrasse-pflegen.html</loc><lastmod>2026-09-03</lastmod><changefreq>monthly</changefreq><priority>0.7</priority></url>
   <url><loc>https://bv-aussensysteme.de/broschuere.html</loc><lastmod>2026-11-06</lastmod><changefreq>yearly</changefreq><priority>0.7</priority></url>
+  <url>
+    <loc>https://bv-aussensysteme.de/sitemap.html</loc>
+    <lastmod>2026-11-26</lastmod>
+    <changefreq>monthly</changefreq>
+    <priority>0.3</priority>
+  </url>
   <!-- HERAUSGENOMMEN AM 22.11.2026: /agb.html, /impressum.html,
        /datenschutz.html
        Diese drei Seiten tragen selbst <meta name="robots"
