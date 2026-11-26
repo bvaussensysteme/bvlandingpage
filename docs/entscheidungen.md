@@ -24396,3 +24396,34 @@ Repository; bei einer Abmahnung müssen sie vorgelegt werden können.
 (Hinweis sichtbar, kein Herstellerbild heißt „Referenz"); gegen den
 alten Stand fallen beide auf. Keine der alten Formulierungen steht noch
 in einer ausgelieferten Datei.
+
+## 26.11.2026 · B6 Widersprüche und Schreibfehler
+
+Mit Antwort des Betreibers umgesetzt:
+- „SunPro Plus oder SunPro Plus" → „SunPro One oder SunPro Plus",
+  sichtbar und in den Daten; dazu „Pergola-Seite ." ohne Leerzeichen.
+- **Standort:** Betriebssitz laut Betreiber Am Driesch 1, 56428 Dernbach,
+  „nur mein büro … keinen showroom oder halle". Koordinaten über
+  OpenStreetMap ermittelt (Gebäude Am Driesch 1): 50.4571 / 7.7911.
+  Vorher 50.4833 / 7.8167 in den Daten (rund 3 km daneben) und
+  50.522 / 7.764 auf der Karte (rund 7 km daneben). Jetzt überall gleich:
+  15 Seiten und `src/_data/orte.json`.
+- `llms.txt`: Gesellschafter statt Inhaber (wie Impressum), Montage
+  „2 bis 6 Wochen" wie auf der Seite, „Beispielbildern des Herstellers"
+  statt „Beispielprojekten", doppelter Lamaxa-Eintrag entfernt.
+- Kosten-Ratgeber: FAQ in den Daten wörtlich = sichtbarer Text
+  (4 von 5 waren abweichend, nachgeprüft zeichengleich); Überschrift
+  „Die Kostenfaktoren 2026" statt „Preise 2026" (H1, Brotkrume, Daten,
+  zwei Verweise darauf); Alternativtext des Titelbildes beschreibt jetzt
+  das Foto und nennt es Beispielbild VD AluSysteme.
+- Brotkrume in den Daten „Leistungen" wie sichtbar, 16 Produktseiten.
+- `danke.html`: Telefon „0156 78696609" wie überall.
+
+**Noch offen aus B6:** Carport und Kaltwintergarten verweisen für die
+Eindeckung auf die Terrassenseite; Fachwörter ohne Erklärung.
+
+**Später prüfen (Nebenbefund):** `llms.txt` behauptet „SunPro Plus …
+wetterfest bis Windstärke 8" und „direkter Händlerpartner von VD
+AluSysteme". Beides ist im Repository so wenig belegt wie die
+B5-Aussagen; der Betreiber hat „Autorisierter Herstellerpartner" nicht
+bestätigt.

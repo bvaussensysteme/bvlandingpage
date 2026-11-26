@@ -418,7 +418,7 @@ Bewertungen ohne Sterne. Kein Dark Pattern gefunden: keine
 vorangekreuzte Einwilligung, „Nur notwendige" steht vor „Alle
 akzeptieren", keine Verknappung.
 
-### B6. Texte, die sich widersprechen oder verschrieben sind
+### B6. Texte, die sich widersprechen oder verschrieben sind (GRÖSSTENTEILS ERLEDIGT 26.11.2026, siehe entscheidungen.md)
 
 Wird ein sichtbarer Text geändert, muss derselbe Text im
 strukturierten Datenblock mit.
