@@ -24457,3 +24457,18 @@ Nichts geändert.
   Terrassenüberdachung (TDS oder SkyView), Balkon/Fassade, Eingang,
   Garten, weil dort mehrere Produkte zur Wahl stehen.
 - **B8 Messung:** vorbereiten, Text für die Datenschutzerklärung vorlegen.
+
+## 26.11.2026 · Fachwörter erklärt (B6), „Shutters" heißt Velaris
+
+Wortlaut vom Betreiber freigegeben. Beim ersten Vorkommen je Seite im
+Fließtext (nicht in Überschriften, Daten, Bildtexten, Kommentaren), nur
+wo die Seite das Wort nicht schon erklärt: VSG, opal, Trapezblech,
+prüffähige Einzelstatik, Windwiderstandsklasse 3 (20 Stellen in den
+Quellen). ZIP-Führung war schon erklärt. „36 dB": Fußsatz unter den
+Eindeckungskarten ergänzt („je höher der Wert, desto leiser bei Regen").
+Werkzeug: `scripts/umbau-fachwoerter-erklaeren.py` (Probelauf ohne
+`--schreiben`, wiederholbar, setzt nichts doppelt).
+
+„Shutters" ist laut Betreiber das Velaris-System: auf der Pergola-Seite
+dreimal ersetzt, dabei „mit Glasscheibensysteme" zu „mit
+Glasscheibensystemen" berichtigt.
