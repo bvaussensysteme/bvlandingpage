@@ -185,6 +185,23 @@ Löschen von Daten und bei Preisen auf der Seite.
 `scripts/pruefe-*` laufen lassen, nicht die vermuteten. Ehrlich
 berichten, was geprüft wurde und was offen blieb.
 
+## Push auf den Arbeitsbranch ohne Rückfrage (permanent, 26.11.2026)
+
+Ansage des Betreibers, wörtlich: „Push auf Arbeitsbranch künftig ohne
+Rückfrage erlaubt".
+
+**Erlaubt ohne Rückfrage:** `git push -u origin
+claude/bv-aussensysteme-setup-bq7ew4`, also nur der Arbeitsbranch. Danach
+wie immer die Vorschau abrufen und den geprüften Link mitschicken.
+
+**Weiterhin nur nach ausdrücklicher Freigabe:** alles an `main`, jeder
+Pull Request oder Merge, Force-Push, Löschen von Branches, Push auf andere
+Branches oder Repositories (auch `bv-marketing`), Deployment, DNS, Live-Seite.
+Die Regel „Veröffentlichen NUR auf ausdrückliche Freigabe" oben bleibt
+unverändert. Diese Regel geht der allgemeinen Vorgabe „vor `git push`
+fragen" aus den persönlichen Einstellungen des Betreibers nur für genau
+diesen Branch vor.
+
 ## Neubau: eigenständig, nicht Apple nachgebaut (permanent, 08.11.2026)
 
 Der Neubau orientiert sich an den **Prinzipien** der Apple Human

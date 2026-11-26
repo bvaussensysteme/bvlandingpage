@@ -24602,3 +24602,11 @@ Ordner, nur die Methode „Lesertest" übernommen); contains-studio und
 matsengrp (keine Lizenz); `marketing-psychology` (empfiehlt
 Voreinstellungen und Verknappung, widerspricht „keine Dark Patterns");
 source-verification (Beispiel sendet Adressen an Archivdienste).
+
+## 26.11.2026 · Push auf den Arbeitsbranch ohne Rückfrage
+
+Betreiber, wörtlich: „Push auf Arbeitsbranch künftig ohne Rückfrage
+erlaubt". Anlass: Zwei Pushes wurden von der automatischen Prüfung wegen der
+Regel „vor git push fragen" angehalten. Gilt nur für
+`claude/bv-aussensysteme-setup-bq7ew4`; `main`, PR, Merge, Force-Push und
+andere Repositories weiter nur nach Freigabe. Regel in `CLAUDE.md`.
