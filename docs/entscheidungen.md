@@ -24427,3 +24427,17 @@ wetterfest bis Windstärke 8" und „direkter Händlerpartner von VD
 AluSysteme". Beides ist im Repository so wenig belegt wie die
 B5-Aussagen; der Betreiber hat „Autorisierter Herstellerpartner" nicht
 bestätigt.
+
+## 26.11.2026 · `pruefe-schema-faq.mjs` sah Leerzeichen, die es nicht gibt
+
+Die Prüfung ersetzte jedes HTML-Tag durch ein Leerzeichen; aus
+„Pergola-Seite</a>." wurde „Pergola-Seite .". Damit sie grün war, standen
+in den Google-Daten absichtlich falsche Leerzeichen vor Satzzeichen
+(Startseite 1, Baugenehmigung 4). Jetzt entfernt die Prüfung das
+Leerzeichen vor Satzzeichen, und die Daten stehen richtig. Gegenprobe
+weiter 4 von 4.
+
+**Öffnungszeiten:** Die Frage an den Betreiber ging von einer falschen
+Grundlage aus; die Zeiten stehen sichtbar unter „Telefon / WhatsApp"
+(Mo–Fr 9–17, Sa 10–15, So nach Vereinbarung) und passen zu den Daten.
+Nichts geändert.

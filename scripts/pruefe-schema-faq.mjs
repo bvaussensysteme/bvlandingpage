@@ -47,7 +47,14 @@ function sichtbar(h) {
     .replace(/<[^>]+>/g, ' ')
     .replace(/&amp;/g, '&').replace(/&quot;/g, '"').replace(/&#39;/g, "'")
     .replace(/&nbsp;/g, ' ').replace(/&shy;/g, '').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/\s+/g, ' ').trim();
+    .replace(/\s+/g, ' ')
+    /* Tags werden oben durch ein Leerzeichen ersetzt. Aus
+       "Pergola-Seite</a>." wurde so "Pergola-Seite ." - ein Leerzeichen,
+       das auf der Seite nicht steht. Bis 26.11.2026 stand es deshalb
+       absichtlich falsch in den Google-Daten, damit diese Pruefung gruen
+       war. Vor Satzzeichen wird es hier wieder entfernt. */
+    .replace(/ ([.,;:!?)])/g, '$1')
+    .trim();
 }
 
 function pruefeSeite(datei, inhalt, hinweise = []) {
