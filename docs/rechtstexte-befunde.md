@@ -736,3 +736,24 @@ Beschriftungen" stimmt für unseren eigenen Code. Wer die öffentliche
 Messadresse direkt anspricht, kann bei der Klickmessung beliebigen Text
 schicken; der Server kürzt ihn nur auf 60 Zeichen. Für die Schritte des
 Assistenten nimmt er seit heute nur echte Schrittnamen an.
+
+## 26.11.2026 · AGB § 3.2 „Ausführung durch Dritte" gegenüber „wir montieren selbst"
+
+**Fundstelle:** `src/agb.njk`, § 3.2: Ausführung „ganz oder teilweise durch
+Dritte" erlaubt. Webseite und Ratgeber sagen „wir montieren selbst";
+Betreiber am 26.11.2026: „immer wir selbst". **Mögliches Risiko:** Ein
+Werbeversprechen, das die eigenen AGB ausdrücklich offenhalten, kann als
+widersprüchlich oder irreführend angegriffen werden; umgekehrt nimmt die
+Klausel dem Versprechen die Verbindlichkeit. **Bitte mit dem Anwalt
+klären**, ob die Klausel bleiben soll (z. B. für Notfälle) oder angepasst
+wird. Nichts geändert.
+
+## 26.11.2026 · Hinweise aus der Faktenprüfung zum Ratgeber (Baurecht)
+
+`ratgeber/baugenehmigung-terrassenueberdachung` und `baugenehmigung`
+(keine Rechtstexte, aber Rechtsaussagen): § 62 Abs. 2 Nr. 2 LBauO gilt nur
+für **Anbauten**; ein freistehendes Terrassendach fällt nicht darunter.
+„An der Hauswand entfällt der Abstand" und „Zustimmung des Nachbarn" sind
+so verkürzt, dass Leser falsche Schlüsse ziehen können (Abweichung oder
+Baulast nach § 8 LBauO). Im Ratgeber korrigiert, auf der Webseite noch
+nicht; Vorschlag steht in `docs/NEXT_TASK.md`.
