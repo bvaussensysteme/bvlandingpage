@@ -257,7 +257,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       "name": "Wie lange dauert es von der Anfrage bis zur fertigen Montage?",
       "acceptedAnswer": {
         "@type": "Answer",
-        "text": "Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel. Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2 bis 6 Wochen. In der Hochsaison und bei Sonderfarben kann es auch länger dauern."
+        "text": "Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel. Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 4 bis 12 Wochen. In der Hochsaison und bei Sonderfarben kann es auch länger dauern."
       }
     },
     {
@@ -445,11 +445,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
      vollstaendig da: Die Klasse wird nur gesetzt, wenn beides
      vorhanden ist, und ein Notausgang nach drei Sekunden nimmt sie in
      jedem Fall wieder weg. Nichts im Heldenbereich haengt also daran,
-     dass dieses Skript durchlaeuft. */
+     dass dieses Skript durchlaeuft.
+
+     PAKET B9 (26.11.2026), Entscheidung des Betreibers: Die
+     Ueberschrift wird NICHT mehr eingeblendet, sie steht ab dem ersten
+     Bild (vorher bis 4,07 s unsichtbar, gemessen auf der Vorschau,
+     gedrosseltes Handyprofil). Der Rest kommt ruhiger und kuerzer:
+     ohne Ueberschwinger und ohne Skalierung, alles nach spaetestens
+     etwa 0,6 s da (vorher 1140 ms bis 1800 ms). Gestartet wird direkt
+     hinter dem Heldenbereich und nicht mehr an DOMContentLoaded: das
+     Ereignis wartet auf alle verzoegerten Skripte der Seite.
+     Pruefung: scripts/pruefe-heldenbereich.mjs */
   .hero--neu .hs-claim-wort { display: inline-block; }
   @media (prefers-reduced-motion: no-preference) {
     .hero--neu .hero-slogan { animation: none; }
-    .hero-anim-bereit .hero--neu .hs-heading,
     .hero-anim-bereit .hero--neu .hs-desc,
     .hero-anim-bereit .hero--neu .hs-slide-btns,
     .hero-anim-bereit .hero--neu .hero-trust,
@@ -494,15 +503,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261126a" />
+  <link rel="stylesheet" href="css/style.css?v=20261126b" />
   <!-- Premium-Schicht (Stufe 5, 14.11.2026), seit 22.11.2026 auf allen
        Seiten mit body.start-premium, nicht mehr nur hier. Liegt bewusst
        hinter style.css. Quelle: src/css/start.css -->
   <link rel="stylesheet" href="css/start.css?v=20261125a" />
   <script>
   /* Siehe den ausfuehrlichen Kommentar im Stilblock darueber. Reihenfolge:
-     Woerter des Claims mit 180 ms Abstand, der Rest leicht versetzt,
-     damit die Folge zu lesen ist und die Seite trotzdem zuegig steht. */
+     Woerter des Claims mit 80 ms Abstand, der Rest leicht versetzt,
+     damit die Folge zu lesen ist und die Seite trotzdem zuegig steht.
+     Die Ueberschrift ist nicht dabei (Paket B9). */
   (function () {
     var html = document.documentElement;
     if (!('animate' in Element.prototype)) return;
@@ -516,21 +526,21 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       var slide = document.querySelector('.hero--neu');
       if (!slide) { frei(); return; }
       var teile = [];
-      var rest = [['.hs-heading', 50], ['.hs-desc', 340], ['.hs-slide-btns', 420], ['.hero-trust', 500]];
+      var rest = [['.hs-desc', 60], ['.hs-slide-btns', 120], ['.hero-trust', 180]];
       for (var i = 0; i < rest.length; i++) {
         var e = slide.querySelector(rest[i][0]);
-        if (e) teile.push([e, rest[i][1], 720, false]);
+        if (e) teile.push([e, rest[i][1], 380, 10]);
       }
       var w = slide.querySelectorAll('.hs-claim-wort');
-      for (var j = 0; j < w.length; j++) teile.push([w[j], 220 + j * 180, 500, true]);
+      for (var j = 0; j < w.length; j++) teile.push([w[j], j * 80, 340, 6]);
       for (var k = 0; k < teile.length; k++) {
         (function (t) {
-          var von = t[3]
-            ? { opacity: 0, transform: 'translateY(12px) scale(.88)' }
-            : { opacity: 0, transform: 'translateY(16px)' };
-          var a = t[0].animate([von, { opacity: 1, transform: 'none' }], {
+          /* Nur Deckkraft und ein kurzer Weg nach oben, keine Skalierung
+             und keine Kurve ueber 1: ruhig statt wippend (Paket B9). */
+          var von = { opacity: 0, transform: 'translateY(' + t[3] + 'px)' };
+          t[0].animate([von, { opacity: 1, transform: 'none' }], {
             duration: t[2], delay: t[1], fill: 'both',
-            easing: t[3] ? 'cubic-bezier(0.34, 1.4, 0.64, 1)' : 'cubic-bezier(0.16, 1, 0.3, 1)'
+            easing: 'cubic-bezier(0.16, 1, 0.3, 1)'
           });
           /* KEIN cancel() nach dem Lauf. Gemessen am 16.11.2026: Mit
              cancel() fiel das Element auf den CSS-Zustand zurueck, und
@@ -544,9 +554,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       }
       frei();
     }
+    var gestartet = false;
     function nachDemErstenBild() {
+      if (gestartet) return;
+      gestartet = true;
       requestAnimationFrame(function () { requestAnimationFrame(los); });
     }
+    /* Der eigentliche Start steht direkt hinter dem Heldenbereich
+       (window.bvHeldLos). DOMContentLoaded bleibt nur als Rueckfall,
+       weil es erst nach allen verzoegerten Skripten feuert. */
+    window.bvHeldLos = nachDemErstenBild;
     if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', nachDemErstenBild);
     else nachDemErstenBild();
   })();
@@ -675,6 +692,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   </a>
 
 </header>
+<script>window.bvHeldLos && window.bvHeldLos();</script>
 
 
 <!-- ===== GOLD STRIP (USPs) ===== -->
@@ -687,7 +705,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
       </div>
       <div class="gold-item">
         <span class="gold-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span>
-        <div><strong>2–6 Wochen</strong><span>ab Auftragsbestätigung bis Montage</span></div>
+        <div><strong>4–12 Wochen</strong><span>ab Auftragsbestätigung bis Montage</span></div>
       </div>
       <div class="gold-item">
         <span class="gold-icon" aria-hidden="true"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 10h12"/><path d="M4 14h9"/><path d="M19 6a7.7 7.7 0 0 0-5.2-2A7.9 7.9 0 0 0 6 12a7.9 7.9 0 0 0 7.8 8 7.7 7.7 0 0 0 5.2-2"/></svg></span>
@@ -1804,7 +1822,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
         </button>
         <div class="faq-a">
           Weil wir direkt mit dem Hersteller zusammenarbeiten, bestellen wir ohne Zwischenhandel.
-          Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 2 bis 6 Wochen. In der
+          Von der Auftragsbestätigung bis zur Montage vergehen in der Regel 4 bis 12 Wochen. In der
           Hochsaison und bei Sonderfarben kann es auch länger dauern.
         </div>
       </div>
@@ -2260,7 +2278,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 
 <!-- ===== JAVASCRIPT ===== -->
 <script src="js/bv-symbole.js?v=20261031n" defer></script>
-<script src="js/karussell.js?v=20261122k" defer></script>
+<script src="js/karussell.js?v=20261126a" defer></script>
 <!-- galerie.js kam am 22.11.2026 dazu: Der Stoffstreifen benutzt denselben
      Baustein wie die Ausfuehrungsbeispiele der Produktseiten (Wischen,
      Pfeile, Zaehler, Grossansicht). Kein zweiter Streifen-Bauplan. -->

@@ -1107,3 +1107,17 @@ ausgelieferte Seite mit `<footer>` verlinkt `/sitemap.html`.
 **Gegenprobe:** Carport im Speicher entfernt und `index.html` aus
 a2c6ea4; beides muss auffallen (belegt). **Grenze:** Seiten, die in
 keiner der beiden Listen stehen, sieht sie nicht.
+
+## `pruefe-heldenbereich.mjs` (26.11.2026)
+
+**Frage:** Steht der Heldenbereich der Startseite sofort und ruhig da?
+**Wie:** Startseite bei 390 und 1280 px, 8 s ohne Eingabe: kein
+LCP-Eintrag nach 5 s; Überschrift ab dem ersten Bild Deckkraft 1 und
+nicht animiert; jede Einblendung (ohne Dauerschleifen) nach höchstens
+600 ms fertig, ohne Kurve über 1 und ohne Skalierung; genau eine
+Bildebene und eine laufende Fahrt. Nach einer Mausbewegung und 7,5 s:
+vier Ebenen, ein späteres Bild sichtbar, weiter genau eine Fahrt auf der
+sichtbaren Ebene. Mit „Bewegung reduzieren": erstes Bild und Überschrift
+sichtbar. **Gegenprobe:** liefert `index.html`, `js/karussell.js` und
+`css/style.css` aus Commit 88de4f0; beide Breiten müssen auffallen
+(gemessen: beide fallen auf, 9 bzw. 8 Befunde).

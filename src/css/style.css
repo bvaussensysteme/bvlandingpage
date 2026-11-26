@@ -4627,17 +4627,22 @@ body.bv-konfig-open #bvKonfigBubble {
   will-change: opacity;
 }
 .hero--neu .hs-slide-bg--weiter.ist-sichtbar { opacity: 1; }
-/* Das erste Bild muss verschwinden koennen, wenn ein spaeteres liegt. */
+/* Das erste Bild muss verschwinden koennen, wenn ein spaeteres liegt.
+   NUR unter .hat-wechsel (setzt js/karussell.js, sobald der Wechsel
+   laeuft). Vorher hing das Ausblenden an der fehlenden Klasse
+   .ist-sichtbar - ohne JavaScript und bei "Bewegung reduzieren" kam die
+   nie, und das Startbild blieb unsichtbar (gemessen 26.11.2026). */
 .hero--neu .hs-slide--active .hs-slide-bg:not(.hs-slide-bg--weiter) {
   transition: opacity 1.4s var(--kurve-weich);
 }
-.hero--neu .hs-slide--active .hs-slide-bg:not(.hs-slide-bg--weiter):not(.ist-sichtbar) {
+.hero--neu .hs-slide--active.hat-wechsel .hs-slide-bg:not(.hs-slide-bg--weiter):not(.ist-sichtbar) {
   opacity: 0;
 }
-@media (prefers-reduced-motion: no-preference) {
-  .hero--neu .hs-slide--active .hs-slide-bg--weiter.ist-sichtbar {
-    animation: hintergrundFahrt 24s var(--kurve-weich) infinite alternate;
-  }
+/* Die Fahrt laeuft nur auf der sichtbaren Ebene. Angehalten statt
+   abgeschaltet: so springt das ausblendende Bild nicht zurueck, und das
+   naechste setzt beim Einblenden dort fort, wo es stand (Paket B9). */
+.hero--neu .hs-slide--active.hat-wechsel .hs-slide-bg:not(.ist-sichtbar) {
+  animation-play-state: paused;
 }
 
 /* PFEILE AM REFERENZ-KARUSSELL (22.11.2026). Ansage des Betreibers:

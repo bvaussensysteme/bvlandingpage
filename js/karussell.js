@@ -187,9 +187,37 @@
   ];
   var WECHSEL = 6500;
 
+  /* WECHSEL ERST NACH DER ERSTEN EINGABE (26.11.2026, Paket B9).
+     Vorher lief der Wechsel sofort. Gemessen gegen die Vorschau,
+     gedrosseltes Handyprofil: das erste Bild stand nach 2,66 s, der
+     Browser meldete als LCP aber 9,31 s, weil das zweite Bild nach
+     6,5 s als neuer groesster Inhalt zaehlte. Jetzt bleibt das erste
+     Bild stehen, bis der Besucher scrollt, tippt, eine Taste drueckt
+     oder die Maus bewegt. Entscheidung des Betreibers, siehe
+     docs/entscheidungen.md. Die weiteren Ebenen entstehen auch erst
+     dann, damit vorher nur EINE bildschirmgrosse Ebene die Fahrt
+     (style.css, Abschnitt 6) mitlaufen laesst.
+     Die Klasse "hat-wechsel" an der Folie schaltet im Stylesheet das
+     Ausblenden des ersten Bildes frei. Ohne sie bleibt es sichtbar:
+     ohne JavaScript, bei "Bewegung reduzieren" und vor der Eingabe.
+     Gemessen am 26.11.2026: Vorher war es in diesen Faellen
+     unsichtbar (Deckkraft 0). Pruefung: scripts/pruefe-heldenbereich.mjs */
+  var EINGABEN = ['pointerdown', 'pointermove', 'keydown', 'wheel', 'touchstart', 'scroll'];
+
   function kopfbilder() {
     try {
       if (ruhig()) return;
+      if (!document.querySelector('.hero--neu .hs-slide--active .hs-slide-bg')) return;
+      var los = function () {
+        EINGABEN.forEach(function (n) { window.removeEventListener(n, los, true); });
+        kopfbilderStarten();
+      };
+      EINGABEN.forEach(function (n) { window.addEventListener(n, los, { capture: true, passive: true }); });
+    } catch (e) { /* Ohne Wechsel bleibt das erste Bild stehen - voellig in Ordnung. */ }
+  }
+
+  function kopfbilderStarten() {
+    try {
       var folie = document.querySelector('.hero--neu .hs-slide--active');
       if (!folie) return;
       var erstes = folie.querySelector('.hs-slide-bg');
@@ -230,6 +258,7 @@
         timer = window.setTimeout(weiter, WECHSEL);
       }
       ebenen[0].classList.add('ist-sichtbar');
+      folie.classList.add('hat-wechsel');
       planen();
       document.addEventListener('visibilitychange', function () {
         if (!document.hidden) planen();

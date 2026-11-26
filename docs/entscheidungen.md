@@ -24527,3 +24527,78 @@ handgepflegte Seiten). Gemessen: 57 Verweise, kleinster Kontrast
 Nicht aufgeführt: Danke-Seiten, Werkstatt, der gesperrte Konfigurator.
 Neue Seite anlegen heißt ab jetzt: auch in `sitemap.xml` und
 `src/sitemap.njk` eintragen; `pruefe-sitemap-seite.mjs` meldet es sonst.
+
+## 26.11.2026 · B9 Heldenbereich: Wechsel erst nach Eingabe, Überschrift sofort
+
+**Was war falsch (gemessen).** Vorschau, gedrosseltes Handyprofil: das
+erste Bild stand nach 2,66 s, LCP aber 9,31 s, weil das Bild alle 6,5 s
+wechselte. Lokal ohne Drosselung: letzter LCP-Eintrag 6660 ms bei 390 px.
+Überschrift bis 4,07 s auf Deckkraft 0 (Einblendung hing an
+`DOMContentLoaded` und wartete auf 17 verzögerte Skripte). Einblendung
+erst nach 1220 bis 1800 ms fertig, Claim-Wörter mit Überschwinger und
+Skalierung. Vier bildschirmgroße Ebenen mit Dauerfahrt, drei unsichtbar.
+**Zusätzlich gefunden:** Bei „Bewegung reduzieren" und ohne JavaScript war
+das Startbild unsichtbar (Deckkraft 0), weil das Ausblenden des ersten
+Bildes an der fehlenden Klasse `ist-sichtbar` hing.
+
+**Entscheidung des Betreibers (Auswahl im Dialog, alle vier wie
+empfohlen):** Bildwechsel erst nach Interaktion; Überschrift sofort
+sichtbar; Einblendung ruhiger und kürzer; Fahrt nur auf der sichtbaren
+Ebene.
+
+**Was jetzt gilt.** `js/karussell.js` legt die weiteren Ebenen erst an,
+wenn gescrollt, getippt, eine Taste gedrückt oder die Maus bewegt wird,
+und setzt dann `hat-wechsel` an die Folie. Nur darunter blendet
+`style.css` das erste Bild aus und hält die Fahrt unsichtbarer Ebenen an
+(`animation-play-state: paused`, damit beim Überblenden nichts springt).
+Die Überschrift ist aus der Einblendung herausgenommen; der Rest läuft
+mit 60 bis 180 ms Versatz und 340 bis 380 ms Dauer ohne Kurve über 1.
+Gestartet wird per Inline-Aufruf direkt hinter `</header>`,
+`DOMContentLoaded` bleibt Rückfall. Nachher gemessen: LCP 192 ms (390 px),
+Einblendung fertig nach 560 ms, eine Ebene und eine Fahrt vor der
+Eingabe, Startbild bei reduzierter Bewegung sichtbar.
+**Prüfung:** `scripts/pruefe-heldenbereich.mjs` mit `--gegenprobe`.
+
+**Offen.** Ein früher Testlauf zeigte einmal vier Ebenen nach 0,3 s ohne
+Eingabe; in sieben Wiederholungen nicht nachzustellen. Wenn die Prüfung
+das je wieder meldet: Auslöser protokollieren, nicht die Schwelle senken.
+
+## 26.11.2026 · Lieferzeit 4 bis 12 Wochen statt 2 bis 6
+
+Herstellerseite vd-alusysteme.de (Startseite, FAQ) nennt „ca. 4-12 Wochen"
+zwischen Auftrag und Montage, die eigene Seite 2 bis 6. Betreiber:
+„Dann schreib 4 bis 12 Wochen. Mach es." Geändert: Kennzahlenleiste und
+FAQ der Startseite (sichtbar und Schema.org), `llms.txt`. Nur die Zahl,
+Wortlaut sonst unverändert.
+
+## 26.11.2026 · Ratgeber als Leadmagnet: Plan, keine Preise, Ablage privat
+
+Plan in `docs/ratgeber-plan.md`. Entscheidungen des Betreibers: drei
+Ratgeber (Terrassendach & Kaltwintergarten mit Sonnenschutz; Carport &
+Vordach; Pergola & Lamellendach), **keine Preise**, nur Deutsch, VD-Bilder
+dürfen genutzt werden, eigene Fotos als Platzhalter, kein Arbeitsheft zum
+Ausfüllen, anklickbares Inhaltsverzeichnis und Knöpfe zu Konfigurator und
+Anfrage. Nachfassen: per E-Mail als Teil der Pflicht-Einwilligung,
+Rückruf mit eigener freiwilliger Checkbox (Zulässigkeit der Kopplung
+klärt der Anwalt; bis dahin Freigabe-Hindernis). Quellen und PDFs gehören
+ins private Repository `bv-marketing`, nicht hierher.
+**Verworfen:** Preisstufen wie im Vorbild (Betreiber dagegen);
+PDF als Anhang statt Link (Spam-Risiko, keine Adressbestätigung).
+
+## 26.11.2026 · Skills und Agenten für die Ratgeber
+
+Auf Ansage des Betreibers recherchiert und eingerichtet, jeweils vorher
+gelesen (keine Netzaufrufe, keine Skripte übernommen):
+`.claude/skills/copywriting`, `copy-editing`, `lead-magnets`
+(coreyhaines31/marketingskills, MIT), `humanizer` (blader, MIT, nur
+SKILL.md), `document-design`, `fact-check-workflow`
+(jamditis/claude-skills-journalism, MIT), dazu eigener Skill
+`ratgeber-pdf`. Agenten neu, deutsch, eigenständig formuliert:
+`ratgeber-redakteur` (schreibt nur im Ratgeber-Arbeitsordner),
+`ratgeber-lektor`, `ratgeber-faktenpruefer`,
+`ratgeber-gestaltungspruefer` (alle drei nur lesend).
+**Verworfen:** doc-coauthoring von Anthropic (Lizenzdatei fehlt im
+Ordner, nur die Methode „Lesertest" übernommen); contains-studio und
+matsengrp (keine Lizenz); `marketing-psychology` (empfiehlt
+Voreinstellungen und Verknappung, widerspricht „keine Dark Patterns");
+source-verification (Beispiel sendet Adressen an Archivdienste).
