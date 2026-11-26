@@ -24489,3 +24489,26 @@ die Klickmessung und womöglich `anfrage-gesendet` am Ende langer Wege.
 Jetzt geht bei 18 Ereignissen ein Paket raus. Erfasst wird dadurch
 nichts anderes als vorher, also keine Änderung der Datenschutzerklärung
 nötig.
+
+## 26.11.2026 · Verdeckter Fokus: Freirücken unter der Anfrageleiste (main.js)
+
+**Was war falsch.** `pruefe-fokus-verdeckung.mjs` rot nach der
+Fachwort-Erklärung auf der Carport-Seite: Der Verweis „Licht-, Wärme- und
+Schallwerte" lag nach dem Tab bei 878–900 px, die Anfrageleiste ab 830 px
+(1440 × 900). Ursache allgemein, nicht dieser Verweis: Der Browser scrollt
+beim Fokuswechsel nur, wenn ein Element AUSSERHALB des Fensters liegt;
+in den untersten 70 px gilt es als sichtbar. Und im Augenblick von
+`focusin` steht die Leiste noch auf `display:none`, sie erscheint erst,
+weil der Fokus scrollt (gemessen: `letztU = 0`).
+
+**Was jetzt gilt.** `js/main.js`, `freiRuecken()`: bei Tastaturfokus
+(`:focus-visible`) und außerhalb fester Leisten erst die Leiste
+nachziehen lassen (Scroll-Ereignis), dann um die fehlende Strecke plus
+8 px scrollen, ohne Animation. Zweiter Blick nach 350 ms als Sicherung.
+
+**Verworfen.** `scrollIntoView` mit scroll-padding (das steht in dem
+Augenblick auf 0); weiches Scrollen (vom Browser abgebrochen, gemessen);
+`inline-block` am Verweis (keine Wirkung).
+
+Ebenfalls: Merkmallisten auf Carport und Kaltwintergarten: Text und
+Verweis in einem `<span>`, sonst ragte der Verweis bei 320 px 5 px heraus.

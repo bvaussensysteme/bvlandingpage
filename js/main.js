@@ -724,6 +724,57 @@ document.addEventListener('click', function (e) {
   window.addEventListener('scroll', setzen, { passive: true });
   window.addEventListener('load', setzen);
   document.addEventListener('focusin', setzen, { passive: true });
+  /* FREIRUECKEN (26.11.2026). scroll-padding allein reicht nicht: Der
+     Browser scrollt beim Fokuswechsel nur, wenn das Element AUSSERHALB
+     des Fensters liegt. Liegt es in den untersten 70 px, also unter der
+     festen Anfrageleiste, gilt es fuer ihn als sichtbar, und es bleibt
+     verdeckt (WCAG 2.2, 2.4.11). Gemessen auf /produkte/carport.html bei
+     1440 x 900: Verweis bei 878 bis 900 px, Leiste ab 830 px.
+     Deshalb hier nachruecken, aber nur bei Tastaturfokus (:focus-visible),
+     damit ein Mausklick die Seite nicht springen laesst, und nicht fuer
+     Elemente IN einer festen Leiste, die liegen ja richtig.
+     Laeuft nach setzen() (frueher angemeldet), also mit frischen Hoehen. */
+  function freiRuecken(el) {
+    if (!el || el === document.body || !el.getBoundingClientRect) return;
+    try { if (!el.matches(':focus-visible')) return; } catch (x) { /* alter Browser */ }
+    for (var n = el; n && n !== document.body; n = n.parentElement) {
+      var pos = window.getComputedStyle(n).position;
+      if (pos === 'fixed' || pos === 'sticky') return;
+    }
+    /* Die Anfrageleiste erscheint erst, WEIL der Fokus die Seite
+       scrollt; im Augenblick von focusin steht sie noch auf display:none
+       (gemessen). Ein Scroll-Ereignis laesst updateSticky() und setzen()
+       jetzt schon nachziehen, beide hoeren darauf. */
+    window.dispatchEvent(new Event('scroll'));
+    var leiste = document.querySelector('.sticky-cta');
+    var unten = letztU;
+    if (leiste && window.getComputedStyle(leiste).display !== 'none') unten = Math.max(unten, leiste.offsetHeight);
+    var r = el.getBoundingClientRect();
+    var zuTief = r.bottom - (window.innerHeight - unten);
+    var zuHoch = letztO - r.top;
+    /* Selbst scrollen statt scrollIntoView: Dessen Rand ist
+       scroll-padding, und das steht in diesem Augenblick noch auf 0.
+       'instant', weil ein weicher Bildlauf vom Fokuswechsel des Browsers
+       abgebrochen wird (gemessen). 8 px Luft fuer den Fokusrahmen. */
+    if (zuTief > 0 && r.height < window.innerHeight - unten - letztO) {
+      window.scrollBy({ top: zuTief + 8, left: 0, behavior: 'instant' });
+    } else if (zuHoch > 0) {
+      window.scrollBy({ top: -(zuHoch + 8), left: 0, behavior: 'instant' });
+    }
+  }
+  document.addEventListener('focusin', function (ev) {
+    var el = ev.target;
+    freiRuecken(el);
+    /* Zweiter Blick. Gemessen: Im Moment des Fokuswechsels ist die
+       Anfrageleiste oft noch gar nicht da (letztU = 0); sie erscheint erst,
+       weil der Fokus die Seite scrollt, und schiebt sich dann ueber das
+       Element. 350 ms reichen fuer ihre Einblendung. */
+    window.setTimeout(function () {
+      if (document.activeElement !== el) return;
+      setzen();
+      freiRuecken(el);
+    }, 350);
+  });
   /* Nach dem Einblenden noch einmal: Erst dann steht der Hinweis an
      seinem Platz. */
   document.addEventListener('transitionend', function (e) {
