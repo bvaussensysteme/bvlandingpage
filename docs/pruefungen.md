@@ -1074,3 +1074,13 @@ sichtbare `input`/`select`/`textarea` braucht `el.labels`, `aria-label`
 oder `aria-labelledby`. Am 25.11.2026: 178 Felder auf 58 Seiten, alle
 benannt. **Gegenprobe:** `widerruf.html` aus aa947ee muss auffallen
 (belegt). **Grenze:** Felder, die erst nach einer Bedienung entstehen.
+
+## `pruefe-produktwahl.mjs` (26.11.2026)
+
+**Frage:** Kommt man von den 12 Ein-Produkt-Seiten mit Vorauswahl im
+Anfrage-Assistenten an? **Wie:** erster und letzter Anfrageknopf des
+Inhalts (ohne Menü, Leiste, Fuß) je Seite klicken; der Assistent darf
+nicht bei der Produktfrage stehen. **Gegenprobe:** Seiten aus 9f97ebb,
+alle 24 Fälle müssen auffallen (belegt). **Grenze:** Die vier
+Sammelseiten (Terrassenüberdachung, Balkon/Fassade, Eingang, Garten)
+bleiben bewusst ohne Vorauswahl.

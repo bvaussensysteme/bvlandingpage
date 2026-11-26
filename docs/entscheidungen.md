@@ -24441,3 +24441,19 @@ weiter 4 von 4.
 Grundlage aus; die Zeiten stehen sichtbar unter „Telefon / WhatsApp"
 (Mo–Fr 9–17, Sa 10–15, So nach Vereinbarung) und passen zu den Daten.
 Nichts geändert.
+
+## 26.11.2026 · B6-Rest, B7, B8: Antworten des Betreibers
+
+- **Eindeckungsverweis** Carport/Kaltwintergarten → Terrassen-Seite: so lassen.
+- **Fachwörter** sollen kurz erklärt werden; Texte werden vorgelegt.
+- **B7 „Nur verlinken":** Einzugsgebiet verlinkt alle 14 Ortsseiten
+  (neuer Block „Seiten zu einzelnen Orten"), die Terrassen-Seite ihre 7
+  („Terrassenüberdachung in Ihrer Nähe"). Die Ortsseiten führen in den
+  Google-Daten dieselbe Firmen-Kennung `#business` und dieselbe
+  Website-Adresse wie die Startseite; Beschreibung und Einsatzgebiet je
+  Ort bleiben. Keine neuen Ortstexte.
+- **B8 Vorauswahl:** großer Knopf oben und am Seitenende auf den 12
+  Seiten mit genau einem Produkt wählen jetzt vor. Bewusst ohne:
+  Terrassenüberdachung (TDS oder SkyView), Balkon/Fassade, Eingang,
+  Garten, weil dort mehrere Produkte zur Wahl stehen.
+- **B8 Messung:** vorbereiten, Text für die Datenschutzerklärung vorlegen.
