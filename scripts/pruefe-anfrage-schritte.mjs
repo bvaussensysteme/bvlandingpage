@@ -93,6 +93,7 @@ pruef('Keine JavaScript-Fehler', !fehler.length, fehler[0] || '');
 /* Der Server wirft unbekannte Arten weg; ohne diesen Eintrag kaeme nichts an. */
 const { readFileSync } = await import('node:fs');
 pruef('Server nimmt "anfrage-schritt" an', GEGENPROBE || /MESSUNG_ARTEN = new Set\(\[[\s\S]*?'anfrage-schritt'/.test(readFileSync(join(W, 'worker/index.js'), 'utf8')));
+pruef('Server verwirft fremde Schrittnamen', GEGENPROBE || /art === 'anfrage-schritt' && !\/\^\[a-z\]/.test(readFileSync(join(W, 'worker/index.js'), 'utf8')));
 pruef('Datenschutzerklaerung nennt den Schritt im Anfrage-Assistenten', GEGENPROBE || /Schritt im Anfrage-Assistenten/.test(readFileSync(join(W, 'src/datenschutz.njk'), 'utf8')));
 if (GEGENPROBE) {
   const ok = schritte.length === 0 && rot > 0;

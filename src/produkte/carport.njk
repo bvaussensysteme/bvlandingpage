@@ -93,6 +93,10 @@ extraStyles: |
         .vergleich th, .vergleich td { padding: 8px 7px; }
         .vergleich tbody th { width: 26%; }
       }
+      /* Steht in einer Zeile Text UND ein Verweis, gehoeren beide in ein
+         <span>: die Zeile ist eine Flexbox, sonst werden Text und Verweis zwei
+         Spalten nebeneinander (bei 320 px ragte der Verweis 5 px heraus,
+         gemessen am 26.11.2026). */
       .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 
 extraScripts: |
@@ -187,7 +191,7 @@ schema: |
           <p>Unser robustester Carport für den Alltag. Wandanbau oder freistehend, mit Glas- oder Polycarbonatdach. Er hält, was er verspricht. Witterungsbeständig und wartungsfrei, für ein Auto oder mehrere.</p>
           <ul class="produkt-features">
             <li>Robuste Aluminium-Konstruktion</li>
-            <li>Verglasung: 8 mm VSG-Glas (Verbundsicherheitsglas: zwei Scheiben mit Folie dazwischen, bei Bruch halten die Splitter an der Folie) oder 16 mm Polycarbonat, jeweils klar oder opal (milchig, lässt Licht durch, schützt vor Blicken und Blendung). <a href="/produkte/terrassenueberdachung.html#eindeckung">Licht-, Wärme- und Schallwerte im Vergleich</a></li>
+            <li><span>Verglasung: 8 mm VSG-Glas (Verbundsicherheitsglas: zwei Scheiben mit Folie dazwischen, bei Bruch halten die Splitter an der Folie) oder 16 mm Polycarbonat, jeweils klar oder opal (milchig, lässt Licht durch, schützt vor Blicken und Blendung). <a href="/produkte/terrassenueberdachung.html#eindeckung">Licht-, Wärme- und Schallwerte im Vergleich</a></span></li>
             <li>Ausführungen: mit Wandmontage, freistehend oder mit Überstand</li>
             <li>Standardfarben: Anthrazit (RAL 7016), Weißaluminium (RAL 9006), Graualuminium (RAL 9007), Reinweiß (RAL 9010). Wunschfarbe nach RAL gegen Aufpreis</li>
             <li>Einzel- oder Doppelcarport möglich</li>

@@ -722,3 +722,17 @@ Keine Rechtsberatung, verbindlich klärt das der Anwalt.
 Veröffentlichung gibt es `widerruf-danke.html` dort noch nicht; das
 betrifft nur Testabsendungen von der Vorschau, und die finden ohnehin
 nicht statt.
+
+## 26.11.2026 · Messung der Schritte im Anfrage-Assistenten (Hinweis)
+
+Mit Freigabe ergänzt: Abschnitt 19 nennt jetzt „der erreichte Schritt im
+Anfrage-Assistenten oder im 3D-Konfigurator". Gespeichert wird dazu
+Nummer **und Name** des Schritts (z. B. „masse"); der Text sagt nur
+„Schritt". Beim 3D-Konfigurator ist das seit Wochen genauso. Ob der
+Wortlaut reicht, bitte beim Anwalt mitklären. Keine Rechtsberatung.
+
+Ebenfalls zum Mitklären: Der Satz „ausschließlich fest vorgegebene
+Beschriftungen" stimmt für unseren eigenen Code. Wer die öffentliche
+Messadresse direkt anspricht, kann bei der Klickmessung beliebigen Text
+schicken; der Server kürzt ihn nur auf 60 Zeichen. Für die Schritte des
+Assistenten nimmt er seit heute nur echte Schrittnamen an.

@@ -1297,6 +1297,12 @@ async function handleMessung(request, env) {
     if (!e || typeof e !== 'object') continue;
     const art = messungText(e.art, 30);
     if (!art || !MESSUNG_ARTEN.has(art) || art === 'seite') continue;
+    /* Schritte im Anfrage-Assistenten heissen wie die Schluessel in
+       js/anfrage-wizard.js (STEPS): nur Kleinbuchstaben, Ziffern,
+       Bindestrich, Unterstrich. Alles andere kann nicht von dort kommen
+       und wird verworfen (Hinweis des Sicherheitspruefers, 26.11.2026:
+       sonst liesse sich der Trichter von aussen mit Fremdtext fuellen). */
+    if (art === 'anfrage-schritt' && !/^[a-z][a-z0-9_-]{0,29}$/.test(String(e.zusatz || ''))) continue;
     zeilen.push([art, seite, messungZahl(e.wert, 0, 9999),
                  messungText(e.zusatz, 60), null, geraet, null]);
   }

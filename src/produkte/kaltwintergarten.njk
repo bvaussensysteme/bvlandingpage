@@ -68,6 +68,10 @@ extraStyles: |
         border-bottom: 1px solid var(--border); display: flex; gap: 8px;
       }
       .produkt-features li:last-child { border-bottom: none; }
+      /* Steht in einer Zeile Text UND ein Verweis, gehoeren beide in ein
+         <span>: die Zeile ist eine Flexbox, sonst werden Text und Verweis zwei
+         Spalten nebeneinander (bei 320 px ragte der Verweis 5 px heraus,
+         gemessen am 26.11.2026). */
       .produkt-features li::before { content: "✓"; color: var(--gold); font-weight: 700; }
 
 extraScripts: |
@@ -162,7 +166,7 @@ schema: |
           <ul class="produkt-features">
             <li>Aluminium-Konstruktion, maßgefertigt</li>
             <li>Standardfarben inkl.: Anthrazit, Weißalu, Graualuminium, Reinweiß. Wunschfarbe gegen Aufpreis</li>
-            <li>Verglasung: 8 mm VSG-Glas (Verbundsicherheitsglas: zwei Scheiben mit Folie dazwischen, bei Bruch halten die Splitter an der Folie) oder 16 mm Polycarbonat, klar oder opal (milchig, lässt Licht durch, schützt vor Blicken und Blendung). <a href="/produkte/terrassenueberdachung.html#eindeckung">Licht-, Wärme- und Schallwerte im Vergleich</a></li>
+            <li><span>Verglasung: 8 mm VSG-Glas (Verbundsicherheitsglas: zwei Scheiben mit Folie dazwischen, bei Bruch halten die Splitter an der Folie) oder 16 mm Polycarbonat, klar oder opal (milchig, lässt Licht durch, schützt vor Blicken und Blendung). <a href="/produkte/terrassenueberdachung.html#eindeckung">Licht-, Wärme- und Schallwerte im Vergleich</a></span></li>
             <li>Zwei Ausführungen: mit Schiebeelementen zum Öffnen oder mit seitlicher Festverglasung</li>
             <li>Beschattung: Aufdach-, Unterdach- und Senkrechtmarkise sind alle drei möglich</li>
             <li>Erweiterbar mit Markisen & Beleuchtung</li>
