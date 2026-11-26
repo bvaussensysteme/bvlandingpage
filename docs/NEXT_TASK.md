@@ -1,68 +1,78 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach `CLAUDE.md`.
-> **Stand: 26.11.2026, Übergabe für `/clear`.**
+> **Stand: 26.11.2026 (spät).**
 
-## Wo wir stehen (26.11.2026)
+## Wo wir stehen (26.11.2026, spät)
 
 **Nichts ist live.** Alles liegt auf dem Arbeitsbranch und der Vorschau
 (https://claude-bv-aussensysteme-setup-bq7ew4-bvlanding.bv-verwaltung.workers.dev).
 `main` steht seit 12.11.2026 unverändert. Veröffentlicht wird nur mit dem
-Satz aus `CLAUDE.md`.
+Satz aus `CLAUDE.md`. **Push auf den Arbeitsbranch ist ohne Rückfrage
+erlaubt** (Regel in `CLAUDE.md`, 26.11.2026), alles andere nicht.
 
-**Arbeitsliste:** `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`.
-- **Block A: erledigt** (A1 bis A10).
-- **Block B: B1 bis B8 erledigt bzw. entschieden.** Jede Entscheidung des
-  Betreibers steht mit Wortlaut in `docs/entscheidungen.md` (Einträge
-  25. und 26.11.2026). Nicht wieder aufrollen: B2 „Konfigurator"-Wort
-  bleibt, B3 Google-Knopf öffnet bewusst den Schreibdialog, B4 kein
-  Telefon in der Anfrageleiste, B7 nur verlinken (keine Ortstexte).
-- **Als Nächstes: B9** (Heldenbereich, LCP 9,31 s). Die Vorschläge dort
-  berühren Gestaltung, also **erst den Betreiber fragen**. Danach B10 bis
-  B13, dann Block C (nur mit Plan und Zustimmung).
+**Webseite, heute erledigt** (Einträge in `docs/entscheidungen.md`):
+- **B9 Startbild** umgesetzt: Wechsel erst nach Eingabe, Überschrift
+  sofort, ruhige Einblendung, Startbild bei reduzierter Bewegung wieder
+  sichtbar (war unsichtbar). Vorschau gemessen: LCP 1,4 s statt 9,3 s.
+  Prüfung `scripts/pruefe-heldenbereich.mjs` (mit Gegenprobe).
+- **Lieferzeit 4 bis 12 Wochen** (Startseite, FAQ, Schema, `llms.txt`).
+- **SkyView auch mit 16 mm Polycarbonat** (Produktseite, `llms.txt`).
+- **Prüfstand:** volle Suite nach B9: 95 Skripte, 93 grün; rot nur
+  `pruefe-konfigurator-oberflaeche.mjs` (Altbefund) und
+  `pruefe-cache-buster.sh` (Ursache behoben, einzeln grün). Nach der
+  SkyView-Änderung die betroffenen Seitenprüfungen einzeln nachgelaufen,
+  alle grün.
+- **Als Nächstes auf der Webseite:** B10 bis B13 aus
+  `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`, dann Block C.
 
-**Prüfstand.** Letzter vollständiger Lauf vor dem Commit 7b49a80: 93
-Skripte, 90 grün. **Nach 7b49a80 (Fokus-Freirücken in `js/main.js`) und der Sitemap ist
-die volle Suite NICHT gelaufen**, nur die betroffenen Skripte (alle
-grün). Als Erstes `bash scripts/alle-pruefungen.sh` laufen lassen (rund
-40 Minuten; dabei nichts anderes im Browser fahren und keine Dateien
-ändern, sonst misst sie einen Mischstand). Bekannt rot:
-`pruefe-konfigurator-oberflaeche.mjs` (1 von 182, Altbefund),
-`pruefe-schrittwechsel.mjs` (auch mit altem Stand rot). Wackeln im
-Gesamtlauf, einzeln grün: keil-editor, planken-editor, prozess-ringe,
-broschuere. Ein anderes Rot ist ernst zu nehmen und einzeln
-nachzulaufen.
-
-**Seitenübersicht** `/sitemap.html` mit Verweis in jeder Fußzeile (26.11.2026). Neue Seiten dort und in `sitemap.xml` eintragen.
-
-**Neu in dieser Sitzung (Prüfungen, alle mit `--gegenprobe`):**
-formular-csp, ortsseiten-kopf, garantie, baugenehmigung-weiter,
-assistent-tastatur, anfrageleiste, stoffsymbole, sprungmarken,
-feldnamen, produktwahl, anfrage-schritte, sitemap-seite. Siehe `docs/pruefungen.md`.
+**Ratgeber (Leadmagnet), in Arbeit:** Plan `docs/ratgeber-plan.md`,
+Hausregeln und Ablauf des Agententeams `.claude/skills/ratgeber-pdf/SKILL.md`.
+- Ratgeber 1 (Terrassendach & Kaltwintergarten) ist als Runde 2 gesetzt:
+  34 Seiten, anklickbares Inhaltsverzeichnis, Lesezeichen, Knöpfe mit
+  `utm_source=ratgeber`, Teil „Preis und Wert" (Kap. 13 bis 16). Keine
+  Preise. Gestaltungsprüfung und Lesertest liefen zuletzt.
+- **Arbeitsdateien liegen NUR im Notizordner der Sitzung**
+  (`…/scratchpad/ratgeber/`: Text, Faktenbasis, Konzept, Satzprogramm
+  `baue-ratgeber.mjs`, `grafiken.mjs`, `lesezeichen.py`, Vorlage,
+  Herstellerbilder in hoher Auflösung). Sie gehören ins private Repository
+  `bv-marketing` (Ordner `ratgeber/`); dafür braucht es das Ja des
+  Betreibers (Push in ein anderes Repository). **Geht die Sitzung verloren
+  ohne diesen Schritt, sind sie weg.**
+- Danach: Ratgeber 2 (Carport & Vordach), 3 (Pergola & Lamellendach),
+  dann Formular, Versand und Kasten auf den Ortsseiten (siehe Plan,
+  Freigabe-Hindernisse Anwalt).
 
 **Beim Betreiber offen:**
-- Gedächtnis-Repository `bv-gedaechtnis` (privat) selbst auf GitHub
-  anlegen; Claude darf es nicht anlegen (403). Inhalt wurde als ZIP
-  geliefert; neu erzeugen ist billig (Start, Regeln, Projekte,
-  Entscheidungen, Übergabe, Vorlagen, Anleitung für die KI).
-- Für den Anwalt (`docs/rechtstexte-befunde.md`): E-Mail-Bestätigung
-  beim Online-Widerruf (§ 356 Abs. 1 BGB, die neue Seite sagt sie zu);
-  Datenschutz Abschnitt 19 (Schrittname wird mitgespeichert; Klickmessung
-  nimmt technisch Fremdtext an); Belege für die B5-Aussagen, die bleiben.
+- Ja zum Ablegen der Ratgeber-Quellen in `bv-marketing`.
+- Eigene Fotos für die Platzhalter im Ratgeber (Inhaber, Aufmaß, Winter,
+  Montage, Beratung).
+- Für den Anwalt (`docs/rechtstexte-befunde.md`): AGB § 3.2 (Dritte)
+  gegen „wir montieren selbst"; AGB § 4.4 (Genehmigung holt der Kunde)
+  gegen „Bauantrag übernehmen wir gern"; Widerruf-E-Mail; Datenschutz
+  Abschnitt 19; Leadmagnet-Einwilligung (Kopplung, Anruf).
 - Unbelegt in `llms.txt`: „wetterfest bis Windstärke 8", „direkter
   Händlerpartner von VD".
-- „Antwort meist in 24 Std." gilt das auch am Wochenende?
-- Google-Unternehmensprofil: Adresse ausblenden (Büro ohne Ausstellung).
+- Google-Unternehmensprofil: Adresse ausblenden.
 
-**Später prüfen:** Hamburger 38 × 28 px und Schließen-Kreuz des Menüs
-27 × 39 px (über 24, unter 44); `vorgabeProdukt` in
-`js/anfrage-wizard.js` wird gelesen und nie benutzt.
+**Später prüfen (Nebenbefunde, nichts davon angefasst):**
+- Baurecht-Seiten der Webseite: § 62 Abs. 2 Nr. 2 gilt nur für Anbauten
+  (freistehend fehlt); „an der Hauswand entfällt der Abstand" und
+  „Zustimmung des Nachbarn" sind verkürzt; Hessen: `baugenehmigung` sagt
+  30 m², der Ratgeber zur Baugenehmigung „ohne Flächengrenze".
+- `src/zertifikate.njk` Z. 72 „nach DIN EN 1090 statisch geprüft"
+  (1090 ist keine Statiknorm), Z. 33 „regelmäßig weitergebildete".
+- `images/markise.jpg` ist ein Platzhalterbild, `prod_*.jpg` sind
+  Bildschirmausschnitte; benutzt nur in `_template.html`.
+- Konfigurator: Direktlink mit vorgewähltem Produkt wäre für Ratgeber-Knöpfe
+  hilfreich (heute öffnet er mit der Grundeinstellung).
+- Hamburger 38 × 28 px, Menü-Kreuz 27 × 39 px; `vorgabeProdukt` in
+  `js/anfrage-wizard.js` wird nie benutzt.
 
 **Startauftrag für die nächste Sitzung:** „Lies `CLAUDE.md`, dann diesen
-Abschnitt. Lass zuerst die volle Suite laufen und prüf jedes unbekannte
-Rot einzeln. Dann frag mich zu B9, bevor du etwas anfasst. Nichts
-veröffentlichen, nichts nach main. Nach jedem Paket den geprüften
-Vorschaulink."
+Abschnitt. Wenn die Ratgeber-Quellen noch nicht in `bv-marketing` liegen,
+frag mich danach. Dann weiter mit dem, was ich sage. Nach jedem Paket den
+geprüften Vorschaulink."
 
 **Ältere Hinweise** (Fallen, Werkzeuge, ausgelagerte Listen) folgen
 unten. Ausgelagert, nichts gelöscht: `docs/offene-fragen.md`,
