@@ -757,3 +757,22 @@ für **Anbauten**; ein freistehendes Terrassendach fällt nicht darunter.
 so verkürzt, dass Leser falsche Schlüsse ziehen können (Abweichung oder
 Baulast nach § 8 LBauO). Im Ratgeber korrigiert, auf der Webseite noch
 nicht; Vorschlag steht in `docs/NEXT_TASK.md`.
+
+## 27.11.2026 · AGB gegen Aussagen im Ratgeber 1 (aus der Faktenprüfung)
+
+Nur gemeldet, nichts geändert. Bitte mit dem Anwalt abgleichen, bevor der
+Ratgeber an Kunden geht:
+- **AGB § 4.4** („Der Kunde ist verpflichtet, auf eigene Kosten erforderliche
+  Genehmigungen vor Bauausführung einzuholen") gegen Ratgeber und Betreiber:
+  „Den Bauantrag übernehmen wir gern, wo es möglich ist."
+- **AGB § 5.5** (angemessene Preisänderung, wenn die Leistung aus nicht von
+  BV zu vertretenden Gründen erst nach sechs Monaten erbracht wird) und
+  § 5.4 (Zusatzleistungen) gegen „Der Preis ist ein Festpreis".
+- **AGB § 6.1** („ca. 12 Wochen ab Vertragsabschluss") gegen „in der Regel
+  4 bis 12 Wochen" (kein Widerspruch, aber zwei Lesarten).
+- **AGB § 8.5** (Pflege als Voraussetzung der Gewährleistung bei
+  pulverbeschichteten Profilen) wird im Ratgeber an Verbraucher
+  weitergegeben; ob die Klausel wirksam ist, bewertet der Anwalt.
+- Ratgeber Seite „Bausatz oder Fachbetrieb": vereinfachte Darstellung von
+  § 434 Abs. 4 BGB und der Gewährleistungsfristen (Kauf: ab Lieferung,
+  Werkvertrag: ab Abnahme). Gegenlesen lassen.
