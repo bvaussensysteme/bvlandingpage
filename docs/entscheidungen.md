@@ -24710,3 +24710,27 @@ Hersteller müssen die Lamellen im Winter offen bleiben."
 **Was gilt:** Die Anzahlung hängt vom Auftragswert und vom Auftrag ab. Betreiber: „bei der Anzahlung, die Prozentzahl ist immer anders … Deswegen ist er keine pauschale Prozentzahl." Auf der Webseite und in den Ratgebern wird deshalb **nie** eine Anzahlungsquote genannt. Ablauf laut Angebot: Anzahlung bei Auftragserteilung mit eigener Anzahlungsrechnung, Materialbestellung erst nach Zahlungseingang, Rest innerhalb von 14 Tagen nach Lieferung und Montage. Nicht im Angebot: Erdaushubmitnahme, Elektro- und Elektroanschlussarbeiten (zertifizierter Elektriker), Demontagearbeiten, Stein-, Pflaster- oder Holzausschnitte.
 
 **Umgesetzt:** Ratgeber 1 bis 3, Tabelle „Was dazugehört": neue Zeile „Abbau eines alten Dachs: nicht bei uns". Die übrigen Ausschlüsse standen schon drin. Keine Prozentzahl in den Heften (geprüft per Textsuche).
+
+## 27.11.2026 · Ratgeber-Kasten auf den Ortsseiten
+
+**Was gilt:** Alle 14 Ortsseiten zeigen nach den häufigen Fragen und vor den
+Ausführungsbeispielen einen Kasten mit dem Titelbild des passenden Hefts
+(Terrassendach / Carport / Pergola), Text wie auf `/ratgeber/` und Knopf
+„Ratgeber anfordern" auf `/ratgeber/#kostenlose-ratgeber`. Text vom
+Betreiber freigegeben („ja mach").
+
+**Warum dort:** Wer alle Fragen gelesen und nicht angefragt hat, bekommt
+einen zweiten, unverbindlichen Weg. Hypothese, keine Messung: höchstens
+8 Aufrufe je Ortsseite (D1, Stand 27.11.2026). Eingefügt **vor** der
+Marke `<!-- ANFANG Ausfuehrungsbeispiele`, damit
+`scripts/baue-staedte-galerie.mjs` den Kasten beim Neuschreiben nicht
+mitnimmt.
+
+**Verworfen:** Kasten über den Anfrage-Abschnitten (würde die Anfrage
+verdrängen). Kleines Formular direkt im Kasten (zweite Formularstelle mit
+Einwilligungen, doppelte Pflege).
+
+**Prüfer:** Barrierefreiheit und Handy ohne Befund (Kontrast 5,2 bis
+6,6:1, Knopf 55 px hoch, kein Querscrollen von 320 bis 1280 px). SEO
+ohne Handlungsbedarf. Gestaltung und Nutzerführung mit Vorschlägen, die
+in `docs/NEXT_TASK.md` stehen und auf den Betreiber warten.

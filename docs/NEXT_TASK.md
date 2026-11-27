@@ -73,7 +73,12 @@ Darstellung 144/144, Mitwachsend 91/91, Wirkung 114/114.
 ### Als Nächstes (Vorschlag)
 1. Betreiberantworten zu den Heften einarbeiten, Hefte neu setzen, nach
    `bv-marketing` nachziehen.
-2. Ratgeber-Kästen auf den Ortsseiten (`.ratgeber-kasten` ist im CSS).
+2. ~~Ratgeber-Kästen auf den Ortsseiten~~ **erledigt 27.11.2026** (alle 14).
+   Offene Prüfervorschläge dazu, jeder nur mit Ja des Betreibers: Hinweis
+   „per E-Mail" im Kasten (Besucher erwartet sonst Direkt-Download), die drei
+   Heft-Titel nennen, Knopf als Umrandung statt Gold (Anfrage bleibt
+   Hauptweg), Abschnitt auf `--light-bg` (sonst drei weiße Abschnitte
+   hintereinander). Alles Hypothesen, max. 8 Aufrufe je Ortsseite.
 3. Danach B10 bis B13 aus `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`.
 
 **FÜR DEN BETREIBER, WENN ER AM RECHNER IST (Ratgeber-Versand über das CRM, Stand 27.11.2026):**

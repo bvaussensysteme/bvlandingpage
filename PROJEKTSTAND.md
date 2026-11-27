@@ -494,6 +494,9 @@ Zweite komplette Multi-Agenten-Prüfung (SEO, Performance, UX/UI, CRO, Content, 
   Datenschutz, freiwilliges Werbe-Häkchen), Worker `worker/ratgeber.js` →
   CRM (`bv-crm`, Branch `claude/ratgeber-leads`, wartet auf CRM-Prüfung).
   Datenschutzerklärung Abschnitt 20 als Entwurf für den Anwalt.
+- **Ratgeber-Kasten auf den 14 Ortsseiten** (nach den FAQ, vor den
+  Ausführungsbeispielen): Titelbild des passenden Hefts, Knopf auf
+  `/ratgeber/#kostenlose-ratgeber`. Stil `.ratgeber-kasten` aus `style.css`.
 - **Google-Bewertungen** auf der Startseite über den eigenen Server
   (`worker/bewertungen.js`), aktiv sobald Schlüssel gesetzt ist.
 - **Neue Regeln:** Quellen-Rangfolge VD zuerst, „Was bei VD steht, gilt";
