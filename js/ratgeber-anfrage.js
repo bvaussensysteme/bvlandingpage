@@ -8,7 +8,8 @@
  *      es die drei Downloads. So bekommt nur, wer eine echte Adresse angibt,
  *      die Ratgeber ("dann kann ja derjenige einfach irgendwelche Fake-Daten
  *      eintragen", Betreiber).
- *   3. Das Haekchen fuer Hinweise per E-Mail ist freiwillig. Mitgeschickt
+ *   3. Pflicht ist nur das Haekchen zur Datenschutzerklaerung. Das Haekchen
+ *      fuer die eine Hinweis-Mail ist freiwillig (kein Koppeln an Werbung). Mitgeschickt
  *      werden Fassung und Wortlaut, wie sie auf der Seite stehen; das CRM
  *      speichert eine Einwilligung nur bei bekannter Fassung.
  *
@@ -38,11 +39,13 @@
     var name = form.elements.name;
     var email = form.elements.email;
     var hinweise = form.elements.hinweise;
+    var datenschutz = form.elements.datenschutz;
     var hinweisText = document.getElementById('raHinweisText');
     [name, email].forEach(function (f) { f.removeAttribute('aria-invalid'); });
 
     if (!name.value.trim()) return feldFehler(name, 'Bitte geben Sie Ihren Namen an.');
     if (!EMAIL.test(email.value.trim())) return feldFehler(email, 'Bitte prüfen Sie Ihre E-Mail-Adresse.');
+    if (!datenschutz.checked) { datenschutz.focus(); return zeige('Bitte stimmen Sie der Datenschutzerklärung zu.', true); }
 
     knopf.disabled = true;
     var alt = knopf.textContent;

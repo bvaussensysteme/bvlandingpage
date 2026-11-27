@@ -7,7 +7,7 @@ canonical: "https://bv-aussensysteme.de/ratgeber/"
 robots: "index, follow"
 ratgeberNav: true
 extraScripts: |
-  <script src="/js/ratgeber-anfrage.js?v=20261127b" defer></script>
+  <script src="/js/ratgeber-anfrage.js?v=20261127c" defer></script>
 ---
 <main id="main-content" role="main">
   <section style="background:var(--dark);padding:60px 0 40px;text-align:center;">
@@ -21,11 +21,16 @@ extraScripts: |
   {# Ratgeber als PDF (27.11.2026). Ablauf: Anmeldung hier, der Worker
      (worker/ratgeber.js) reicht sie an unser CRM weiter, das eine Mail mit
      persoenlichem Link schickt; dort die drei Downloads.
-     Das Haekchen fuer Hinweise per E-Mail ist FREIWILLIG und nicht
-     vorangekreuzt: Den Ratgeber gibt es auch ohne (Kopplungsverbot,
-     Art. 7 Abs. 4 DSGVO). Der Wortlaut in #raHinweisText muss Wort fuer Wort
-     der Fassung im CRM entsprechen (data-fassung), sonst speichert das CRM
-     keine Einwilligung. ENTWURF, vor dem Echtbetrieb anwaltlich pruefen. #}
+     Zwei Haekchen (Betreiber 27.11.2026, nach Hinweis auf § 7 UWG und
+     Art. 7 Abs. 4 DSGVO bewusst so gewaehlt):
+       1. Pflicht: Datenschutzerklaerung, Wortlaut wie im Anfrageformular.
+       2. Kurzes Werbe-Haekchen fuer die eine Nachfass-Mail. NICHT Pflicht,
+          sonst waere der Ratgeber an Werbung gekoppelt. Der Wortlaut in
+          #raHinweisText muss Wort fuer Wort der Fassung im CRM entsprechen
+          (data-fassung, src/lib/ratgeber.ts), sonst speichert das CRM keine
+          Einwilligung.
+     Die Erklaerungen stehen in der Datenschutzerklaerung (#ratgeber-pdf).
+     ENTWURF, vor dem Echtbetrieb anwaltlich pruefen. #}
   <section class="section" id="kostenlose-ratgeber" aria-labelledby="raTitel" style="background:var(--light-bg);">
     <div class="container" style="max-width:960px;">
       <p class="tag">Kostenlos als PDF</p>
@@ -56,15 +61,19 @@ extraScripts: |
             <input type="text" id="raWebsite" name="website" tabindex="-1" autocomplete="off" />
           </div>
           <div class="form-group form-group--checkbox">
-            <label class="checkbox-label" for="raHinweise">
-              <input type="checkbox" id="raHinweise" name="hinweise" data-fassung="2026-11-27" />
-              <span id="raHinweisText">Ja, BV AussenSysteme darf mir einmal per E-Mail Hinweise zu den Ratgebern schicken, die ich herunterlade, mit dem Angebot einer Beratung. Das kann ich jederzeit widerrufen, auch über den Abmeldelink in der E-Mail.</span>
+            <label class="checkbox-label" for="raDatenschutz">
+              <input type="checkbox" id="raDatenschutz" name="datenschutz" required />
+              <span>Ich habe die <a href="/datenschutz.html#ratgeber-pdf">Datenschutzerklärung</a> gelesen und bin mit der Verarbeitung meiner Daten einverstanden. *</span>
             </label>
-            <p class="ra-hinweis">Freiwillig. Die Ratgeber bekommen Sie auch ohne dieses Häkchen.</p>
+          </div>
+          <div class="form-group form-group--checkbox">
+            <label class="checkbox-label" for="raHinweise">
+              <input type="checkbox" id="raHinweise" name="hinweise" data-fassung="2026-11-27b" />
+              <span id="raHinweisText">Ja, Sie dürfen mir zu den Ratgebern einmal per E-Mail eine Beratung anbieten. Widerruf jederzeit möglich.</span>
+            </label>
           </div>
           <button type="submit" class="btn btn-gold" id="raSenden">Ratgeber kostenlos anfordern</button>
           <p class="ra-status" id="raStatus" role="status" aria-live="polite"></p>
-          <p class="ra-hinweis">Wir schicken Ihnen einen Link zu den Ratgebern per E-Mail. Kein Newsletter. Mehr dazu in der <a href="/datenschutz.html">Datenschutzerklärung</a>.</p>
         </div>
       </form>
     </div>

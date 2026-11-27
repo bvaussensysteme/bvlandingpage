@@ -776,3 +776,15 @@ Ratgeber an Kunden geht:
 - Ratgeber Seite „Bausatz oder Fachbetrieb": vereinfachte Darstellung von
   § 434 Abs. 4 BGB und der Gewährleistungsfristen (Kauf: ab Lieferung,
   Werkvertrag: ab Abnahme). Gegenlesen lassen.
+
+## 27.11.2026 · Datenschutzerklärung Abschnitt 20 „Ratgeber als PDF anfordern" (Entwurf)
+
+**Auf ausdrücklichen Wunsch des Betreibers ergänzt** („verschieb das in die Datenschutzerklärung"), zusammen mit dem neuen Formular: Pflicht-Häkchen zur Datenschutzerklärung wie im Anfrageformular, dazu ein freiwilliges Werbe-Häkchen für eine Hinweis-Mail.
+
+Bitte beim Anwalt prüfen lassen:
+- Wortlaut Abschnitt 20 (Zweck, Download-Protokoll, Rechtsgrundlagen Art. 6 Abs. 1 lit. b, f und a DSGVO, § 7 Abs. 2 Nr. 2 UWG, Widerruf).
+- **Pflicht-Häkchen „… bin mit der Verarbeitung meiner Daten einverstanden"**: Für die Bereitstellung des Ratgebers ist keine Einwilligung nötig (Art. 6 Abs. 1 lit. b). Ob die Formulierung „einverstanden" als Einwilligung missverstanden werden kann, sollte der Anwalt beurteilen. Der Betreiber wollte ausdrücklich denselben Wortlaut wie im Anfrageformular.
+- **Werbe-Häkchen bewusst nicht Pflicht**: Wäre es Pflicht, wäre der Ratgeber an Werbung gekoppelt (Art. 7 Abs. 4 DSGVO). Hinweis an den Betreiber am 27.11.2026, er hat sich für „Pflicht + kurzes Werbe-Häkchen" entschieden.
+- **Resend**: In Abschnitt 20 genannt, **nicht** in Abschnitt 15 („AVV bestehen aktuell mit …"), weil nicht bekannt ist, ob ein AVV/DPA mit Resend abgeschlossen ist. Betreiber prüfen und, wenn ja, in Abschnitt 15 aufnehmen. Ebenso: Resend ist ein US-Anbieter; Grundlage der Übermittlung (z. B. Data Privacy Framework oder Standardvertragsklauseln) ist nicht geprüft.
+- **Speicherdauer** für Ratgeber-Anfragen ohne Auftrag ist nicht festgelegt und steht deshalb nicht im Text. Vor dem Echtbetrieb festlegen und ergänzen (Art. 13 Abs. 2 lit. a DSGVO).
+- Web3Forms und Formspree stehen weiter in Abschnitt 4 und 15, weil das Kontaktformular sie bis zur Umstellung noch nutzt.
