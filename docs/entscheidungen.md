@@ -24639,3 +24639,30 @@ anderen nur über ein Formular oder für Programme gesperrt; ein Formular
 wurde nicht abgeschickt. Nächster Schritt: alle 39 Seiten in diese
 Gestaltung übertragen. Quellen der Varianten liegen wie der Ratgeber nur im
 Notizordner der Sitzung (`ratgeber/varianten/`).
+
+**27.11.2026 · Kaltwintergarten auch auf dem SkyView.** Ansage des Betreibers:
+„Man kann natürlich auch das Skyview als Kaltwintergarten machen. Also da
+gehen genauso Schiebeelemente und alles ... es geht nicht nur beim TDS."
+Was falsch war: Webseite (`produkte/kaltwintergarten.html`, `llms.txt`) und
+Ratgeber 1 führten nur den „Kaltwintergarten TDS". Was jetzt gilt: Dach
+wählbar TDS oder SkyView; Farben und Aufdachmarkise richten sich nach dem
+Dach (SkyView ohne Reinweiß, ohne Aufdachmarkise). Bilder zeigen weiter den
+TDS, ein SkyView-Bild gibt es nicht. Die Seitenbeschreibung wurde nach der
+Gesamtprüfung auf 140 Zeichen gekürzt (`pruefe-metatexte` meldete 169).
+Gesamtprüfung: 95 Skripte, 92 grün; rot nur die zwei bekannten
+(`konfigurator-oberflaeche`, `schrittwechsel`, auch auf dem alten Stand rot)
+und `metatexte` (behoben).
+
+**27.11.2026 · Mailversand: Brevo soll Web3Forms und Formspree ablösen
+(Absicht, noch nicht umgesetzt).** Anlass: Ratgeber-Formular. Ein
+Sofort-Download prüft die E-Mail-Adresse nicht (Einwand des Betreibers:
+„dann kann ja derjenige einfach irgendwelche Fake-Daten eintragen").
+Web3Forms und Formspree schicken Kunden-Mails (Autoresponder) nur im
+Bezahltarif. Vorschlag: Brevo (EU, Gratis-Tarif) über den Worker, mit
+Bestätigungslink (Double-Opt-In), Mail an BV und Nachfass. Der Betreiber
+fragte, ob Brevo beide ersetzen kann (ja) und warum das nicht von Anfang an
+so war (nicht dokumentiert; vermutlich, weil die Seite anfangs ohne eigenen
+Server lief). Offen beim Betreiber, wenn er am Rechner ist: Brevo-Konto,
+Schlüssel als Worker-Secret, Ja zu den DNS-Einträgen. Nicht angefasst:
+Widerrufsformular (Rechtstext), Datenschutzerklärung (für den Anwalt
+vorbereiten).
