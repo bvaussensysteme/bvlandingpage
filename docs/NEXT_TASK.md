@@ -86,8 +86,10 @@ Brevo ist verworfen: Das CRM verschickt schon über Resend (Absender
 info@bv-aussensysteme.de) und hat R2. Ablauf und Schnittstellen im
 CRM-Repository `docs/ratgeber.md`, Abstimmung im CRM-Issue #303.
 1. Bei Cloudflare im Worker `bvlanding` das Secret `ANFRAGEN_TOKEN` anlegen,
-   derselbe Wert wie `ANFRAGEN_TOKEN` im CRM (Einstellungen, Variablen und
-   Secrets). NICHT in den Chat kopieren. Erst danach, wenn der CRM-Teil live
+   derselbe Wert wie `ANFRAGEN_TOKEN` in der `.env` des CRM auf dem
+   IONOS-Server (crm.bv-aussensysteme.de, 217.154.241.229; das CRM hat dafür
+   KEINE Einstellungsseite, Fehlangabe korrigiert 27.11.2026). Wird beim
+   Ausrollen des CRM-Ratgeberteils von der CRM-Sitzung angelegt. NICHT in den Chat kopieren. Erst danach, wenn der CRM-Teil live
    ist, nimmt `/api/ratgeber` Anmeldungen an; vorher antwortet er mit 503
    und die Seite meldet ehrlich einen Fehler.
 2. Die drei PDFs in den CRM-Speicher (R2) legen: `ratgeber/terrassendach.pdf`,
