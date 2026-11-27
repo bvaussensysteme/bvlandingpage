@@ -903,6 +903,11 @@
    keine Absicherung. Die Pruefung sucht ihre Seiten jetzt selbst. */
 .start-premium .gebiet-hero :focus-visible,
 .start-premium .gebiet-cta :focus-visible,
+/* NACHGETRAGEN 27.11.2026. Das neue Ratgeber-Formular (/ratgeber/,
+   .kontakt-form auf var(--black)) stand nicht in dieser Liste: Ring
+   rgb(29,32,35) auf rgb(11,11,12), also 1,20:1 beim Absende-Knopf und
+   beim Datenschutz-Verweis. Gefunden von scripts/pruefe-wirkung.mjs. */
+.start-premium .kontakt-form :focus-visible,
 .start-premium .wz-search-box :focus-visible {
   outline-color: var(--champagner);
 }

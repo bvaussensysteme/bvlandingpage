@@ -68,7 +68,10 @@ const browser = await chromium.launch();
 
 /* Eine Seite mit mehreren Modellen und eine mit genau einem. */
 const FAELLE = [
-  { datei: 'pergola.html', mehrere: true },
+  /* Bis 27.11.2026 stand hier pergola.html. Seit Lamaxa auf Wunsch des
+     Betreibers entfernt ist, hat die Seite nur noch ein Modellbild, also
+     keine Pfeile und keinen Zaehler. Carport hat drei Modelle. */
+  { datei: 'carport.html', mehrere: true },
   { datei: 'gartenhaus.html', mehrere: false },
 ];
 

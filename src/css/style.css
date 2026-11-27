@@ -4912,7 +4912,9 @@ body.bv-konfig-open #bvKonfigBubble {
 .ra-danke { color: #fff; }
 .ra-danke h3 { color: #fff; margin-bottom: 10px; }
 .ra-felder .checkbox-label { color: rgba(255,255,255,.8); }
-.ra-felder .checkbox-label input[type="checkbox"] { width: 22px; height: 22px; }
+/* 24 px: Mindestflaeche zum Antippen (WCAG 2.2, 2.5.8). Vorher 22 x 22,
+   gemessen 27.11.2026 mit pruefe-mitwachsend. */
+.ra-felder .checkbox-label input[type="checkbox"] { width: 24px; height: 24px; flex: 0 0 24px; }
 /* Bot-Falle ganz ausgeblendet: Mit "left:-10000px" blieb sie fuer Messung und
    Vorleseprogramme ein sichtbarer Text (Kontrast 1,2:1, Feld 13,3 px, gemessen
    27.11.2026 mit pruefe-darstellung). Bots fuellen das Feld trotzdem aus, sie
