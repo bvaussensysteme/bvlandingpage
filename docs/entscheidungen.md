@@ -24734,3 +24734,23 @@ Einwilligungen, doppelte Pflege).
 6,6:1, Knopf 55 px hoch, kein Querscrollen von 320 bis 1280 px). SEO
 ohne Handlungsbedarf. Gestaltung und Nutzerführung mit Vorschlägen, die
 in `docs/NEXT_TASK.md` stehen und auf den Betreiber warten.
+
+## 27.11.2026 · Mailversand bleibt bei Resend, Brevo endgültig verworfen
+
+**Entscheidung des Betreibers**, wörtlich: „ja dann mach mit resend wenn wir
+das schon nutzen".
+
+**Was schiefging:** Morgens wurde Brevo empfohlen, ohne zu beachten, dass das
+CRM schon über Resend verschickt. Nachmittags wurde auf Resend umgeschwenkt,
+ohne den Betreiber ausdrücklich zu fragen. Abends hielt er Brevo noch für den
+Plan. Künftig: Wechsel einer Empfehlung immer ausdrücklich zur Entscheidung
+vorlegen.
+
+**Warum Resend:** schon eingerichtet (Absender info@bv-aussensysteme.de),
+Ratgeber-Versand im CRM fertig gebaut, ein Anbieter statt zwei (ein AVV, ein
+Eintrag in der Datenschutzerklärung). Gratis-Tarif laut resend.com/pricing
+(27.11.2026): 100 Mails je Tag, 3.000 je Monat, geteilt mit dem CRM. Ob das
+CRM-Konto im Gratis- oder Bezahltarif läuft, ist nicht geprüft.
+
+**Verworfen:** Brevo. Nur sinnvoll, falls später Newsletter mit eigener
+Gestaltungsoberfläche gewünscht sind.
