@@ -49,6 +49,29 @@ Hausregeln und Ablauf des Agententeams `.claude/skills/ratgeber-pdf/SKILL.md`.
   dann Formular, Versand und Kasten auf den Ortsseiten (siehe Plan,
   Freigabe-Hindernisse Anwalt).
 
+**FÜR DEN BETREIBER, WENN ER AM RECHNER IST (Brevo, Stand 27.11.2026):**
+Ansage: „Du machst alles, was du machen kannst und merkst dir das für
+später, wenn ich zu Hause bin, was ich noch machen muss."
+1. Brevo-Konto anlegen (kostenloser Tarif reicht), Absender
+   info@bv-aussensysteme.de hinterlegen.
+2. In Brevo unter „Rechtliches" den Auftragsverarbeitungsvertrag ansehen
+   (laut Brevo Teil der Nutzungsbedingungen) und den Serverstandort prüfen.
+3. In Brevo einen API-Schlüssel erzeugen und bei Cloudflare im Worker
+   `bvlanding` als Secret `BREVO_API_KEY` eintragen (Einstellungen,
+   Variablen und Secrets). NICHT in den Chat kopieren.
+4. Cloudflare R2 einschalten (kostenlos bis 10 GB, verlangt aber ein
+   Zahlungsmittel im Konto), Bucket `bv-ratgeber` anlegen, die drei PDFs
+   hochladen: `ratgeber-terrassendach.pdf`, `ratgeber-carport.pdf`,
+   `ratgeber-pergola.pdf`. Die PDFs kommen NICHT ins öffentliche Repository.
+5. Dem Assistenten Ja sagen zu den DNS-Einträgen, die Brevo für die
+   Absenderdomain verlangt (Cloudflare DNS).
+6. Danach: Assistent stellt um (Web3Forms und Formspree fliegen raus,
+   Datenschutzerklärung auf Brevo umgestellt, Widerrufsformular über den
+   eigenen Server), prüft und meldet. Veröffentlicht wird weiter nur mit
+   dem Freigabesatz.
+Vor dem Livegang zum Anwalt: Einwilligungstext im Ratgeber-Formular,
+geänderte Datenschutzerklärung, Nachfass-Mail mit Abmeldelink.
+
 **Beim Betreiber offen:**
 - Ja zum Ablegen der Ratgeber-Quellen in `bv-marketing`.
 - Eigene Fotos für die Platzhalter im Ratgeber (Inhaber, Aufmaß, Winter,

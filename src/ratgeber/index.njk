@@ -6,6 +6,8 @@ description: "Ratgeber und Tipps zu Terrassenüberdachung, Carport, Pergola und 
 canonical: "https://bv-aussensysteme.de/ratgeber/"
 robots: "index, follow"
 ratgeberNav: true
+extraScripts: |
+  <script src="/js/ratgeber-anfrage.js?v=20261127a" defer></script>
 ---
 <main id="main-content" role="main">
   <section style="background:var(--dark);padding:60px 0 40px;text-align:center;">
@@ -13,6 +15,53 @@ ratgeberNav: true
       <p style="color:var(--gold);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px;">Wissen & Tipps</p>
       <h1 style="color:#fff;margin-bottom:14px;">Ratgeber Aluminium-Außensysteme</h1>
       <p style="color:rgba(255,255,255,.75);max-width:580px;margin:0 auto;">Alles was Sie wissen müssen: Planung, Kosten, Baugenehmigung und Pflege von Terrassenüberdachungen, Carports und Pergolen.</p>
+    </div>
+  </section>
+
+  {# Ratgeber als PDF (27.11.2026). Ablauf: Anmeldung hier, Mail mit
+     persoenlichem Link (Brevo), Seite /ratgeber/meine-ratgeber.html mit den
+     drei Downloads; jeder Download wird zur Anfrage gespeichert (Server:
+     worker/ratgeber.js). Einwilligungstext ist ein Entwurf fuer den Anwalt. #}
+  <section class="section" id="kostenlose-ratgeber" aria-labelledby="raTitel" style="background:var(--light-bg);">
+    <div class="container" style="max-width:960px;">
+      <p class="tag">Kostenlos als PDF</p>
+      <h2 id="raTitel">Unsere Ratgeber zum Herunterladen</h2>
+      <p class="ra-intro">Sie bekommen alle drei Ratgeber. Jeder erklärt Schritt für Schritt, worauf es ankommt: Bauarten, Planung, Baugenehmigung in Rheinland-Pfalz und woran Sie ein vollständiges Angebot erkennen. Geschrieben für Hausbesitzer ohne Fachwissen.</p>
+      <div class="ra-raster ra-vorschau" aria-hidden="true">
+        <picture><source srcset="/images/ratgeber/cover-terrassendach.webp" type="image/webp" /><img src="/images/ratgeber/cover-terrassendach.jpg" alt="" width="480" height="679" loading="lazy" /></picture>
+        <picture><source srcset="/images/ratgeber/cover-carport.webp" type="image/webp" /><img src="/images/ratgeber/cover-carport.jpg" alt="" width="480" height="679" loading="lazy" /></picture>
+        <picture><source srcset="/images/ratgeber/cover-pergola.webp" type="image/webp" /><img src="/images/ratgeber/cover-pergola.jpg" alt="" width="480" height="679" loading="lazy" /></picture>
+      </div>
+      <ul class="ra-titel-liste">
+        <li>Terrassendach &amp; Kaltwintergarten</li>
+        <li>Carport &amp; Vordach</li>
+        <li>Pergola &amp; Lamellendach</li>
+      </ul>
+      <form class="ra-form" id="raForm" novalidate>
+        <div class="kontakt-form ra-felder">
+          <div class="form-group">
+            <label for="raName">Ihr Name</label>
+            <input type="text" id="raName" name="name" autocomplete="name" required maxlength="120" />
+          </div>
+          <div class="form-group">
+            <label for="raEmail">Ihre E-Mail-Adresse</label>
+            <input type="email" id="raEmail" name="email" autocomplete="email" inputmode="email" required maxlength="200" />
+          </div>
+          <div class="ra-falle" aria-hidden="true">
+            <label for="raWebsite">Bitte leer lassen</label>
+            <input type="text" id="raWebsite" name="website" tabindex="-1" autocomplete="off" />
+          </div>
+          <div class="form-group form-group--checkbox">
+            <label class="checkbox-label" for="raEinwilligung">
+              <input type="checkbox" id="raEinwilligung" name="einwilligung" required />
+              <span>Ich möchte die Ratgeber per E-Mail bekommen. BV AussenSysteme darf mich dazu einmal per E-Mail ansprechen. Das kann ich jederzeit widerrufen. Mehr dazu in der <a href="/datenschutz.html">Datenschutzerklärung</a>.</span>
+            </label>
+          </div>
+          <button type="submit" class="btn btn-gold" id="raSenden">Ratgeber kostenlos anfordern</button>
+          <p class="ra-status" id="raStatus" role="status" aria-live="polite"></p>
+          <p class="ra-hinweis">Kein Newsletter. Ihre Angaben verwenden wir nur für diese Anfrage.</p>
+        </div>
+      </form>
     </div>
   </section>
 
