@@ -503,7 +503,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 </script>
 
   <!-- ===== STYLESHEET ===== -->
-  <link rel="stylesheet" href="css/style.css?v=20261127c" />
+  <link rel="stylesheet" href="css/style.css?v=20261127d" />
   <!-- Premium-Schicht (Stufe 5, 14.11.2026), seit 22.11.2026 auf allen
        Seiten mit body.start-premium, nicht mehr nur hier. Liegt bewusst
        hinter style.css. Quelle: src/css/start.css -->
@@ -1742,6 +1742,20 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
     <p class="tag">Bewertungen</p>
     <h2 id="bewertungen-h">Bewertungen finden Sie bei Google und Trustindex</h2>
 
+    <!-- Echte Google-Bewertungen (27.11.2026), geladen von /api/bewertungen
+         ueber unseren eigenen Server (worker/bewertungen.js, js/bewertungen.js).
+         Bleibt verborgen, solange keine Daten da sind; dann gilt der Text
+         oben und die Links darunter wie bisher. Nie erfundene Werte. -->
+    <div class="bw" id="bw" hidden>
+      <p class="bw-schnitt"><strong id="bwNote"></strong> <span class="bw-sterne" id="bwSterne" aria-hidden="true"></span> <span id="bwAnzahl"></span></p>
+      <div class="bw-band">
+        <button type="button" class="bw-pfeil bw-pfeil--zurueck" id="bwZurueck" aria-controls="bwListe" aria-label="Vorherige Bewertungen">&#8249;</button>
+        <ul class="bw-liste" id="bwListe" aria-label="Bewertungen bei Google" tabindex="0"></ul>
+        <button type="button" class="bw-pfeil bw-pfeil--vor" id="bwVor" aria-controls="bwListe" aria-label="Weitere Bewertungen">&#8250;</button>
+      </div>
+      <p class="bw-hinweis">Die Bewertungen erscheinen unverändert so, wie Google sie für unser Unternehmensprofil ausgibt. Welche angezeigt werden, wählt Google aus, höchstens fünf. Ob die Verfasser bei uns Kunde waren, prüfen weder Google noch wir.</p>
+    </div>
+
     <!-- TRUST BADGES ROW -->
     <div class="trust-badges">
       <a href="https://g.page/r/CQh4XlvW-1nEEBM/review" target="_blank" rel="noopener" class="trust-badge">
@@ -2297,6 +2311,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 <script src="js/region-info.js?v=20261122a" defer></script>
 
 <script src="js/accessibility.js?v=20261122k" defer></script>
+<script src="js/bewertungen.js?v=20261127a" defer></script>
 <script src="js/konfigurator-widget.js?v=20260916f" defer></script>
 </body>
 </html>

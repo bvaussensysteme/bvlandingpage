@@ -70,6 +70,21 @@ CRM-Repository `docs/ratgeber.md`, Abstimmung im CRM-Issue #303.
    Formspree raus, Datenschutzerklärung entsprechend. Veröffentlicht wird
    weiter nur mit dem Freigabesatz.
 
+**FÜR DEN BETREIBER: Google-Bewertungen auf der Startseite (27.11.2026)**
+Gebaut: `worker/bewertungen.js` (GET /api/bewertungen, 6 h Zwischenspeicher),
+`js/bewertungen.js`, Abschnitt #bewertungen in `index.html`. Ohne Schlüssel
+bleibt die Seite wie bisher (nur Links). Einrichten:
+1. Google Cloud Console: Projekt anlegen, „Places API (New)" aktivieren.
+   Google verlangt dafür ein Rechnungskonto mit Zahlungsmittel, auch wenn
+   die Nutzung im monatlichen Freikontingent bleibt (Annahme bei unserer
+   Besucherzahl mit Zwischenspeicher, nicht gemessen).
+2. API-Schlüssel erzeugen und auf „Places API (New)" beschränken.
+3. Cloudflare, Worker `bvlanding`: Secret `GOOGLE_PLACES_KEY` (der Schlüssel)
+   und Variable `GOOGLE_PLACE_ID` (Kennung des Unternehmensprofils, findet
+   der Assistent, sobald der Schlüssel da ist). NICHT in den Chat kopieren.
+4. Datenschutzerklärung Abschnitt „Bewertungen" anpassen (Entwurf in
+   `docs/rechtstexte-befunde.md`), vor dem Livegang.
+
 **Beim Betreiber offen:**
 - Eigene Fotos für die Platzhalter im Ratgeber (Inhaber, Aufmaß, Winter,
   Montage, Beratung).

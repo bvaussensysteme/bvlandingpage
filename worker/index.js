@@ -6,6 +6,7 @@ import { neon } from '@neondatabase/serverless';
    laufen; deshalb eine Datei für Browser, Prüfung und Worker. */
 import bauteileModul from '../js/bauteile.js';
 import { handleRatgeber } from './ratgeber.js';
+import { handleBewertungen } from './bewertungen.js';
 
 /* js/bauteile.js läuft in drei Umgebungen: im Browser setzt es sich auf
    window, unter Node liefert es module.exports, und der Worker-Bundler
@@ -62,6 +63,7 @@ const BREMSE = new Map();
 const BREMSE_REGELN = {
   '/api/kontakt':  { anzahl: 5,   fenster: 600 },
   '/api/ratgeber': { anzahl: 5,  fenster: 600 },
+  '/api/bewertungen': { anzahl: 30, fenster: 600 },
   '/api/teilen':   { anzahl: 20,  fenster: 3600 },
   '/api/messung':  { anzahl: 150, fenster: 60 },
   '/api/hoehe':    { anzahl: 60,  fenster: 60 },
@@ -93,7 +95,7 @@ function bremseGreift(request, pfad) {
 }
 
 export default {
-  async fetch(request, env) {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
 
     /* Bremse vor allem anderen, damit auch eine gesperrte Anfrage
@@ -116,6 +118,11 @@ export default {
 
     if (url.pathname === '/api/kontakt' && request.method === 'POST') {
       return handleKontakt(request, env);
+    }
+
+    /* Google-Bewertungen fuer die Startseite, siehe worker/bewertungen.js. */
+    if (url.pathname === '/api/bewertungen' && request.method === 'GET') {
+      return handleBewertungen(request, env, ctx);
     }
 
     /* Ratgeber-PDFs anfordern: Weiterleitung ans CRM, siehe worker/ratgeber.js. */

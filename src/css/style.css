@@ -1794,6 +1794,59 @@ footer h4 {
 .trust-badge-text strong { display: block; font-size: 1.1rem; font-family: var(--schrift); color: var(--black); }
 .trust-badge-text span  { font-size: 0.78rem; color: var(--muted); }
 
+/* Google-Bewertungen (27.11.2026, js/bewertungen.js). Karten im Band,
+   waagerecht wischbar, Pfeile ab Tablet. Sterne in --gold auf Weiss sind
+   Schmuck (aria-hidden), die Zahl steht vorlesbar daneben. Textfarben nur
+   aus den gemessenen Stufen: --black, --muted (5,7:1), --gold-text (7,0:1). */
+.bw { margin: 28px 0 8px; }
+.bw-schnitt { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; margin-bottom: 18px; color: var(--muted); font-size: var(--txt-sm); }
+.bw-schnitt strong { font-size: 2.2rem; line-height: 1; color: var(--black); font-weight: 800; }
+.bw-sterne { color: var(--gold); letter-spacing: 2px; }
+/* Pfeile unter den Karten, rechts: Seitlich ueber den Karten verdeckten sie
+   Text (gesehen 27.11.2026 bei 1280 px). */
+.bw-band { display: grid; grid-template-columns: 1fr auto auto; gap: 10px; }
+.bw-band .bw-liste { grid-column: 1 / -1; grid-row: 1; }
+.bw-liste {
+  list-style: none; margin: 0; padding: 4px 2px 14px; display: grid;
+  grid-auto-flow: column; grid-auto-columns: minmax(260px, 300px); gap: 16px;
+  overflow-x: auto; scroll-snap-type: x mandatory; overscroll-behavior-x: contain;
+}
+.bw-liste:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 3px; border-radius: var(--radius); }
+.bw-karte {
+  /* relative: Sonst richten sich die absolut gesetzten .sr-only-Texte der
+     hinteren Karten nach der Seite und schieben sie auf 1141 px Breite
+     (gemessen 27.11.2026 bei 390 px). */
+  position: relative;
+  scroll-snap-align: start; background: var(--white); border: 1px solid var(--border);
+  border-radius: var(--radius); box-shadow: var(--shadow); padding: 20px;
+  display: flex; flex-direction: column; gap: 10px;
+}
+.bw-kopf { display: flex; align-items: center; gap: 12px; }
+.bw-initiale {
+  width: 40px; height: 40px; border-radius: 50%; flex: 0 0 40px; display: grid; place-items: center;
+  background: var(--black); color: var(--white); font-weight: 700;
+}
+.bw-name { font-weight: 700; color: var(--black); margin: 0; }
+.bw-wann { font-size: var(--txt-xs); color: var(--muted); margin: 0; }
+.bw-karte .bw-sterne { margin: 0; display: flex; align-items: center; gap: 8px; }
+.bw-quelle { font-size: var(--txt-xs); color: var(--muted); letter-spacing: 0; white-space: nowrap; }
+.bw-text { margin: 0; color: var(--black); line-height: 1.55; overflow-wrap: anywhere; }
+.bw-text--kurz { display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical; overflow: hidden; }
+.bw-mehr {
+  align-self: flex-start; margin-top: auto; background: none; border: 0; padding: 10px 0; min-height: 44px;
+  color: var(--gold-text); font-weight: 700; text-decoration: underline; cursor: pointer; font: inherit; font-weight: 700;
+}
+.bw-pfeil {
+  grid-row: 2; width: 44px; height: 44px; border-radius: 50%;
+  border: 1px solid var(--border); background: var(--white); color: var(--black);
+  font-size: 1.6rem; line-height: 1; cursor: pointer; box-shadow: var(--shadow); display: none;
+}
+.bw-pfeil--zurueck { grid-column: 2; }
+.bw-pfeil--vor { grid-column: 3; }
+.bw-pfeil:focus-visible { outline: 3px solid var(--gold-text); outline-offset: 3px; }
+@media (min-width: 768px) { .bw-pfeil { display: grid; place-items: center; } }
+.bw-hinweis { font-size: var(--txt-xs); color: var(--muted); margin: 6px 0 0; max-width: 70ch; }
+
 /* Tab Switcher */
 .reviews-tabs {
   display: flex; gap: 0; margin-bottom: 24px;

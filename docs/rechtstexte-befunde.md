@@ -788,3 +788,12 @@ Bitte beim Anwalt prüfen lassen:
 - **Resend**: In Abschnitt 20 genannt, **nicht** in Abschnitt 15 („AVV bestehen aktuell mit …"), weil nicht bekannt ist, ob ein AVV/DPA mit Resend abgeschlossen ist. Betreiber prüfen und, wenn ja, in Abschnitt 15 aufnehmen. Ebenso: Resend ist ein US-Anbieter; Grundlage der Übermittlung (z. B. Data Privacy Framework oder Standardvertragsklauseln) ist nicht geprüft.
 - **Speicherdauer** für Ratgeber-Anfragen ohne Auftrag ist nicht festgelegt und steht deshalb nicht im Text. Vor dem Echtbetrieb festlegen und ergänzen (Art. 13 Abs. 2 lit. a DSGVO).
 - Web3Forms und Formspree stehen weiter in Abschnitt 4 und 15, weil das Kontaktformular sie bis zur Umstellung noch nutzt.
+
+## 27.11.2026 · Datenschutzerklärung „Bewertungen" und Google-Bewertungen auf der Startseite
+
+Neu gebaut (Wunsch des Betreibers, „wie bei VD"): Die Startseite zeigt Gesamtnote, Anzahl und bis zu fünf Google-Bewertungen. Unser Server (Cloudflare Worker) holt sie über die Google Places API; **der Browser der Besucher verbindet sich dafür nicht mit Google**, es werden keine Besucherdaten an Google übermittelt. Angezeigt werden Name und Text der Verfasser, so wie Google sie ausgibt.
+
+Bitte beim Anwalt prüfen und den Abschnitt „Bewertungen (Google & Trustindex)" der Datenschutzerklärung ergänzen (Änderung nur mit Ja des Betreibers). Entwurf:
+> „Auf unserer Startseite zeigen wir Bewertungen aus unserem Google-Unternehmensprofil. Dazu ruft unser Server die Bewertungen bei Google ab (Google Places API) und speichert sie bis zu sechs Stunden zwischen. Ihr Browser stellt dabei keine Verbindung zu Google her. Angezeigt werden Name und Text der Verfasser, so wie sie bei Google öffentlich sind. Rechtsgrundlage ist unser berechtigtes Interesse, Interessenten echte Erfahrungen anderer Kunden zu zeigen (Art. 6 Abs. 1 lit. f DSGVO)."
+
+Zusätzlich: Hinweis nach § 5b Abs. 3 UWG steht unter den Bewertungen („… Ob die Verfasser bei uns Kunde waren, prüfen weder Google noch wir."). Bitte Wortlaut bestätigen lassen. Google-Nutzungsbedingungen für Bewertungen (Namensnennung, keine Änderung des Texts) sind eingehalten: Text und Name unverändert, Quelle „Google-Bewertung" an jeder Karte.
