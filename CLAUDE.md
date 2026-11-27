@@ -247,6 +247,14 @@ Flat Box), obwohl die VD-TDS-Seite es nennt; Eindeckungsvarianten 8/10 mm
 und Tönungen bleiben, obwohl VD online nur 8 mm und 16 mm, klar und opal
 nennt. Die Garantie-Regel darunter bleibt unverändert.
 
+**Was bei VD steht, gilt ohne Rückfrage.** Ansage des Betreibers,
+27.11.2026: „Wenn das bei VD so steht, dann ist das so … Da brauchst du
+mich nicht nochmal deswegen fragen." Widersprechen sich VD-Seite,
+Katalog und Preisliste, gilt die Reihenfolge oben (Seite vor Katalog vor
+Preisliste), ebenfalls ohne Rückfrage; die Abweichung wird nur im Bericht
+erwähnt. Gefragt wird nur noch, wenn **keine** VD-Quelle etwas sagt. Die
+ausdrücklichen Entscheidungen des Betreibers gegen VD (oben) bleiben.
+
 ## Garantie: die Zahlen stehen fest (permanent, 23.11.2026)
 
 Ansage des Betreibers, wörtlich: „mit garantie hab ich schon 100 mal
