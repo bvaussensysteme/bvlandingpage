@@ -484,3 +484,20 @@ Zweite komplette Multi-Agenten-Prüfung (SEO, Performance, UX/UI, CRO, Content, 
 
 ### 23.06.2026
 - Initiales Launch: 24 Seiten, Hero-Slider, Cookie-Banner, Widget
+
+## Stand 27.11.2026
+
+- **Ratgeber (3 PDF-Leadmagnete, Design „Leitsatz")** inhaltlich fertig,
+  beim Betreiber zum Lesen. Quellen im privaten Repo `bv-marketing`, Branch
+  `claude/ratgeber-quellen`. 13 Kapitelbilder hochgerechnet (Higgsfield).
+- **Ratgeber-Anforderung:** Formular `/ratgeber/` (Pflicht-Häkchen
+  Datenschutz, freiwilliges Werbe-Häkchen), Worker `worker/ratgeber.js` →
+  CRM (`bv-crm`, Branch `claude/ratgeber-leads`, wartet auf CRM-Prüfung).
+  Datenschutzerklärung Abschnitt 20 als Entwurf für den Anwalt.
+- **Google-Bewertungen** auf der Startseite über den eigenen Server
+  (`worker/bewertungen.js`), aktiv sobald Schlüssel gesetzt ist.
+- **Neue Regeln:** Quellen-Rangfolge VD zuerst, „Was bei VD steht, gilt";
+  kein Trapezblech bei TDS/SkyView; Anzahlung ohne Prozentzahl.
+- Offen: Secrets `ANFRAGEN_TOKEN`, `GOOGLE_PLACES_KEY`; PDFs nach R2;
+  Anwalt (Häkchen, Abschnitt 20, Bewertungs-Hinweis); Speicherdauer;
+  Resend-AVV. Einzelheiten `docs/NEXT_TASK.md`.

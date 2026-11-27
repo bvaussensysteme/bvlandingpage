@@ -1,52 +1,80 @@
 # NEXT_TASK – Einstieg für jede neue Sitzung
 
 > Das Erste, was ein neuer Chat liest. Danach `CLAUDE.md`.
-> **Stand: 26.11.2026 (spät).**
+> **Stand: 27.11.2026 (abends), Übergabe vor /clear.**
 
-## Wo wir stehen (26.11.2026, spät)
+## Wo wir stehen (27.11.2026)
 
 **Nichts ist live.** Alles liegt auf dem Arbeitsbranch und der Vorschau
 (https://claude-bv-aussensysteme-setup-bq7ew4-bvlanding.bv-verwaltung.workers.dev).
-`main` steht seit 12.11.2026 unverändert. Veröffentlicht wird nur mit dem
-Satz aus `CLAUDE.md`. **Push auf den Arbeitsbranch ist ohne Rückfrage
-erlaubt** (Regel in `CLAUDE.md`, 26.11.2026), alles andere nicht.
+`main` unverändert. Veröffentlicht wird nur mit dem Satz aus `CLAUDE.md`.
+Push auf den Arbeitsbranch ohne Rückfrage erlaubt, alles andere nicht.
 
-**Webseite, heute erledigt** (Einträge in `docs/entscheidungen.md`):
-- **B9 Startbild** umgesetzt: Wechsel erst nach Eingabe, Überschrift
-  sofort, ruhige Einblendung, Startbild bei reduzierter Bewegung wieder
-  sichtbar (war unsichtbar). Vorschau gemessen: LCP 1,4 s statt 9,3 s.
-  Prüfung `scripts/pruefe-heldenbereich.mjs` (mit Gegenprobe).
-- **Lieferzeit 4 bis 12 Wochen** (Startseite, FAQ, Schema, `llms.txt`).
-- **SkyView auch mit 16 mm Polycarbonat** (Produktseite, `llms.txt`).
-- **Prüfstand:** volle Suite nach B9: 95 Skripte, 93 grün; rot nur
-  `pruefe-konfigurator-oberflaeche.mjs` (Altbefund) und
-  `pruefe-cache-buster.sh` (Ursache behoben, einzeln grün). Nach der
-  SkyView-Änderung die betroffenen Seitenprüfungen einzeln nachgelaufen,
-  alle grün.
-- **Als Nächstes auf der Webseite:** B10 bis B13 aus
-  `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`, dann Block C.
+**Neue Dauerregeln heute (stehen in `CLAUDE.md`):** Quellen-Rangfolge
+VD-Seite, dann VD-Katalog und Preislisten (im CRM ausgewertet), dann
+Recherche und eigene Seite, dann Internet. **Was bei VD steht, gilt ohne
+Rückfrage.** Ausdrücklich gegen VD entschieden: kein Trapezblech bei TDS und
+SkyView; Eindeckungsvarianten 8/10 mm und Tönungen bleiben.
+Anzahlung nie mit Prozentzahl nennen (`docs/entscheidungen.md`).
 
-**Ratgeber (Leadmagnet), in Arbeit:** Plan `docs/ratgeber-plan.md`,
-Hausregeln und Ablauf des Agententeams `.claude/skills/ratgeber-pdf/SKILL.md`.
-- Ratgeber 1 (Terrassendach & Kaltwintergarten) ist **fertig gesetzt
-  (27.11.2026)**: 39 Seiten, fünf Teile mit Auftaktseiten, Raster aus
-  Lesespalte und Randspalte, anklickbares Inhaltsverzeichnis (110 interne
-  Verweise, alle mit Ziel), 105 Lesezeichen, Knöpfe mit
-  `utm_source=ratgeber`, Teil „Preis und Wert", eigene Grafiken. Nur
-  Manrope eingebettet, Titel/Autor/Sprache gesetzt, getaggt. Keine Preise.
-  Durchlaufen: Redakteur, Lektor, Faktenprüfer (zwei Runden),
-  Conversion-Prüfer, Verkaufsstratege, Gestaltungsprüfer mit Abnahme,
-  Lesertest. Offen nur noch: eigene Fotos statt der vier Platzhalter
-  (S. 2, 15, 18, 38) und die Anwaltspunkte, bevor er an Kunden geht.
-- **Ratgeber-Quellen gesichert (27.11.2026)** im privaten Repository
-  `bv-marketing`, Branch `claude/ratgeber-quellen`, Ordner `ratgeber/`
-  (Texte aller drei Hefte, Faktenlisten inkl. `fakten-steuerung.md`,
-  Satzprogramm, Vorlage, Bilder; keine PDFs, keine Rohbilder). Ja des
-  Betreibers vom 27.11.2026. Nach jeder Änderung an den Heften dort
-  nachziehen und pushen (nur dieser Branch, kein `main`).
-- Danach: Ratgeber 2 (Carport & Vordach), 3 (Pergola & Lamellendach),
-  dann Formular, Versand und Kasten auf den Ortsseiten (siehe Plan,
-  Freigabe-Hindernisse Anwalt).
+### 1. Ratgeber (3 PDFs, Design „Leitsatz") – inhaltlich fertig, beim Betreiber zum Lesen
+- **Quellen:** privates Repo `bv-marketing`, Branch `claude/ratgeber-quellen`,
+  Ordner `ratgeber/` (Texte, Faktenlisten, Satzprogramm, Vorlage, Bilder,
+  README mit Bauanleitung). Dort nach jeder Änderung nachziehen und pushen.
+  Arbeitskopie der Sitzung lag im Notizordner (geht mit der Sitzung verloren).
+- **Stand:** R1 Terrassendach & Kaltwintergarten 39 S., R2 Carport & Vordach
+  36 S., R3 Pergola & Lamellendach 35 S.; kein Überlauf
+  (`fuellstand.mjs`, über 99 % = Überlauf).
+- Heute eingearbeitet: Schlussprüfungen R2/R3, Trapezblech raus,
+  Paneele (Rechteckprofil Eiche Mocca / Rovere Pechino hell oder RAL
+  7016/9006/9007/9010; Zaunpaneele nur RAL), Flat Box = Flat-Line-System mit
+  Paneelen (Garage oder Carport mit Abstellraum), Steuerung und Sensoren
+  (`fakten-steuerung.md`, inkl. Antworten des Betreibers), Senkrechtmarkise
+  Solar laut VD ja, Kurbel nein, Pflaster-Erklärung (Charge), Zeile „Abbau
+  eines alten Dachs: nicht bei uns", schriftliche Auftragsbestätigung.
+- **13 Kapitelbilder mit Higgsfield hochgerechnet** (26 Credits, Ja des
+  Betreibers), im Ausschnitt geprüft: Produkte unverändert. Jetzt mind. 152 dpi
+  statt 52 bis 109. Das VD-ZIP des Betreibers hatte nur 800-px-Bilder.
+- **Offen beim Betreiber:** Hefte durchlesen; Fotos für die Platzhalter;
+  Anwalt (Rückseite, AGB-Punkte in `docs/rechtstexte-befunde.md`).
+  Offene Sachfragen nur noch, wo VD nichts sagt: Regensensor im Winter beim
+  Lamellendach; Faltdach-Hersteller (Name „OpenAir" bleibt, VD-Menü nennt es).
+- **Nebenbefunde (später, nur mit Ja):** Webseite nennt beim SunPro Plus
+  „Smartphone" und beim Faltdach „Steuerung je Modul"; Broschüre (VD-Katalog)
+  nennt Trapezblech beim TDS; Fahrradüberdachung/Gartenhaus nennen
+  Trapezblech; CLAUDE.md in `bv-marketing` hat veraltete Leistungsliste.
+
+### 2. Ratgeber-Anforderung (Webseite + CRM)
+- Webseite `/ratgeber/`: Formular mit **Pflicht-Häkchen Datenschutz** (wie
+  Anfrageformular) und **freiwilligem Werbe-Häkchen** (Fassung `2026-11-27b`,
+  Wortlaut muss mit `bv-crm/src/lib/ratgeber.ts` übereinstimmen). Worker
+  `worker/ratgeber.js` reicht an das CRM weiter; ohne Secret 503.
+- Datenschutzerklärung **Abschnitt 20 „Ratgeber als PDF anfordern"** auf
+  ausdrücklichen Wunsch ergänzt, als Entwurf für den Anwalt.
+- **CRM** (`bv-crm`, Branch `claude/ratgeber-leads`, Commits `08903a9`,
+  `011c42b`): Anmeldung, Download-Seite, Bestätigen/Abmelden per Knopf,
+  Nachfass-Takt, Einwilligung wandert beim Umwandeln mit. Lokal alles grün
+  (tsc, 3735 Tests, Build). **Wartet auf Prüfung, Migration 0169 und
+  Ausrollen durch die CRM-Sitzung** (Issue #303, dort Abweichung
+  `ratgeber_mails` gemeldet).
+
+### 3. Google-Bewertungen auf der Startseite (gebaut, wartet auf Schlüssel)
+`worker/bewertungen.js` + `js/bewertungen.js` + #bewertungen in `index.html`.
+Ohne Schlüssel bleibt alles wie bisher (nur Links). Einrichtung unten.
+
+### Prüfstand (27.11.2026)
+Volle Suite 95 Skripte: grün bis auf die zwei bekannten
+(`pruefe-konfigurator-oberflaeche`, `pruefe-schrittwechsel`). Danach
+behoben und einzeln grün: Fokusring im Ratgeber-Formular (1,20:1),
+Häkchen 24 px, Datenschutz-Link 2,09:1, Modellbilder-Prüfung auf Carport
+umgestellt, Bewertungsband (Querscrollen 1141 px). Nach den Bewertungen:
+Darstellung 144/144, Mitwachsend 91/91, Wirkung 114/114.
+
+### Als Nächstes (Vorschlag)
+1. Betreiberantworten zu den Heften einarbeiten, Hefte neu setzen, nach
+   `bv-marketing` nachziehen.
+2. Ratgeber-Kästen auf den Ortsseiten (`.ratgeber-kasten` ist im CSS).
+3. Danach B10 bis B13 aus `docs/UEBERGABE-VERBESSERUNGEN-2026-11-25.md`.
 
 **FÜR DEN BETREIBER, WENN ER AM RECHNER IST (Ratgeber-Versand über das CRM, Stand 27.11.2026):**
 Brevo ist verworfen: Das CRM verschickt schon über Resend (Absender
