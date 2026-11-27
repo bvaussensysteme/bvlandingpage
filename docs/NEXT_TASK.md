@@ -38,13 +38,12 @@ Hausregeln und Ablauf des Agententeams `.claude/skills/ratgeber-pdf/SKILL.md`.
   Conversion-Prüfer, Verkaufsstratege, Gestaltungsprüfer mit Abnahme,
   Lesertest. Offen nur noch: eigene Fotos statt der vier Platzhalter
   (S. 2, 15, 18, 38) und die Anwaltspunkte, bevor er an Kunden geht.
-- **Arbeitsdateien liegen NUR im Notizordner der Sitzung**
-  (`…/scratchpad/ratgeber/`: Text, Faktenbasis, Konzept, Satzprogramm
-  `baue-ratgeber.mjs`, `grafiken.mjs`, `lesezeichen.py`, Vorlage,
-  Herstellerbilder in hoher Auflösung). Sie gehören ins private Repository
-  `bv-marketing` (Ordner `ratgeber/`); dafür braucht es das Ja des
-  Betreibers (Push in ein anderes Repository). **Geht die Sitzung verloren
-  ohne diesen Schritt, sind sie weg.**
+- **Ratgeber-Quellen gesichert (27.11.2026)** im privaten Repository
+  `bv-marketing`, Branch `claude/ratgeber-quellen`, Ordner `ratgeber/`
+  (Texte aller drei Hefte, Faktenlisten inkl. `fakten-steuerung.md`,
+  Satzprogramm, Vorlage, Bilder; keine PDFs, keine Rohbilder). Ja des
+  Betreibers vom 27.11.2026. Nach jeder Änderung an den Heften dort
+  nachziehen und pushen (nur dieser Branch, kein `main`).
 - Danach: Ratgeber 2 (Carport & Vordach), 3 (Pergola & Lamellendach),
   dann Formular, Versand und Kasten auf den Ortsseiten (siehe Plan,
   Freigabe-Hindernisse Anwalt).
@@ -72,7 +71,6 @@ CRM-Repository `docs/ratgeber.md`, Abstimmung im CRM-Issue #303.
    weiter nur mit dem Freigabesatz.
 
 **Beim Betreiber offen:**
-- Ja zum Ablegen der Ratgeber-Quellen in `bv-marketing`.
 - Eigene Fotos für die Platzhalter im Ratgeber (Inhaber, Aufmaß, Winter,
   Montage, Beratung).
 - Für den Anwalt (`docs/rechtstexte-befunde.md`): AGB § 3.2 (Dritte)
@@ -98,8 +96,8 @@ CRM-Repository `docs/ratgeber.md`, Abstimmung im CRM-Issue #303.
   `js/anfrage-wizard.js` wird nie benutzt.
 
 **Startauftrag für die nächste Sitzung:** „Lies `CLAUDE.md`, dann diesen
-Abschnitt. Wenn die Ratgeber-Quellen noch nicht in `bv-marketing` liegen,
-frag mich danach. Dann weiter mit dem, was ich sage. Nach jedem Paket den
+Abschnitt. Die Ratgeber-Quellen liegen in `bv-marketing`,
+Branch `claude/ratgeber-quellen`. Dann weiter mit dem, was ich sage. Nach jedem Paket den
 geprüften Vorschaulink."
 
 **Ältere Hinweise** (Fallen, Werkzeuge, ausgelagerte Listen) folgen
