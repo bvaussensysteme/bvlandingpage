@@ -4904,13 +4904,20 @@ body.bv-konfig-open #bvKonfigBubble {
 .ra-felder { max-width: 560px; }
 .ra-felder .btn { width: 100%; justify-content: center; min-height: 48px; }
 .ra-hinweis { font-size: .78rem; color: rgba(255,255,255,.62); margin-top: 12px; }
+/* Link im Hinweis in Hinweisfarbe statt Standard-Linkfarbe: vorher 2,09:1 auf
+   dem dunklen Formular (gemessen 27.11.2026), Soll 4,5:1. */
+.ra-hinweis a { color: inherit; text-decoration: underline; }
 .ra-status { margin-top: 14px; font-size: .95rem; color: #fff; }
 .ra-status--fehler { color: #FFB4A8; }
 .ra-danke { color: #fff; }
 .ra-danke h3 { color: #fff; margin-bottom: 10px; }
 .ra-felder .checkbox-label { color: rgba(255,255,255,.8); }
 .ra-felder .checkbox-label input[type="checkbox"] { width: 22px; height: 22px; }
-.ra-falle { position: absolute; left: -10000px; width: 1px; height: 1px; overflow: hidden; }
+/* Bot-Falle ganz ausgeblendet: Mit "left:-10000px" blieb sie fuer Messung und
+   Vorleseprogramme ein sichtbarer Text (Kontrast 1,2:1, Feld 13,3 px, gemessen
+   27.11.2026 mit pruefe-darstellung). Bots fuellen das Feld trotzdem aus, sie
+   lesen das HTML, nicht das CSS. */
+.ra-falle, .ra-falle * { display: none; }
 @media (max-width: 600px) {
   .ra-raster { gap: 8px; }
   .ra-wahl { padding: 6px; }
