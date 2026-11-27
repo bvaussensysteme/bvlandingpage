@@ -24679,3 +24679,20 @@ dort stehen soll) und die zwei Bilddateien `vd_prod_lamaxa_*` (Löschen nur
 mit Ja). Drehwinkel geprüft: VD-Produktseiten nennen SunPro (Plus) 135°,
 SunPro One 110°; die Webseite stimmt, der Katalog (110° für beide) ist
 überholt.
+
+**27.11.2026 · Unverbindliches Angebot, kein Festpreis; Eindeckungen; FLY-Glas.**
+Ansage des Betreibers: „Mach unverbindliches Angebot." Damit gilt wieder
+die Entscheidung vom 22.11.2026; die Auswahl „Festpreis" vom 26.11. ist
+überholt. Geändert: vier Ortsseiten („unverbindliches Festpreisangebot" →
+„unverbindliches Angebot", carport-limburg „Aufmaß, Planung und Angebot
+sind kostenlos und unverbindlich") und alle drei Ratgeber. Eindeckung laut
+Betreiber: TDS und SkyView VSG 8 oder 10 mm (klar, opal, grau), PC 16 mm
+(klar, opal, bronze, graphit); in Ratgeber 1 nachgezogen, mit den Bildern
+aus dem Anfrage-Konfigurator (`images/wizard/wz_vsg_*`, `wz_poly_*`,
+Ansage: „aus dem normalen Konfigurator auf der Internetseite"). Webseite
+(Produktseiten) noch NICHT um 10 mm und die Farben ergänzt: Rückfrage.
+Vordach FLY: „entweder Eindeckung VSG oder halt Polycarbonat"; die Seite
+sagte „17 mm ESG", der Katalog „17 mm VSG aus TVG". `eingang.njk` jetzt
+„17 mm VSG-Glas oder Polycarbonat", die Lichtwerte 88/63 % entfernt (sie
+gehören zum 8-mm-Glas des TDS). Lamellendach: keine Statik; „Laut
+Hersteller müssen die Lamellen im Winter offen bleiben."
