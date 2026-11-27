@@ -46,6 +46,14 @@ Sie werden nach Angabe von Kontaktdaten verschickt (Plan:
 
 Verbindlich: `docs/WEBSITE_DESIGN_SYSTEM.md` (Neubau-Palette).
 
+**Seitengestaltung „Leitsatz" (vom Betreiber gewählt am 27.11.2026):**
+große Aussagen in Manrope 800, starke Größenkontraste, große goldene
+Kapitelziffern, asymmetrische Seiten, Wechsel zwischen weißen und
+anthrazitfarbenen Seiten, Bilder randabfallend. Keine Schatten, keine
+Verläufe, keine Karten mit Rahmen oder runden Ecken. Titel: Anthrazitfläche
+oben mit dem länglichen weiß-goldenen Logo mittig, Foto unten randabfallend.
+Vorlage: `varianten/gestaltungen.mjs`, Funktion `variantB`.
+
 | Rolle | Wert |
 |---|---|
 | Gold (Fläche, Linie) | `#C58A32` |
