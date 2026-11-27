@@ -24754,3 +24754,15 @@ CRM-Konto im Gratis- oder Bezahltarif läuft, ist nicht geprüft.
 
 **Verworfen:** Brevo. Nur sinnvoll, falls später Newsletter mit eigener
 Gestaltungsoberfläche gewünscht sind.
+
+## 27.11.2026 · Ratgeber-Seite ohne Artikel-Kacheln
+
+**Ansage des Betreibers** (mit Bildschirmfoto der fünf Kacheln): „das von
+ratgeber seite weg". Entfernt aus `src/ratgeber/index.njk`: der Abschnitt mit
+den fünf Artikel-Kacheln. Die Seite zeigt jetzt nur Kopf und
+Ratgeber-Formular.
+
+**Was bleibt:** Die fünf Artikelseiten selbst (Bestandsschutz für URLs). Jede
+ist weiter von anderen Seiten verlinkt (Sitemap und Produkt- bzw.
+Fachseiten), also nicht verwaist.
+
