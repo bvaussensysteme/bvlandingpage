@@ -24623,3 +24623,19 @@ Doppelbilder aus Katalogausschnitten für die Teil-Auftakte (wirkten
 zerschnitten), stattdessen ganze Herstellerbilder. Gegenzulesen: die
 Platzhalter S. 2, 15, 18, 38 und die rechtlichen Kapitel 7 und 15 vor dem
 ersten Versand an Kunden.
+
+**27.11.2026 · Ratgeber-Gestaltung: Variante „Leitsatz" gewählt.** Anlass:
+Der Betreiber wollte drei Gestaltungsvarianten nach dem Vorbild hochwertiger
+Herstellerbroschüren (nur Seitenaufbau, Typografie, Bildführung; Farben,
+Schrift und Inhalte bleiben unsere). Gebaut wurden je acht Musterseiten mit
+wortgleichem Inhalt: „Raster" (ruhig, Haarlinien, gerahmte Bilder),
+„Leitsatz" (große Aussagen, starke Größenkontraste, Wechsel hell und
+Anthrazit) und „Panorama" (randabfallende Bilder, Farbflächen). Gewählt:
+**Leitsatz**. Logo auf dem Titel: das längliche weiß-goldene, mittig und
+größer (Ansage: „du kannst auch das längliche nehmen ... mach eher so mittig
+und bisschen größer"). Verworfen: Bildmarke allein aus dem Logo
+herauslösen. Bei den Vorbildern war nur eine Broschüre frei abrufbar, die
+anderen nur über ein Formular oder für Programme gesperrt; ein Formular
+wurde nicht abgeschickt. Nächster Schritt: alle 39 Seiten in diese
+Gestaltung übertragen. Quellen der Varianten liegen wie der Ratgeber nur im
+Notizordner der Sitzung (`ratgeber/varianten/`).
