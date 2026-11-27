@@ -28,10 +28,16 @@ erlaubt** (Regel in `CLAUDE.md`, 26.11.2026), alles andere nicht.
 
 **Ratgeber (Leadmagnet), in Arbeit:** Plan `docs/ratgeber-plan.md`,
 Hausregeln und Ablauf des Agententeams `.claude/skills/ratgeber-pdf/SKILL.md`.
-- Ratgeber 1 (Terrassendach & Kaltwintergarten) ist als Runde 2 gesetzt:
-  34 Seiten, anklickbares Inhaltsverzeichnis, Lesezeichen, Knöpfe mit
-  `utm_source=ratgeber`, Teil „Preis und Wert" (Kap. 13 bis 16). Keine
-  Preise. Gestaltungsprüfung und Lesertest liefen zuletzt.
+- Ratgeber 1 (Terrassendach & Kaltwintergarten) ist **fertig gesetzt
+  (27.11.2026)**: 39 Seiten, fünf Teile mit Auftaktseiten, Raster aus
+  Lesespalte und Randspalte, anklickbares Inhaltsverzeichnis (110 interne
+  Verweise, alle mit Ziel), 105 Lesezeichen, Knöpfe mit
+  `utm_source=ratgeber`, Teil „Preis und Wert", eigene Grafiken. Nur
+  Manrope eingebettet, Titel/Autor/Sprache gesetzt, getaggt. Keine Preise.
+  Durchlaufen: Redakteur, Lektor, Faktenprüfer (zwei Runden),
+  Conversion-Prüfer, Verkaufsstratege, Gestaltungsprüfer mit Abnahme,
+  Lesertest. Offen nur noch: eigene Fotos statt der vier Platzhalter
+  (S. 2, 15, 18, 38) und die Anwaltspunkte, bevor er an Kunden geht.
 - **Arbeitsdateien liegen NUR im Notizordner der Sitzung**
   (`…/scratchpad/ratgeber/`: Text, Faktenbasis, Konzept, Satzprogramm
   `baue-ratgeber.mjs`, `grafiken.mjs`, `lesezeichen.py`, Vorlage,

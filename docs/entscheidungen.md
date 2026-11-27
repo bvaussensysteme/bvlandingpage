@@ -24610,3 +24610,16 @@ erlaubt". Anlass: Zwei Pushes wurden von der automatischen Prüfung wegen der
 Regel „vor git push fragen" angehalten. Gilt nur für
 `claude/bv-aussensysteme-setup-bq7ew4`; `main`, PR, Merge, Force-Push und
 andere Repositories weiter nur nach Freigabe. Regel in `CLAUDE.md`.
+
+**27.11.2026 · Ratgeber 1 fertig gesetzt (39 Seiten).** Was war falsch:
+Die erste Satzfassung lief auf 57 Seiten, weil die Satzautomatik jeden
+Überhang auf eine halb leere Folgeseite schob; Lesezeichen verloren an
+Zeilenumbrüchen die Leerzeichen; die variable Manrope wurde als
+Type-3-Schrift eingebettet. Was jetzt gilt: Text seitengenau gekürzt
+(0 Folgeseiten), Lesezeichen per `lesezeichen.py` aus den Überschriften
+nachgezogen, feste Schnitte 400 bis 800. Links im Text tragen die
+Kurzadresse in Klammern, damit sie auch gedruckt nutzbar sind. Verworfen:
+Doppelbilder aus Katalogausschnitten für die Teil-Auftakte (wirkten
+zerschnitten), stattdessen ganze Herstellerbilder. Gegenzulesen: die
+Platzhalter S. 2, 15, 18, 38 und die rechtlichen Kapitel 7 und 15 vor dem
+ersten Versand an Kunden.
