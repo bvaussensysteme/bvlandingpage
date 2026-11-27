@@ -5,6 +5,7 @@ import { neon } from '@neondatabase/serverless';
    globalThis.BVBauteile. Zwei Kopien derselben Regeln würden auseinander
    laufen; deshalb eine Datei für Browser, Prüfung und Worker. */
 import bauteileModul from '../js/bauteile.js';
+import { handleRatgeber } from './ratgeber.js';
 
 /* js/bauteile.js läuft in drei Umgebungen: im Browser setzt es sich auf
    window, unter Node liefert es module.exports, und der Worker-Bundler
@@ -60,6 +61,7 @@ const REDIRECTS = {
 const BREMSE = new Map();
 const BREMSE_REGELN = {
   '/api/kontakt':  { anzahl: 5,   fenster: 600 },
+  '/api/ratgeber': { anzahl: 5,  fenster: 600 },
   '/api/teilen':   { anzahl: 20,  fenster: 3600 },
   '/api/messung':  { anzahl: 150, fenster: 60 },
   '/api/hoehe':    { anzahl: 60,  fenster: 60 },
@@ -114,6 +116,11 @@ export default {
 
     if (url.pathname === '/api/kontakt' && request.method === 'POST') {
       return handleKontakt(request, env);
+    }
+
+    /* Ratgeber-PDFs anfordern: Weiterleitung ans CRM, siehe worker/ratgeber.js. */
+    if (url.pathname === '/api/ratgeber' && request.method === 'POST') {
+      return handleRatgeber(request, env);
     }
 
     if (url.pathname === '/api/bauteile' && request.method === 'GET') {

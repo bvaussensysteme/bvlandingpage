@@ -220,6 +220,33 @@ Das ist eine Referenz für Benutzerführung, keine Erlaubnis:
 Die Regel „Nachbauten: eigene Sprache, eigene Namen" weiter oben gilt
 unverändert und zusätzlich.
 
+## Quellen-Rangfolge für Produktaussagen (permanent, 27.11.2026)
+
+Ansage des Betreibers, wörtlich: „Zuerst steht die Seite von
+VD-Alu-Systeme, weil die stellen die Infos raus. Als zweite Instanz kommt
+Recherche dazu, beziehungsweise unsere Seite, und als dritte Instanz kommt
+das allgemeine Internet."
+
+1. **VD-Produktseite** (vd-alusysteme.de), danach der VD-Katalog und die
+   **VD-Preislisten**. Betreiber: „VD nennt zum Beispiel dieses graue
+   VSG-Glas … nicht auf ihrer Seite, aber in den Preislisten haben sie das
+   drin und liefern das." Die Preislisten liegen ausgewertet im CRM
+   (`bv-crm`: `docs/produktsysteme.md`, `docs/konfigurator-daten/`,
+   `docs/preisimport-berichte/`). Daraus wird nur übernommen, **was lieferbar
+   ist**; Preise und Konditionen kommen nie in einen öffentlichen Text.
+2. Eigene Recherche und **unsere eigene Seite**. Sie ist keine geprüfte
+   Quelle: Am 27.11.2026 stand dort „Trapezblech beim TDS", das kam ungeprüft
+   in Ratgeber 1. Betreiber: „solche Fehlinformationen können mich später
+   teuer kosten."
+3. Allgemeines Internet.
+
+**Aussagen des Betreibers** werden gegen VD geprüft. Weichen sie ab, wird die
+Abweichung wörtlich mit URL gemeldet, und der Betreiber entscheidet. Schon
+entschieden: kein Trapezblech bei TDS und SkyView (nur Carport Flat Line und
+Flat Box), obwohl die VD-TDS-Seite es nennt; Eindeckungsvarianten 8/10 mm
+und Tönungen bleiben, obwohl VD online nur 8 mm und 16 mm, klar und opal
+nennt. Die Garantie-Regel darunter bleibt unverändert.
+
 ## Garantie: die Zahlen stehen fest (permanent, 23.11.2026)
 
 Ansage des Betreibers, wörtlich: „mit garantie hab ich schon 100 mal

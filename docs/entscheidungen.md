@@ -24696,3 +24696,11 @@ sagte „17 mm ESG", der Katalog „17 mm VSG aus TVG". `eingang.njk` jetzt
 „17 mm VSG-Glas oder Polycarbonat", die Lichtwerte 88/63 % entfernt (sie
 gehören zum 8-mm-Glas des TDS). Lamellendach: keine Statik; „Laut
 Hersteller müssen die Lamellen im Winter offen bleiben."
+
+## 27.11.2026 · Quellen-Rangfolge VD vor eigener Seite; kein Trapezblech beim TDS
+
+**Was war falsch:** Ratgeber 1, Seite 10, Kasten „Gut zu wissen": „Ganz blickdicht wird das Terrassendach TDS mit verzinktem Trapezblech." Dazu Tabelle Seite 8, Seite 23 und Seite 31. Betreiber: „Bei TDS und Skyview gibt es kein Trapezblech. Das Trapezblech gibt es nur beim Carport Flatline … solche Fehlinformationen können mich später teuer kosten." Quelle war unsere Produktseite `src/produkte/terrassenueberdachung.njk` (Zeile 214 und 392), die es wiederum von der VD-Seite /produkt/terrassenueberdachung/ und dem VD-Katalog hat. Der Faktenprüfer stufte die eigene Seite **vor** VD ein und prüfte nicht gegen den Betreiber.
+
+**Was jetzt gilt:** Rangfolge VD-Seite, dann Recherche und eigene Seite, dann Internet (CLAUDE.md, `.claude/agents/ratgeber-faktenpruefer.md`). Abweichungen des Betreibers von VD werden gemeldet, er entscheidet. Entschieden am 27.11.2026: kein Trapezblech bei TDS und SkyView; Eindeckungsvarianten 8/10 mm und Tönungen bleiben. Trapezblech in Ratgeber 1 und auf `terrassenueberdachung.njk` gestrichen.
+
+**Offen beim Betreiber:** `broschuere.html` / `src/_data/katalogtext.json` geben den VD-Katalog wieder und nennen beim TDS „Auf Wunsch auch mit verzinktem Trapezblech" (Herstellertext, nicht ohne Ja geändert). Fahrradüberdachung und Gartenhaus nennen Trapezblech als Eindeckung, bitte bestätigen.

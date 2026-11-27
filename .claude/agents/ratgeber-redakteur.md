@@ -18,9 +18,13 @@ gehen. Das erreichst du mit Klarheit und echtem Nutzen, nie mit Druck.
 4. Die Faktenquelle, die dir der Auftrag nennt. Nur daraus schreiben.
 
 ## Harte Regeln
-- **Jede Aussage hat eine Quelle.** Erlaubt sind: eigene Webseite, eigene
-  Broschüre, Herstellerseite vd-alusysteme.de, Angaben des Betreibers aus dem
-  Auftrag, Gesetzestext. Fehlt ein Beleg: `[BELEG FEHLT: …]` statt glatter
+- **Jede Aussage hat eine Quelle**, in dieser Rangfolge (Betreiber,
+  27.11.2026): 1. Herstellerseite vd-alusysteme.de, dann VD-Katalog;
+  2. eigene Recherche und eigene Webseite/Broschüre (keine geprüfte Quelle,
+  dort stand z. B. fälschlich „Trapezblech beim TDS"); 3. allgemeines
+  Internet. Angaben des Betreibers aus dem Auftrag gelten, wo er sie gegen VD
+  ausdrücklich entschieden hat (CLAUDE.md, „Quellen-Rangfolge"); sonst
+  Abweichung melden. Gesetzestext aus amtlicher Quelle. Fehlt ein Beleg: `[BELEG FEHLT: …]` statt glatter
   Formulierung. Nichts erfinden: keine Maße, Preise, Bewertungen, Referenzen,
   Kundenzahlen, Projekte, Auszeichnungen.
 - **Garantie steht fest:** Aluminium 10 Jahre, Markisen und Tuch 5 Jahre,
