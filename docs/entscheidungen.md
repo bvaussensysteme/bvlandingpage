@@ -24666,3 +24666,16 @@ Server lief). Offen beim Betreiber, wenn er am Rechner ist: Brevo-Konto,
 Schlüssel als Worker-Secret, Ja zu den DNS-Einträgen. Nicht angefasst:
 Widerrufsformular (Rechtstext), Datenschutzerklärung (für den Anwalt
 vorbereiten).
+
+**27.11.2026 · Lamaxa L50 raus.** Ansage des Betreibers: „Lamaxa raus"
+(nach der Frage, ob Lamaxa aus Ratgeber und Webseite soll). Passt zur
+Entscheidung vom 22.11.2026 („Wir haben nur Sun Pro One und Sun Pro
+Plus"). Entfernt aus `src/produkte/pergola.njk` (zwei Produktkarten,
+Vergleichstabelle, Datenblock), `pergola-kaufen-ratgeber.njk`,
+`index.html` (Datenblock), drei Pergola-Ortsseiten, `llms.txt`,
+`llms-full.txt`. Noch NICHT: Auswahl „Premium (Lamaxa L50)" im
+Anfrage-Assistenten und Konfigurator (Rückfrage an den Betreiber, was
+dort stehen soll) und die zwei Bilddateien `vd_prod_lamaxa_*` (Löschen nur
+mit Ja). Drehwinkel geprüft: VD-Produktseiten nennen SunPro (Plus) 135°,
+SunPro One 110°; die Webseite stimmt, der Katalog (110° für beide) ist
+überholt.
