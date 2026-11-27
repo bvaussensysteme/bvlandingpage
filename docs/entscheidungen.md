@@ -24704,3 +24704,9 @@ Hersteller müssen die Lamellen im Winter offen bleiben."
 **Was jetzt gilt:** Rangfolge VD-Seite, dann Recherche und eigene Seite, dann Internet (CLAUDE.md, `.claude/agents/ratgeber-faktenpruefer.md`). Abweichungen des Betreibers von VD werden gemeldet, er entscheidet. Entschieden am 27.11.2026: kein Trapezblech bei TDS und SkyView; Eindeckungsvarianten 8/10 mm und Tönungen bleiben. Trapezblech in Ratgeber 1 und auf `terrassenueberdachung.njk` gestrichen.
 
 **Offen beim Betreiber:** `broschuere.html` / `src/_data/katalogtext.json` geben den VD-Katalog wieder und nennen beim TDS „Auf Wunsch auch mit verzinktem Trapezblech" (Herstellertext, nicht ohne Ja geändert). Fahrradüberdachung und Gartenhaus nennen Trapezblech als Eindeckung, bitte bestätigen.
+
+## 27.11.2026 · Angebotsbedingungen: Anzahlung ohne pauschale Prozentzahl
+
+**Was gilt:** Die Anzahlung hängt vom Auftragswert und vom Auftrag ab. Betreiber: „bei der Anzahlung, die Prozentzahl ist immer anders … Deswegen ist er keine pauschale Prozentzahl." Auf der Webseite und in den Ratgebern wird deshalb **nie** eine Anzahlungsquote genannt. Ablauf laut Angebot: Anzahlung bei Auftragserteilung mit eigener Anzahlungsrechnung, Materialbestellung erst nach Zahlungseingang, Rest innerhalb von 14 Tagen nach Lieferung und Montage. Nicht im Angebot: Erdaushubmitnahme, Elektro- und Elektroanschlussarbeiten (zertifizierter Elektriker), Demontagearbeiten, Stein-, Pflaster- oder Holzausschnitte.
+
+**Umgesetzt:** Ratgeber 1 bis 3, Tabelle „Was dazugehört": neue Zeile „Abbau eines alten Dachs: nicht bei uns". Die übrigen Ausschlüsse standen schon drin. Keine Prozentzahl in den Heften (geprüft per Textsuche).
