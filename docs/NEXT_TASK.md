@@ -70,6 +70,11 @@ Häkchen 24 px, Datenschutz-Link 2,09:1, Modellbilder-Prüfung auf Carport
 umgestellt, Bewertungsband (Querscrollen 1141 px). Nach den Bewertungen:
 Darstellung 144/144, Mitwachsend 91/91, Wirkung 114/114.
 
+### Konfigurator-Neubau als Baukasten (Entwurf 28.11.2026)
+Plan in `docs/konfigurator-baukasten-plan.md`: echte Profil-Querschnitte →
+Einzelteile → Bauplan → eine Stückliste für 3D, Maße, PDF und CRM-Preise.
+Wartet auf Antworten des Betreibers (Ablageort, three.js-Version, Agenten).
+
 ### Konfigurator-Aufwertung (Plan 28.11.2026, wartet auf Freigabe)
 Vergleich mit einem fremden Konfigurator (Quelle nur im Chat, nicht im
 Repo). Pakete: 0 gemessene Fehler (Kontrast „Wo soll es stehen?" 3,77:1,
