@@ -79,7 +79,11 @@ Helligkeitswechsel, Belichtung, Haus mit Fenstern/Dach/Hecke); 2 Abend warm,
 LED als Licht; 3 Bedienfeld (Schritte oben fest, Weiter unten fest, nur
 aktueller Schritt, Tablet zweispaltig, Regler + Zahlfeld, Infokopf
 zweizeilig, Gold nur Hauptaktion); 4 Präsentation/Drehen; 5 L-/U-Form;
-6 interne VD-Preise über das CRM. Erst in der Werkstatt, three.js r128
+6 interne VD-Preise über das CRM. Nachtrag nach vollständigem
+Durchklick-Test (865 Elemente, 0 Programmfehler bei beiden): Paket 0 auch
+Abendmodus-Titel dunkel auf Dunkel; Paket 3 ein Anfrage-Knopf statt drei;
+neu „Auswahl am Bauteil" (Plus-Punkt öffnet Wahl direkt im 3D); L/U und
+Preise rücken nach hinten. Erst in der Werkstatt, three.js r128
 bleibt (Update-Risiko hoch). Ziel Handy: wenig Zeichenaufrufe, echt messen.
 
 ### Als Nächstes (Vorschlag)
