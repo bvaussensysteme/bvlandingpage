@@ -70,6 +70,18 @@ Häkchen 24 px, Datenschutz-Link 2,09:1, Modellbilder-Prüfung auf Carport
 umgestellt, Bewertungsband (Querscrollen 1141 px). Nach den Bewertungen:
 Darstellung 144/144, Mitwachsend 91/91, Wirkung 114/114.
 
+### Konfigurator-Aufwertung (Plan 28.11.2026, wartet auf Freigabe)
+Vergleich mit einem fremden Konfigurator (Quelle nur im Chat, nicht im
+Repo). Pakete: 0 gemessene Fehler (Kontrast „Wo soll es stehen?" 3,77:1,
+Marke „Testbetrieb" 2,19:1, 5 Knöpfe 18 px breit, Fußlinks 14 px hoch);
+1 Szene Tag (Wolkenhimmel als Kugel + Umgebungslicht, Rasen mit
+Helligkeitswechsel, Belichtung, Haus mit Fenstern/Dach/Hecke); 2 Abend warm,
+LED als Licht; 3 Bedienfeld (Schritte oben fest, Weiter unten fest, nur
+aktueller Schritt, Tablet zweispaltig, Regler + Zahlfeld, Infokopf
+zweizeilig, Gold nur Hauptaktion); 4 Präsentation/Drehen; 5 L-/U-Form;
+6 interne VD-Preise über das CRM. Erst in der Werkstatt, three.js r128
+bleibt (Update-Risiko hoch). Ziel Handy: wenig Zeichenaufrufe, echt messen.
+
 ### Als Nächstes (Vorschlag)
 1. Betreiberantworten zu den Heften einarbeiten, Hefte neu setzen, nach
    `bv-marketing` nachziehen.
